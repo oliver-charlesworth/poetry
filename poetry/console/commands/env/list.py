@@ -13,7 +13,7 @@ class EnvListCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        manager = EnvManager(self.poetry)
+        manager = EnvManager(self.poetry, self._io)
         current_env = manager.get()
 
         for venv in manager.list():

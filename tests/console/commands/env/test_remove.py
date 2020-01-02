@@ -1,6 +1,7 @@
 import pytest
 
 from cleo.testers import CommandTester
+from clikit.io import NullIO
 
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvManager
@@ -11,7 +12,7 @@ from .test_use import check_output_wrapper
 
 @pytest.fixture()
 def manager(poetry):
-    return EnvManager(poetry)
+    return EnvManager(poetry, NullIO())
 
 
 def test_remove_by_python_version(app, manager, tmp_dir, mocker):

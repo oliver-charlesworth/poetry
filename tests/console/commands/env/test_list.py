@@ -2,6 +2,7 @@ import pytest
 import tomlkit
 
 from cleo.testers import CommandTester
+from clikit.io import NullIO
 
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvManager
@@ -10,7 +11,7 @@ from poetry.utils.toml_file import TomlFile
 
 @pytest.fixture()
 def manager(poetry):
-    return EnvManager(poetry)
+    return EnvManager(poetry, NullIO())
 
 
 def test_none_activated(app, manager, tmp_dir):

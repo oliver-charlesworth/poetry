@@ -6,6 +6,7 @@ import pytest
 import tomlkit
 
 from cleo.testers import CommandTester
+from clikit.io import NullIO
 
 from poetry.semver import Version
 from poetry.utils._compat import Path
@@ -19,7 +20,7 @@ CWD = Path(__file__).parent.parent / "fixtures" / "simple_project"
 
 @pytest.fixture()
 def manager(poetry):
-    return EnvManager(poetry)
+    return EnvManager(poetry, NullIO())
 
 
 def build_venv(path, executable=None):

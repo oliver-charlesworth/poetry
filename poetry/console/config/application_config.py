@@ -84,8 +84,8 @@ class ApplicationConfig(BaseApplicationConfig):
         io = event.io
         poetry = command.poetry
 
-        env_manager = EnvManager(poetry)
-        env_manager.create_venv(io)
+        env_manager = EnvManager(poetry, io)
+        env_manager.create_venv()
         env = env_manager.get()
 
         if env.is_venv() and io.is_verbose():

@@ -125,7 +125,7 @@ class EnvError(Exception):
 
 
 class EnvCommandError(EnvError):
-    def __init__(self, e, input=None):  # type: (CalledProcessError) -> None
+    def __init__(self, e, input=None):  # type: (CalledProcessError, str) -> None
         self.e = e
 
         message = "Command {} errored with the following return code {}, and output: \n{}".format(
@@ -165,27 +165,28 @@ class EnvManager(object):
 
     ENVS_FILE = "envs.toml"
 
-    def __init__(self, poetry):  # type: (Poetry) -> None
+    def __init__(self, poetry, io):  # type: (Poetry, IO) -> None
         self._poetry = poetry
+        self._io = io
 
-    def activate(self, executable_or_version, io):  # type: (str, IO) -> Env
+    def activate(self, executable_or_version):  # type: (str) -> Env
         python_exec = self._exec_or_version_to_exec(executable_or_version)
 
         if self._root_venv:
-            self._activate_root(python_exec, io)
+            self._activate_root(python_exec)
         else:
-            self._activate_non_root(python_exec, io)
+            self._activate_non_root(python_exec)
 
         return self.get()
 
-    def _activate_root(self, python_exec, io):  # type: (str, IO) -> None
+    def _activate_root(self, python_exec):  # type: (str) -> None
         version = self._python_version(python_exec)
         recreate = self._root_venv_path.exists() and version != self._version_from_info(
             VirtualEnv(self._root_venv_path).version_info
         )
-        self.create_venv(io, executable=python_exec, force_recreate=recreate)
+        self.create_venv(executable=python_exec, force_recreate=recreate)
 
-    def _activate_non_root(self, python_exec, io):  # type: (str, IO) -> None
+    def _activate_non_root(self, python_exec):  # type: (str) -> None
         version = self._python_version(python_exec)
         active_version = self._read_active_version()
         recreate = (
@@ -194,14 +195,14 @@ class EnvManager(object):
             and not self._same_patch(active_version, version)
         )
         if not self._venv_path(version).exists() or recreate:
-            self.create_venv(io, executable=python_exec, force_recreate=True)
+            self.create_venv(executable=python_exec, force_recreate=True)
 
         self._write_active_version(version)
 
-    def deactivate(self, io):  # type: (IO) -> None
+    def deactivate(self):  # type: () -> None
         active_version = self._read_active_version()
         if active_version:
-            io.write_line(
+            self._io.write_line(
                 "Deactivating virtualenv: <comment>{}</comment>".format(
                     self._venv_path(active_version)
                 )
@@ -284,8 +285,8 @@ class EnvManager(object):
         return VirtualEnv(venv_path), version
 
     def create_venv(
-        self, io, executable=None, force_recreate=False
-    ):  # type: (IO, Optional[str], bool) -> None
+        self, executable=None, force_recreate=False
+    ):  # type: (Optional[str], bool) -> None
         if self._env is not None and not force_recreate:
             return self._env
 
@@ -294,7 +295,7 @@ class EnvManager(object):
             # Already inside a virtualenv.
             return
 
-        executable, version = self._select_python_executable(io, executable)
+        executable, version = self._select_python_executable(executable)
 
         if self._root_venv:
             venv_path = self._root_venv_path
@@ -303,26 +304,26 @@ class EnvManager(object):
 
         if venv_path.exists():
             if force_recreate:
-                io.write_line(
+                self._io.write_line(
                     "Recreating virtualenv <c1>{}</> in {}".format(
                         venv_path.name, str(venv_path)
                     )
                 )
                 self.remove_venv(str(venv_path))
-            elif io.is_very_verbose():
-                io.write_line(
+            elif self._io.is_very_verbose():
+                self._io.write_line(
                     "Virtualenv <c1>{}</> already exists.".format(venv_path.name)
                 )
                 return
         else:
             if self._create_venv:
-                io.write_line(
+                self._io.write_line(
                     "Creating virtualenv <c1>{}</> in {}".format(
                         venv_path.name, str(venv_path)
                     )
                 )
             else:
-                io.write_line(
+                self._io.write_line(
                     "<fg=black;bg=yellow>"
                     "Skipping virtualenv creation, "
                     "as specified in config file."
@@ -333,8 +334,8 @@ class EnvManager(object):
         self.build_venv(str(venv_path), executable=executable)
 
     def _select_python_executable(
-        self, io, executable
-    ):  # type (IO, Optional[str]) -> (Optional[str], Version)
+        self, executable
+    ):  # type (Optional[str]) -> (Optional[str], Version)
         constraint = self._poetry.package.python_constraint
         if executable:
             version = self._python_version(executable)
@@ -347,7 +348,7 @@ class EnvManager(object):
             version = self._version_from_info()
 
             if not constraint.allows(version):
-                io.write_line(
+                self._io.write_line(
                     "<warning>The currently activated Python version {} "
                     "is not supported by the project ({}).\n"
                     "Trying to find and use a compatible version.</warning> ".format(
@@ -355,7 +356,7 @@ class EnvManager(object):
                     )
                 )
 
-                executable, version = self._find_compatible_python(io, constraint)
+                executable, version = self._find_compatible_python(constraint)
 
                 if not executable:
                     raise NoCompatiblePythonVersionFound(
@@ -365,8 +366,8 @@ class EnvManager(object):
         return executable, version
 
     def _find_compatible_python(
-        self, io, constraint
-    ):  # type: (IO, VersionConstraint) -> (str, Version)
+        self, constraint
+    ):  # type: (VersionConstraint) -> (str, Version)
         for python_to_try in reversed(
             sorted(
                 self._poetry.package.AVAILABLE_PYTHONS,
@@ -383,8 +384,8 @@ class EnvManager(object):
 
             executable = "python" + python_to_try
 
-            if io.is_debug():
-                io.write_line("<debug>Trying {}</debug>".format(executable))
+            if self._io.is_debug():
+                self._io.write_line("<debug>Trying {}</debug>".format(executable))
 
             try:
                 version = self._python_version(executable)
@@ -392,7 +393,7 @@ class EnvManager(object):
                 continue
 
             if constraint.allows(version):
-                io.write_line("Using <c1>{}</c1> ({})".format(executable, version))
+                self._io.write_line("Using <c1>{}</c1> ({})".format(executable, version))
                 return executable, version
 
         return None, None
