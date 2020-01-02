@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from typing import Dict
+
 from .__version__ import __version__
 from .config.config import Config
 from .packages import Locker
@@ -20,13 +22,15 @@ class Poetry:
         local_config,  # type: dict
         package,  # type: ProjectPackage
         locker,  # type: Locker
-        config,  # type: Config
+        config,  # type: Config,
+        env,  # type: Dict[str, str]
     ):
         self._file = TomlFile(file)
         self._package = package
         self._local_config = local_config
         self._locker = locker
         self._config = config
+        self._env = env
         self._pool = Pool()
 
     @property
@@ -52,6 +56,12 @@ class Poetry:
     @property
     def config(self):  # type: () -> Config
         return self._config
+
+    @property
+    def env(self):  # type: () -> Dict[str, str]
+        return self._env
+
+    # TODO - can we get rid of these setters?
 
     def set_locker(self, locker):  # type: (Locker) -> Poetry
         self._locker = locker

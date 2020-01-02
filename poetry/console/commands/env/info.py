@@ -15,7 +15,7 @@ class EnvInfoCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        env = EnvManager(self.poetry, env=os.environ).get()
+        env = EnvManager(self.poetry).get()
 
         if self.option("path"):
             if not env.is_venv():

@@ -15,7 +15,7 @@ class EnvUseCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        manager = EnvManager(self.poetry, env=os.environ)
+        manager = EnvManager(self.poetry)
 
         if self.argument("python") == "system":
             manager.deactivate(self._io)

@@ -106,7 +106,7 @@ class DebugResolveCommand(InitCommand):
         rows = []
 
         if self.option("install"):
-            env = EnvManager(self.poetry, env=os.environ).get()
+            env = EnvManager(self.poetry).get()
             current_python_version = ".".join(str(v) for v in env.version_info)
             pool = Pool()
             locked_repository = Repository()

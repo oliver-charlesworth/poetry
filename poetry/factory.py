@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import os
 import shutil
 
 from typing import Dict
@@ -162,7 +163,14 @@ class Factory:
 
             config.merge(local_config_file.read())
 
-        poetry = Poetry(poetry_file, local_config, package, locker, config)
+        poetry = Poetry(
+            file=poetry_file,
+            local_config=local_config,
+            package=package,
+            locker=locker,
+            config=config,
+            env=os.environ,
+        )
 
         # Configuring sources
         for source in local_config.get("source", []):

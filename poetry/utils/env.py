@@ -163,9 +163,9 @@ class EnvManager(object):
 
     ENVS_FILE = "envs.toml"
 
-    def __init__(self, poetry, env):  # type: (Poetry, Dict[str,str]) -> None
+    def __init__(self, poetry):  # type: (Poetry) -> None
         self._poetry = poetry
-        self._environ = env
+        self._environ = poetry.env
 
     def activate(self, python, io):  # type: (str, IO) -> Env
         venv_path = self._poetry.config.get("virtualenvs.path")
