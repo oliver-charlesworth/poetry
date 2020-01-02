@@ -200,32 +200,32 @@ class EnvManager(object):
             self._delete_active_version()
 
     def get(self):  # type: () -> Env
-        # Check if we are inside a virtualenv or not
-        # Conda sets CONDA_PREFIX in its envs, see
-        # https://github.com/conda/conda/issues/2764
-        env_prefix = os.environ.get("VIRTUAL_ENV", os.environ.get("CONDA_PREFIX"))
-        conda_env_name = os.environ.get("CONDA_DEFAULT_ENV")
-        # It's probably not a good idea to pollute Conda's global "base" env, since
-        # most users have it activated all the time.
-        in_venv = env_prefix is not None and conda_env_name != "base"
         active_version = self._read_active_version()
 
-        if not in_venv or active_version:
-            venv_path = self._root_venv_path
-            if venv_path.exists() and venv_path.is_dir():
-                return VirtualEnv(venv_path)
+        # Conda sets CONDA_PREFIX in its envs, see https://github.com/conda/conda/issues/2764.
+        env_prefix = os.environ.get("VIRTUAL_ENV", os.environ.get("CONDA_PREFIX"))
+        # We manage an existing virtualenv or Conda env if we're already running in it.
+        # Though we don't pollute Conda's global "base" env, and we give an explicitly activated
+        # Poetry venv priority.
+        use_external_venv = (
+            not active_version
+            and env_prefix is not None
+            and os.environ.get("CONDA_DEFAULT_ENV") != "base"
+        )
 
-            elif self._create_venv:
-                venv_path = self._venv_path(active_version or self._version_from_info())
-                if venv_path.exists():
-                    return VirtualEnv(venv_path)
-
-            return SystemEnv(Path(sys.prefix))
-
-        if env_prefix is not None:
+        if use_external_venv:
             return VirtualEnv(Path(env_prefix))
-        else:
-            return VirtualEnv(Path(sys.prefix), self.get_base_prefix())
+
+        # TODO - this should be based on whether self._root_venv is true, no?
+        venv_path = self._root_venv_path
+        if venv_path.exists() and venv_path.is_dir():
+            return VirtualEnv(venv_path)
+
+        venv_path = self._venv_path(active_version or self._version_from_info())
+        if self._create_venv and venv_path.exists():
+            return VirtualEnv(venv_path)
+
+        return SystemEnv(Path(sys.prefix))
 
     def list(self):  # type: () -> List[VirtualEnv]
         venv_name = self.generate_env_name()
