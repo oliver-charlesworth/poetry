@@ -42,7 +42,9 @@ def check_output_wrapper(version=Version.parse("3.7.1")):
     return check_output
 
 
-def test_activate_activates_non_existing_virtualenv_no_envs_file(app, manager, tmp_dir, mocker):
+def test_activate_activates_non_existing_virtualenv_no_envs_file(
+    app, manager, tmp_dir, mocker
+):
     if "VIRTUAL_ENV" in os.environ:
         del os.environ["VIRTUAL_ENV"]
 

@@ -22,7 +22,8 @@ from clikit.api.io import IO
 
 from poetry.locations import CACHE_DIR
 from poetry.poetry import Poetry
-from poetry.semver import parse_constraint, VersionConstraint
+from poetry.semver import VersionConstraint
+from poetry.semver import parse_constraint
 from poetry.semver.version import Version
 from poetry.utils._compat import CalledProcessError
 from poetry.utils._compat import Path
@@ -179,13 +180,19 @@ class EnvManager(object):
 
     def _activate_root(self, python_exec, io):  # type: (str, IO) -> None
         version = self._python_version(python_exec)
-        recreate = self._root_venv_path.exists() and version != self._version_from_info(VirtualEnv(self._root_venv_path).version_info)
+        recreate = self._root_venv_path.exists() and version != self._version_from_info(
+            VirtualEnv(self._root_venv_path).version_info
+        )
         self.create_venv(io, executable=python_exec, force_recreate=recreate)
 
     def _activate_non_root(self, python_exec, io):  # type: (str, IO) -> Env
         version = self._python_version(python_exec)
         active_version = self._read_active_version()
-        recreate = active_version and self._same_minor(active_version, version) and not self._same_patch(active_version, version)
+        recreate = (
+            active_version
+            and self._same_minor(active_version, version)
+            and not self._same_patch(active_version, version)
+        )
         if not self._venv_path(version).exists() or recreate:
             self.create_venv(io, executable=python_exec, force_recreate=True)
 
@@ -195,7 +202,9 @@ class EnvManager(object):
         active_version = self._read_active_version()
         if active_version:
             io.write_line(
-                "Deactivating virtualenv: <comment>{}</comment>".format(self._venv_path(active_version))
+                "Deactivating virtualenv: <comment>{}</comment>".format(
+                    self._venv_path(active_version)
+                )
             )
             self._delete_active_version()
 
@@ -207,13 +216,11 @@ class EnvManager(object):
         # We manage an existing virtualenv or Conda env if we're already running in it.
         # Though we don't pollute Conda's global "base" env, and we give an explicitly activated
         # Poetry venv priority.
-        use_external_venv = (
+        if (
             not active_version
             and env_prefix is not None
             and os.environ.get("CONDA_DEFAULT_ENV") != "base"
-        )
-
-        if use_external_venv:
+        ):
             return VirtualEnv(Path(env_prefix))
 
         # TODO - this should be based on whether self._root_venv is true, no?
@@ -240,7 +247,9 @@ class EnvManager(object):
         if env_name_or_executable_or_version.startswith(self.generate_env_name()):
             venv, version = self._find_venv_by_name(env_name_or_executable_or_version)
         else:
-            venv, version = self._find_venv_by_executable_or_version(env_name_or_executable_or_version)
+            venv, version = self._find_venv_by_executable_or_version(
+                env_name_or_executable_or_version
+            )
 
         active_version = self._read_active_version()
         if active_version and self._same_minor(active_version, version):
@@ -258,14 +267,18 @@ class EnvManager(object):
             '<warning>Environment "{}" does not exist.</warning>'.format(env_name)
         )
 
-    def _find_venv_by_executable_or_version(self, executable_or_version):  # type: (str) -> (Env, Version)
+    def _find_venv_by_executable_or_version(
+        self, executable_or_version
+    ):  # type: (str) -> (Env, Version)
         executable = self._exec_or_version_to_exec(executable_or_version)
         version = self._python_version(executable)
         venv_path = self._venv_path(version)
 
         if not venv_path.exists():
             raise ValueError(
-                '<warning>Environment "{}" does not exist.</warning>'.format(venv_path.name)
+                '<warning>Environment "{}" does not exist.</warning>'.format(
+                    venv_path.name
+                )
             )
 
         return VirtualEnv(venv_path), version
@@ -300,23 +313,31 @@ class EnvManager(object):
                 return SystemEnv(Path(sys.prefix))
 
             io.write_line(
-                "Creating virtualenv <c1>{}</> in {}".format(venv_path.name, str(venv_path))
+                "Creating virtualenv <c1>{}</> in {}".format(
+                    venv_path.name, str(venv_path)
+                )
             )
 
             self.build_venv(str(venv_path), executable=executable)
         else:
             if force_recreate:
                 io.write_line(
-                    "Recreating virtualenv <c1>{}</> in {}".format(venv_path.name, str(venv_path))
+                    "Recreating virtualenv <c1>{}</> in {}".format(
+                        venv_path.name, str(venv_path)
+                    )
                 )
                 self.remove_venv(str(venv_path))
                 self.build_venv(str(venv_path), executable=executable)
             elif io.is_very_verbose():
-                io.write_line("Virtualenv <c1>{}</> already exists.".format(venv_path.name))
+                io.write_line(
+                    "Virtualenv <c1>{}</> already exists.".format(venv_path.name)
+                )
 
         return self.get()
 
-    def _select_python_executable(self, io, executable):  # type (IO, Optional[str]) -> (Optional[str], Version)
+    def _select_python_executable(
+        self, io, executable
+    ):  # type (IO, Optional[str]) -> (Optional[str], Version)
         constraint = self._poetry.package.python_constraint
         if executable:
             version = self._python_version(executable)
@@ -346,15 +367,19 @@ class EnvManager(object):
 
         return executable, version
 
-    def _find_compatible_python(self, io, constraint):  # type: (IO, VersionConstraint) -> (str, Version)
+    def _find_compatible_python(
+        self, io, constraint
+    ):  # type: (IO, VersionConstraint) -> (str, Version)
         for python_to_try in reversed(
-                sorted(
-                    self._poetry.package.AVAILABLE_PYTHONS,
-                    key=lambda v: (v.startswith("3"), -len(v), v),
-                )
+            sorted(
+                self._poetry.package.AVAILABLE_PYTHONS,
+                key=lambda v: (v.startswith("3"), -len(v), v),
+            )
         ):
             if len(python_to_try) == 1:
-                if not parse_constraint("^{}.0".format(python_to_try)).allows_any(constraint):
+                if not parse_constraint("^{}.0".format(python_to_try)).allows_any(
+                    constraint
+                ):
                     continue
             elif not constraint.allows_all(parse_constraint(python_to_try + ".*")):
                 continue
@@ -418,12 +443,16 @@ class EnvManager(object):
         return sys.prefix
 
     def _venv_path(self, version):  # type: (Version) -> Path
-        name = "{}-py{}.{}".format(self.generate_env_name(), version.major, version.minor)
+        name = "{}-py{}.{}".format(
+            self.generate_env_name(), version.major, version.minor
+        )
         return self._venvs_path / name
 
     # TODO - should cache this, as we call it a lot?
     def generate_env_name(self):  # type: () -> str
-        sanitized_name = re.sub(r'[ $`!*@"\\\r\n\t]', "_", self._poetry.package.name.lower())[:42]
+        sanitized_name = re.sub(
+            r'[ $`!*@"\\\r\n\t]', "_", self._poetry.package.name.lower()
+        )[:42]
         h = hashlib.sha256(encode(str(self._poetry.file.parent))).digest()
         h = base64.urlsafe_b64encode(h).decode()[:8]
 
@@ -448,8 +477,10 @@ class EnvManager(object):
         name = self.generate_env_name()
         records = self._read_envs_file()
         records[name] = {
-            "minor": "{}.{}".format(version.major, version.minor),  # TODO - can we eliminate this?
-            "patch": "{}.{}.{}".format(version.major, version.minor, version.patch)
+            "minor": "{}.{}".format(
+                version.major, version.minor
+            ),  # TODO - can we eliminate this?
+            "patch": "{}.{}.{}".format(version.major, version.minor, version.patch),
         }
         self._envs_file.write(records)
 
@@ -463,29 +494,21 @@ class EnvManager(object):
     @classmethod
     def _python_version(cls, executable):  # type: (str) -> Version
         try:
-            return Version.parse(decode(
-                subprocess.check_output(
-                    list_to_shell_command(
-                        [
-                            executable,
-                            "-c",
-                            GET_PYTHON_VERSION,
-                        ]
-                    ),
-                    shell=True,
-                )
-            ).strip())
+            return Version.parse(
+                decode(
+                    subprocess.check_output(
+                        list_to_shell_command([executable, "-c", GET_PYTHON_VERSION,]),
+                        shell=True,
+                    )
+                ).strip()
+            )
         except CalledProcessError as e:
             raise EnvCommandError(e)
 
     @classmethod
     def _version_from_info(cls, info=None):  # type: (Optional[Tuple[int]]) -> Version
         info = info or sys.version_info
-        return Version(
-            major=info[0],
-            minor=info[1],
-            patch=info[2]
-        )
+        return Version(major=info[0], minor=info[1], patch=info[2])
 
     @classmethod
     def _same_minor(cls, a, b):  # type: (Version, Version) -> bool
