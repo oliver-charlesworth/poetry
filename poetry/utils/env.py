@@ -393,7 +393,9 @@ class EnvManager(object):
                 continue
 
             if constraint.allows(version):
-                self._io.write_line("Using <c1>{}</c1> ({})".format(executable, version))
+                self._io.write_line(
+                    "Using <c1>{}</c1> ({})".format(executable, version)
+                )
                 return executable, version
 
         return None, None
@@ -475,9 +477,8 @@ class EnvManager(object):
         name = self.generate_env_name()
         records = self._read_envs_file()
         records[name] = {
-            "minor": "{}.{}".format(
-                version.major, version.minor
-            ),  # TODO - can we eliminate this?
+            # TODO - can we eliminate minor?
+            "minor": "{}.{}".format(version.major, version.minor),
             "patch": "{}.{}.{}".format(version.major, version.minor, version.patch),
         }
         self._envs_file.write(records)
