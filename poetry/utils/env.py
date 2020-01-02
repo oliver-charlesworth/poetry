@@ -216,7 +216,7 @@ class EnvManager(object):
             venv = self._poetry.file.parent / ".venv"
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv)
+                _venv = VirtualEnv(venv, env=self._environ)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -250,7 +250,7 @@ class EnvManager(object):
 
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv)
+                _venv = VirtualEnv(venv, env=self._environ)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -324,12 +324,12 @@ class EnvManager(object):
             if (cwd / ".venv").exists() and (cwd / ".venv").is_dir():
                 venv = cwd / ".venv"
 
-                return VirtualEnv(venv)
+                return VirtualEnv(venv, env=self._environ)
 
             create_venv = self._poetry.config.get("virtualenvs.create", True)
 
             if not create_venv:
-                return SystemEnv(Path(sys.prefix))
+                return SystemEnv(Path(sys.prefix), env=self._environ)
 
             venv_path = self._poetry.config.get("virtualenvs.path")
             if venv_path is None:
@@ -342,9 +342,9 @@ class EnvManager(object):
             venv = venv_path / name
 
             if not venv.exists():
-                return SystemEnv(Path(sys.prefix))
+                return SystemEnv(Path(sys.prefix), env=self._environ)
 
-            return VirtualEnv(venv)
+            return VirtualEnv(venv, env=self._environ)
 
         if env_prefix is not None:
             prefix = Path(env_prefix)
@@ -353,7 +353,7 @@ class EnvManager(object):
             prefix = Path(sys.prefix)
             base_prefix = self.get_base_prefix()
 
-        return VirtualEnv(prefix, base_prefix)
+        return VirtualEnv(prefix, base=base_prefix, env=self._environ)
 
     def list(self, name=None):  # type: (Optional[str]) -> List[VirtualEnv]
         if name is None:
@@ -368,7 +368,7 @@ class EnvManager(object):
             venv_path = Path(venv_path)
 
         return [
-            VirtualEnv(Path(p), self._environ)
+            VirtualEnv(Path(p), env=self._environ)
             for p in sorted(venv_path.glob("{}-py*".format(venv_name)))
         ]
 
@@ -628,9 +628,9 @@ class EnvManager(object):
         p_venv = os.path.normcase(str(venv))
         if any(p.startswith(p_venv) for p in paths):
             # Running properly in the virtualenv, don't need to do anything
-            return SystemEnv(Path(sys.prefix), self.get_base_prefix())
+            return SystemEnv(Path(sys.prefix), base=self.get_base_prefix(), env=self._environ)
 
-        return VirtualEnv(venv)
+        return VirtualEnv(venv, env=self._environ)
 
     @classmethod
     def build_venv(cls, path, executable=None):
