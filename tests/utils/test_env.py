@@ -52,7 +52,7 @@ def tmp_venv(tmp_dir, manager):
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path)
+    venv = VirtualEnv(venv_path, env=os.environ)
     yield venv
 
     shutil.rmtree(str(venv.path))
@@ -63,7 +63,7 @@ def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_dir, manager
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path)
+    venv = VirtualEnv(venv_path, env=os.environ)
 
     assert venv.run("python", "-V").startswith("Python")
 
@@ -786,7 +786,7 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_standard(t
 
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), Path(tmp_dir))
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=os.environ)
 
     assert site_packages == env.site_packages
 
@@ -795,6 +795,6 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_root(tmp_d
     site_packages = Path(tmp_dir).joinpath("site-packages")
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), Path(tmp_dir))
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=os.environ)
 
     assert site_packages == env.site_packages

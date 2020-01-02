@@ -165,6 +165,7 @@ class EnvManager(object):
 
     def __init__(self, poetry):  # type: (Poetry) -> None
         self._poetry = poetry
+        self._environ = os.environ  # TODO - inject
 
     def activate(self, python, io):  # type: (str, IO) -> Env
         venv_path = self._poetry.config.get("virtualenvs.path")
@@ -367,7 +368,7 @@ class EnvManager(object):
             venv_path = Path(venv_path)
 
         return [
-            VirtualEnv(Path(p))
+            VirtualEnv(Path(p), self._environ)
             for p in sorted(venv_path.glob("{}-py*".format(venv_name)))
         ]
 
@@ -462,7 +463,7 @@ class EnvManager(object):
 
         self.remove_venv(str(venv))
 
-        return VirtualEnv(venv)
+        return VirtualEnv(venv_path, env=self._environ)
 
     def create_venv(
         self, io, name=None, executable=None, force=False
@@ -965,8 +966,10 @@ class VirtualEnv(Env):
     A virtual Python environment.
     """
 
-    def __init__(self, path, base=None):  # type: (Path, Optional[Path]) -> None
+    def __init__(self, path, env, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(VirtualEnv, self).__init__(path, base)
+
+        self._original_env = env
 
         # If base is None, it probably means this is
         # a virtualenv created from VIRTUAL_ENV.
@@ -1033,8 +1036,7 @@ class VirtualEnv(Env):
         return os.path.exists(self._bin("python")) and os.path.exists(self._bin("pip"))
 
     def _env(self):  # type: () -> Dict[str, str]
-        # TODO - inject os.environ
-        e = dict(os.environ)  # Values should all be strings, so need for deepcopy
+        e = dict(self._original_env)
         e["PATH"] = os.pathsep.join([str(self._bin_dir), e["PATH"]])
         e["VIRTUAL_ENV"] = str(self._path)
         e.pop("PYTHONHOME", None)
