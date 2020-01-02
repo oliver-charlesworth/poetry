@@ -816,61 +816,48 @@ class Env(object):
         """
         return True
 
-    def run(self, bin, *args, **kwargs):
+    def run(self, bin, *args, input=None):
         bin = self._bin(bin)
         cmd = [bin] + list(args)
-        return self._run(cmd, **kwargs)
+        return self._run(cmd=cmd, input=input)
 
-    def run_pip(self, *args, **kwargs):
+    def run_pip(self, *args):
         pip = self.get_pip_command()
         cmd = pip + list(args)
-        return self._run(cmd, **kwargs)
+        return self._run(cmd, input=None)
 
-    def _run(self, cmd, **kwargs):
+    def _run(self, cmd, input):
         """
         Run a command inside the Python environment.
         """
-        shell = kwargs.get("shell", False)
-        call = kwargs.pop("call", False)
-        input_ = kwargs.pop("input_", None)
-
-        if shell:
-            cmd = list_to_shell_command(cmd)
+        cmd = list_to_shell_command(cmd)
         try:
-            if self._is_windows:
-                kwargs["shell"] = True
-
-            if input_:
+            if input:
                 output = subprocess.run(
                     cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
-                    input=encode(input_),
+                    input=encode(input),
                     check=True,
-                    **kwargs
+                    shell=True,
                 ).stdout
-            elif call:
-                return subprocess.call(cmd, stderr=subprocess.STDOUT, **kwargs)
             else:
                 output = subprocess.check_output(
-                    cmd, stderr=subprocess.STDOUT, **kwargs
+                    cmd, stderr=subprocess.STDOUT, shell=True,
                 )
         except CalledProcessError as e:
-            raise EnvCommandError(e, input=input_)
+            raise EnvCommandError(e)
 
         return decode(output)
 
-    def execute(self, bin, *args, **kwargs):
+    def execute(self, bin, *args):
         bin = self._bin(bin)
+        args = [bin] + list(args)
 
         if not self._is_windows:
-            args = [bin] + list(args)
-            if "env" in kwargs:
-                return os.execvpe(bin, args, kwargs["env"])
-            else:
-                return os.execvp(bin, args)
+            return os.execvp(bin, args)
         else:
-            exe = subprocess.Popen([bin] + list(args), **kwargs)
+            exe = subprocess.Popen(args)
             exe.communicate()
             return exe.returncode
 
@@ -985,16 +972,16 @@ class VirtualEnv(Env):
         # In this case we need to get sys.base_prefix
         # from inside the virtualenv.
         if base is None:
-            self._base = Path(self.run("python", "-", input_=GET_BASE_PREFIX).strip())
+            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX).strip())
 
     @property
     def sys_path(self):  # type: () -> List[str]
-        output = self.run("python", "-", input_=GET_SYS_PATH)
+        output = self.run("python", "-", input=GET_SYS_PATH)
 
         return json.loads(output)
 
     def get_version_info(self):  # type: () -> Tuple[int]
-        output = self.run("python", "-", input_=GET_PYTHON_VERSION)
+        output = self.run("python", "-", input=GET_PYTHON_VERSION)
 
         return tuple([int(s) for s in output.strip().split(".")])
 
@@ -1007,14 +994,14 @@ class VirtualEnv(Env):
         return [self._bin("pip")]
 
     def get_marker_env(self):  # type: () -> Dict[str, Any]
-        output = self.run("python", "-", input_=GET_ENVIRONMENT_INFO)
+        output = self.run("python", "-", input=GET_ENVIRONMENT_INFO)
 
         return json.loads(output)
 
     def config_var(self, var):  # type: (str) -> Any
         try:
             value = self.run(
-                "python", "-", input_=GET_CONFIG_VAR.format(config_var=var)
+                "python", "-", input=GET_CONFIG_VAR.format(config_var=var)
             ).strip()
         except EnvCommandError as e:
             warnings.warn("{0}".format(e), RuntimeWarning)
@@ -1044,7 +1031,7 @@ class VirtualEnv(Env):
         # A virtualenv is considered sane if both "python" and "pip" exist.
         return os.path.exists(self._bin("python")) and os.path.exists(self._bin("pip"))
 
-    def _run(self, cmd, **kwargs):
+    def _run(self, cmd, input=None):
         with self.temp_environ():
             os.environ["PATH"] = self._updated_path()
             os.environ["VIRTUAL_ENV"] = str(self._path)
@@ -1052,9 +1039,9 @@ class VirtualEnv(Env):
             self.unset_env("PYTHONHOME")
             self.unset_env("__PYVENV_LAUNCHER__")
 
-            return super(VirtualEnv, self)._run(cmd, **kwargs)
+            return super(VirtualEnv, self)._run(cmd, input)
 
-    def execute(self, bin, *args, **kwargs):
+    def execute(self, bin, *args):
         with self.temp_environ():
             os.environ["PATH"] = self._updated_path()
             os.environ["VIRTUAL_ENV"] = str(self._path)
@@ -1062,7 +1049,7 @@ class VirtualEnv(Env):
             self.unset_env("PYTHONHOME")
             self.unset_env("__PYVENV_LAUNCHER__")
 
-            return super(VirtualEnv, self).execute(bin, *args, **kwargs)
+            return super(VirtualEnv, self).execute(bin, *args)
 
     @contextmanager
     def temp_environ(self):
@@ -1091,17 +1078,17 @@ class NullEnv(SystemEnv):
         self._execute = execute
         self.executed = []
 
-    def _run(self, cmd, **kwargs):
+    def _run(self, cmd, input=None):
         self.executed.append(cmd)
 
         if self._execute:
-            return super(NullEnv, self)._run(cmd, **kwargs)
+            return super(NullEnv, self)._run(cmd, input)
 
-    def execute(self, bin, *args, **kwargs):
+    def execute(self, bin, *args):
         self.executed.append([bin] + list(args))
 
         if self._execute:
-            return super(NullEnv, self).execute(bin, *args, **kwargs)
+            return super(NullEnv, self).execute(bin, *args)
 
     def _bin(self, bin):
         return bin

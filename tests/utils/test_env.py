@@ -65,7 +65,7 @@ def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_dir, manager
 
     venv = VirtualEnv(venv_path)
 
-    assert venv.run("python", "-V", shell=True).startswith("Python")
+    assert venv.run("python", "-V").startswith("Python")
 
 
 def test_env_get_in_project_venv(manager, poetry):
@@ -547,7 +547,7 @@ def test_env_has_symlinks_on_nix(tmp_dir, tmp_venv):
 
 
 def test_run_with_input(tmp_dir, tmp_venv):
-    result = tmp_venv.run("python", "-", input_=MINIMAL_SCRIPT)
+    result = tmp_venv.run("python", "-", input=MINIMAL_SCRIPT)
 
     assert result == "Minimal Output" + os.linesep
 
@@ -556,7 +556,7 @@ def test_run_with_input_non_zero_return(tmp_dir, tmp_venv):
 
     with pytest.raises(EnvCommandError) as processError:
         # Test command that will return non-zero returncode.
-        tmp_venv.run("python", "-", input_=ERRORING_SCRIPT)
+        tmp_venv.run("python", "-", input=ERRORING_SCRIPT)
 
     assert processError.value.e.returncode == 1
 

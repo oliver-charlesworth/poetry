@@ -9,7 +9,7 @@ from poetry.utils.env import MockEnv as BaseMockEnv
 
 
 class MockEnv(BaseMockEnv):
-    def run(self, bin, *args):
+    def run(self, bin, *args, input=None):
         raise EnvCommandError(CalledProcessError(1, "python", output=""))
 
 
