@@ -898,6 +898,10 @@ class SystemEnv(Env):
     A system (i.e. not a virtualenv) Python environment.
     """
 
+    def __init__(self, path, env, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+        super(SystemEnv, self).__init__(path, base)
+        self._original_env = env
+
     @property
     def sys_path(self):  # type: () -> List[str]
         return sys.path
@@ -958,7 +962,7 @@ class SystemEnv(Env):
         return self._path != self._base
 
     def _env(self):  # type: () -> Dict[str, str]
-        return os.environ  # TODO - inject
+        return self._original_env
 
 
 class VirtualEnv(Env):
@@ -968,7 +972,6 @@ class VirtualEnv(Env):
 
     def __init__(self, path, env, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(VirtualEnv, self).__init__(path, base)
-
         self._original_env = env
 
         # If base is None, it probably means this is

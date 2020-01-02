@@ -2,6 +2,7 @@
 PEP-517 compliant buildsystem API
 """
 import logging
+import os
 import sys
 
 from clikit.io import NullIO
@@ -35,7 +36,7 @@ get_requires_for_build_sdist = get_requires_for_build_wheel
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
     poetry = Factory().create_poetry(Path("."))
-    builder = WheelBuilder(poetry, SystemEnv(Path(sys.prefix)), NullIO())
+    builder = WheelBuilder(poetry, SystemEnv(Path(sys.prefix), env=os.environ), NullIO())
 
     dist_info = Path(metadata_directory, builder.dist_info)
     dist_info.mkdir(parents=True, exist_ok=True)
@@ -59,7 +60,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
     return unicode(
         WheelBuilder.make_in(
-            poetry, SystemEnv(Path(sys.prefix)), NullIO(), Path(wheel_directory)
+            poetry, SystemEnv(Path(sys.prefix), env=os.environ), NullIO(), Path(wheel_directory)
         )
     )
 
@@ -68,7 +69,7 @@ def build_sdist(sdist_directory, config_settings=None):
     """Builds an sdist, places it in sdist_directory"""
     poetry = Factory().create_poetry(Path("."))
 
-    path = SdistBuilder(poetry, SystemEnv(Path(sys.prefix)), NullIO()).build(
+    path = SdistBuilder(poetry, SystemEnv(Path(sys.prefix), env=os.environ), NullIO()).build(
         Path(sdist_directory)
     )
 

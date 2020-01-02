@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from typing import Tuple
@@ -11,7 +12,7 @@ class NullEnv(SystemEnv):
         if path is None:
             path = Path(sys.prefix)
 
-        super(NullEnv, self).__init__(path, base=base)
+        super(NullEnv, self).__init__(path, base=base, env=os.environ)
 
         self._execute = execute
         self.executed = []

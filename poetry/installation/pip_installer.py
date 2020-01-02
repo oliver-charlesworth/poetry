@@ -1,7 +1,9 @@
 import os
+import sys
 import tempfile
 
 from io import open
+from pathlib import Path
 from subprocess import CalledProcessError
 
 from clikit.api.io import IO
@@ -205,7 +207,7 @@ class PipInstaller(BaseInstaller):
             # build-system for editable packages
             # We also need it for non-PEP-517 packages
             builder = SdistBuilder(
-                Factory().create_poetry(pyproject.parent), SystemEnv(), NullIO()
+                Factory().create_poetry(pyproject.parent), SystemEnv(Path(sys.executable), env=os.environ), NullIO()
             )
 
             with open(setup, "w", encoding="utf-8") as f:
