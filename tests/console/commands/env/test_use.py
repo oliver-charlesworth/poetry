@@ -56,7 +56,7 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None)],
     )
     m = mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 
@@ -112,7 +112,7 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None)],
     )
 
     command = app.find("env use")
@@ -156,7 +156,7 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None), ("/prefix", None)],
     )
     mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 

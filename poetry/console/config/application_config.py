@@ -85,7 +85,8 @@ class ApplicationConfig(BaseApplicationConfig):
         poetry = command.poetry
 
         env_manager = EnvManager(poetry)
-        env = env_manager.create_venv(io)
+        env_manager.create_venv(io)
+        env = env_manager.get()
 
         if env.is_venv() and io.is_verbose():
             io.write_line("Using virtualenv: <comment>{}</>".format(env.path))

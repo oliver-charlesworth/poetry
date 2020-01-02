@@ -185,7 +185,7 @@ class EnvManager(object):
         )
         self.create_venv(io, executable=python_exec, force_recreate=recreate)
 
-    def _activate_non_root(self, python_exec, io):  # type: (str, IO) -> Env
+    def _activate_non_root(self, python_exec, io):  # type: (str, IO) -> None
         version = self._python_version(python_exec)
         active_version = self._read_active_version()
         recreate = (
@@ -285,14 +285,14 @@ class EnvManager(object):
 
     def create_venv(
         self, io, executable=None, force_recreate=False
-    ):  # type: (IO, Optional[str], bool) -> Env
+    ):  # type: (IO, Optional[str], bool) -> None
         if self._env is not None and not force_recreate:
             return self._env
 
         env = self.get()
         if env.is_venv() and not force_recreate:
             # Already inside a virtualenv.
-            return env
+            return
 
         executable, version = self._select_python_executable(io, executable)
 
@@ -302,23 +302,20 @@ class EnvManager(object):
             venv_path = self._venv_path(version)
 
         if not venv_path.exists():
-            if not self._create_venv:
+            if self._create_venv:
+                io.write_line(
+                    "Creating virtualenv <c1>{}</> in {}".format(
+                        venv_path.name, str(venv_path)
+                    )
+                )
+                self.build_venv(str(venv_path), executable=executable)
+            else:
                 io.write_line(
                     "<fg=black;bg=yellow>"
                     "Skipping virtualenv creation, "
                     "as specified in config file."
                     "</>"
                 )
-
-                return SystemEnv(Path(sys.prefix))
-
-            io.write_line(
-                "Creating virtualenv <c1>{}</> in {}".format(
-                    venv_path.name, str(venv_path)
-                )
-            )
-
-            self.build_venv(str(venv_path), executable=executable)
         else:
             if force_recreate:
                 io.write_line(
@@ -332,8 +329,6 @@ class EnvManager(object):
                 io.write_line(
                     "Virtualenv <c1>{}</> already exists.".format(venv_path.name)
                 )
-
-        return self.get()
 
     def _select_python_executable(
         self, io, executable

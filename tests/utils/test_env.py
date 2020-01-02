@@ -115,7 +115,7 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None)],
     )
     m = mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 
@@ -234,7 +234,7 @@ def test_activate_activates_different_virtualenv_with_envs_file(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None), ("/prefix", None)],
     )
     m = mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 
@@ -276,7 +276,6 @@ def test_activate_activates_recreates_for_different_patch(
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
         side_effect=[
-            ("/prefix", None),
             ('{"version_info": [3, 7, 0]}', None),
             ("/prefix", None),
             ("/prefix", None),
@@ -332,7 +331,7 @@ def test_activate_does_not_recreate_when_switching_minor(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None)],
     )
     build_venv_m = mocker.patch(
         "poetry.utils.env.EnvManager.build_venv", side_effect=build_venv
@@ -760,7 +759,7 @@ def test_activate_with_in_project_setting_does_not_fail_if_no_venvs_dir(
     )
     mocker.patch(
         "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None)],
+        side_effect=[("/prefix", None)],
     )
     m = mocker.patch("poetry.utils.env.EnvManager.build_venv")
 
