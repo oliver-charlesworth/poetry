@@ -1,3 +1,4 @@
+import pytest
 import tomlkit
 
 from cleo.testers import CommandTester
@@ -7,12 +8,15 @@ from poetry.utils.env import EnvManager
 from poetry.utils.toml_file import TomlFile
 
 
-def test_none_activated(app, tmp_dir):
+@pytest.fixture()
+def manager(poetry):
+    return EnvManager(poetry)
+
+
+def test_none_activated(app, manager, tmp_dir):
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
-    )
+    venv_name = manager.generate_env_name()
     (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
     (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
 
@@ -30,12 +34,10 @@ def test_none_activated(app, tmp_dir):
     assert expected == tester.io.fetch_output()
 
 
-def test_activated(app, tmp_dir):
+def test_activated(app, manager, tmp_dir):
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
-    )
+    venv_name = manager.generate_env_name()
     (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
     (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
 

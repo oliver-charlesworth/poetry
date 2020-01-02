@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 
+import pytest
 import tomlkit
 
 from cleo.testers import CommandTester
@@ -14,6 +15,11 @@ from poetry.utils.toml_file import TomlFile
 
 
 CWD = Path(__file__).parent.parent / "fixtures" / "simple_project"
+
+
+@pytest.fixture()
+def manager(poetry):
+    return EnvManager(poetry)
 
 
 def build_venv(path, executable=None):
@@ -36,7 +42,7 @@ def check_output_wrapper(version=Version.parse("3.7.1")):
     return check_output
 
 
-def test_activate_activates_non_existing_virtualenv_no_envs_file(app, tmp_dir, mocker):
+def test_activate_activates_non_existing_virtualenv_no_envs_file(app, manager, tmp_dir, mocker):
     if "VIRTUAL_ENV" in os.environ:
         del os.environ["VIRTUAL_ENV"]
 
@@ -56,9 +62,7 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(app, tmp_dir, m
     tester = CommandTester(command)
     tester.execute("3.7")
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
-    )
+    venv_name = manager.generate_env_name()
 
     m.assert_called_with(
         os.path.join(tmp_dir, "{}-py3.7".format(venv_name)), executable="python3.7"
@@ -75,7 +79,7 @@ Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
         "{}-py3.7".format(venv_name),
-        tmp_dir,
+        os.path.join(tmp_dir, "{}-py3.7".format(venv_name)),
         os.path.join(tmp_dir, "{}-py3.7".format(venv_name)),
     )
 
@@ -83,13 +87,11 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
-    app, tmp_dir, mocker
+    app, manager, tmp_dir, mocker
 ):
     os.environ["VIRTUAL_ENV"] = "/environment/prefix"
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
-    )
+    venv_name = manager.generate_env_name()
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
     python_patch = ".".join(str(v) for v in current_python)
@@ -125,13 +127,11 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
-    app, tmp_dir, mocker
+    app, manager, tmp_dir, mocker
 ):
     os.environ["VIRTUAL_ENV"] = "/environment/prefix"
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
-    )
+    venv_name = manager.generate_env_name()
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
 
@@ -167,7 +167,7 @@ Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
         "{}-py{}".format(venv_name, python_minor),
-        tmp_dir,
+        os.path.join(tmp_dir, "{}-py{}".format(venv_name, python_minor)),
         os.path.join(tmp_dir, "{}-py{}".format(venv_name, python_minor)),
     )
 
