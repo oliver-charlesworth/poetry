@@ -9,7 +9,7 @@ from clikit.io import NullIO
 
 from poetry.repositories.pool import Pool
 from poetry.utils._compat import encode
-from poetry.utils.env import Env
+from poetry.utils.env import Env, SystemEnv
 from poetry.utils.helpers import safe_rmtree
 
 from .base_installer import BaseInstaller
@@ -174,7 +174,6 @@ class PipInstaller(BaseInstaller):
         from poetry.masonry.builder import SdistBuilder
         from poetry.factory import Factory
         from poetry.utils._compat import decode
-        from poetry.utils.env import NullEnv
         from poetry.utils.toml_file import TomlFile
 
         if package.root_dir:
@@ -206,7 +205,7 @@ class PipInstaller(BaseInstaller):
             # build-system for editable packages
             # We also need it for non-PEP-517 packages
             builder = SdistBuilder(
-                Factory().create_poetry(pyproject.parent), NullEnv(), NullIO()
+                Factory().create_poetry(pyproject.parent), SystemEnv(), NullIO()
             )
 
             with open(setup, "w", encoding="utf-8") as f:

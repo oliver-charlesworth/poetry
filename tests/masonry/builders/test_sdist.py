@@ -16,7 +16,7 @@ from poetry.packages import Package
 from poetry.packages.vcs_dependency import VCSDependency
 from poetry.utils._compat import Path
 from poetry.utils._compat import to_str
-from poetry.utils.env import NullEnv
+from tests.mock_envs import NullEnv
 from tests.helpers import get_dependency
 
 

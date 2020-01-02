@@ -8,7 +8,7 @@ from clikit.io import NullIO
 from poetry.factory import Factory
 from poetry.masonry.builders import EditableBuilder
 from poetry.utils._compat import Path
-from poetry.utils.env import MockEnv
+from tests.mock_envs import MockEnv
 
 
 fixtures_dir = Path(__file__).parent / "fixtures"

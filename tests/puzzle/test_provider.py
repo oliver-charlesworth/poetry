@@ -14,13 +14,7 @@ from poetry.repositories.repository import Repository
 from poetry.utils._compat import PY35
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvCommandError
-from poetry.utils.env import MockEnv as BaseMockEnv
 from tests.helpers import get_dependency
-
-
-class MockEnv(BaseMockEnv):
-    def run(self, bin, *args, input=None):
-        raise EnvCommandError(CalledProcessError(1, "python", output=""))
 
 
 @pytest.fixture
@@ -80,8 +74,6 @@ def test_search_for_vcs_setup_egg_info_with_extras(provider):
 
 @pytest.mark.skipif(not PY35, reason="AST parsing does not work for Python <3.4")
 def test_search_for_vcs_read_setup(provider, mocker):
-    mocker.patch("poetry.utils.env.EnvManager.get", return_value=MockEnv())
-
     dependency = VCSDependency("demo", "git", "https://github.com/demo/demo.git")
 
     package = provider.search_for_vcs(dependency)[0]
@@ -97,8 +89,6 @@ def test_search_for_vcs_read_setup(provider, mocker):
 
 @pytest.mark.skipif(not PY35, reason="AST parsing does not work for Python <3.4")
 def test_search_for_vcs_read_setup_with_extras(provider, mocker):
-    mocker.patch("poetry.utils.env.EnvManager.get", return_value=MockEnv())
-
     dependency = VCSDependency("demo", "git", "https://github.com/demo/demo.git")
     dependency.extras.append("foo")
 
@@ -117,6 +107,7 @@ def test_search_for_vcs_read_setup_with_extras(provider, mocker):
 
 
 def test_search_for_vcs_read_setup_raises_error_if_no_version(provider, mocker):
+    # TODO - replace with implementation
     mocker.patch(
         "poetry.utils.env.VirtualEnv.run",
         side_effect=EnvCommandError(CalledProcessError(1, "python", output="")),
@@ -219,8 +210,6 @@ def test_search_for_directory_setup_with_base(provider, directory):
 
 @pytest.mark.skipif(not PY35, reason="AST parsing does not work for Python <3.4")
 def test_search_for_directory_setup_read_setup(provider, mocker):
-    mocker.patch("poetry.utils.env.EnvManager.get", return_value=MockEnv())
-
     dependency = DirectoryDependency(
         "demo",
         Path(__file__).parent.parent
@@ -244,8 +233,6 @@ def test_search_for_directory_setup_read_setup(provider, mocker):
 
 @pytest.mark.skipif(not PY35, reason="AST parsing does not work for Python <3.4")
 def test_search_for_directory_setup_read_setup_with_extras(provider, mocker):
-    mocker.patch("poetry.utils.env.EnvManager.get", return_value=MockEnv())
-
     dependency = DirectoryDependency(
         "demo",
         Path(__file__).parent.parent
@@ -273,8 +260,6 @@ def test_search_for_directory_setup_read_setup_with_extras(provider, mocker):
 
 @pytest.mark.skipif(not PY35, reason="AST parsing does not work for Python <3.4")
 def test_search_for_directory_setup_read_setup_with_no_dependencies(provider, mocker):
-    mocker.patch("poetry.utils.env.EnvManager.get", return_value=MockEnv())
-
     dependency = DirectoryDependency(
         "demo",
         Path(__file__).parent.parent

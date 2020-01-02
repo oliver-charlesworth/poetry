@@ -9,7 +9,7 @@ from cleo.testers import CommandTester
 from poetry.semver import Version
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvManager
-from poetry.utils.env import MockEnv
+from tests.mock_envs import MockEnv
 from poetry.utils.toml_file import TomlFile
 
 

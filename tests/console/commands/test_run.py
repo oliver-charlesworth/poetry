@@ -1,7 +1,7 @@
 from cleo.testers import CommandTester
 
 from poetry.utils._compat import Path
-from poetry.utils.env import MockEnv
+from tests.mock_envs import MockEnv
 
 
 def test_run_passes_all_args(app, mocker):

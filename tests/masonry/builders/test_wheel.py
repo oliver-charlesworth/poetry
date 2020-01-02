@@ -10,7 +10,7 @@ from poetry.factory import Factory
 from poetry.masonry.builders.wheel import WheelBuilder
 from poetry.masonry.publishing.uploader import Uploader
 from poetry.utils._compat import Path
-from poetry.utils.env import NullEnv
+from tests.mock_envs import NullEnv
 
 
 fixtures_dir = Path(__file__).parent / "fixtures"

@@ -2,7 +2,7 @@ from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils._compat import Path
 from poetry.utils._compat import metadata
 from poetry.utils._compat import zipp
-from poetry.utils.env import MockEnv as BaseMockEnv
+from tests.mock_envs import MockEnv as BaseMockEnv
 
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"

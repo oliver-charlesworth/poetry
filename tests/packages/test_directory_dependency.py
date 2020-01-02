@@ -5,7 +5,7 @@ import pytest
 from poetry.packages.directory_dependency import DirectoryDependency
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvCommandError
-from poetry.utils.env import MockEnv as BaseMockEnv
+from tests.mock_envs import MockEnv as BaseMockEnv
 
 
 class MockEnv(BaseMockEnv):

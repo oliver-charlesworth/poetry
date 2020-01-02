@@ -6,7 +6,7 @@ from clikit.io import NullIO
 from poetry.factory import Factory
 from poetry.masonry.builders.builder import Builder
 from poetry.utils._compat import Path
-from poetry.utils.env import NullEnv
+from tests.mock_envs import NullEnv
 
 
 def test_builder_find_excluded_files(mocker):

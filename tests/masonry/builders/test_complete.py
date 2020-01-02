@@ -19,7 +19,7 @@ from poetry.factory import Factory
 from poetry.masonry.builders import CompleteBuilder
 from poetry.utils._compat import Path
 from poetry.utils._compat import decode
-from poetry.utils.env import NullEnv
+from tests.mock_envs import NullEnv
 
 
 fixtures_dir = Path(__file__).parent / "fixtures"
