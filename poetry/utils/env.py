@@ -830,33 +830,37 @@ class Env(object):
         """
         Run a command inside the Python environment.
         """
-        cmd = list_to_shell_command(cmd)
         try:
-            output = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                input=encode(input) if input else None,
-                check=True,
-                shell=True,
-            ).stdout
+            return decode(
+                subprocess.run(
+                    list_to_shell_command(cmd),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    input=encode(input) if input else None,
+                    check=True,
+                    shell=True,
+                    env=self._env(),
+                ).stdout
+            )
         except CalledProcessError as e:
             raise EnvCommandError(e)
-
-        return decode(output)
 
     def execute(self, bin, *args):
         bin = self._bin(bin)
         args = [bin] + list(args)
+        env = self._env()
 
         if not self._is_windows:
-            return os.execvp(bin, args)
+            return os.execvpe(bin, args, env)
         else:
             exe = subprocess.Popen(args)
             exe.communicate()
             return exe.returncode
 
     def is_venv(self):  # type: () -> bool
+        raise NotImplementedError()
+
+    def _env(self):  # type () -> Dict[str, str]
         raise NotImplementedError()
 
     def _bin(self, bin):  # type: (str) -> str
@@ -953,6 +957,9 @@ class SystemEnv(Env):
     def is_venv(self):  # type: () -> bool
         return self._path != self._base
 
+    def _env(self):  # type: () -> Dict[str, str]
+        return os.environ  # TODO - inject
+
 
 class VirtualEnv(Env):
     """
@@ -1026,41 +1033,14 @@ class VirtualEnv(Env):
         # A virtualenv is considered sane if both "python" and "pip" exist.
         return os.path.exists(self._bin("python")) and os.path.exists(self._bin("pip"))
 
-    def _run(self, cmd, input=None):
-        with self.temp_environ():
-            os.environ["PATH"] = self._updated_path()
-            os.environ["VIRTUAL_ENV"] = str(self._path)
-
-            self.unset_env("PYTHONHOME")
-            self.unset_env("__PYVENV_LAUNCHER__")
-
-            return super(VirtualEnv, self)._run(cmd, input)
-
-    def execute(self, bin, *args):
-        with self.temp_environ():
-            os.environ["PATH"] = self._updated_path()
-            os.environ["VIRTUAL_ENV"] = str(self._path)
-
-            self.unset_env("PYTHONHOME")
-            self.unset_env("__PYVENV_LAUNCHER__")
-
-            return super(VirtualEnv, self).execute(bin, *args)
-
-    @contextmanager
-    def temp_environ(self):
-        environ = dict(os.environ)
-        try:
-            yield
-        finally:
-            os.environ.clear()
-            os.environ.update(environ)
-
-    def unset_env(self, key):
-        if key in os.environ:
-            del os.environ[key]
-
-    def _updated_path(self):
-        return os.pathsep.join([str(self._bin_dir), os.environ["PATH"]])
+    def _env(self):  # type: () -> Dict[str, str]
+        # TODO - inject os.environ
+        e = dict(os.environ)  # Values should all be strings, so need for deepcopy
+        e["PATH"] = os.pathsep.join([str(self._bin_dir), e["PATH"]])
+        e["VIRTUAL_ENV"] = str(self._path)
+        e.pop("PYTHONHOME", None)
+        e.pop("__PYVENV_LAUNCHER__", None)
+        return e
 
 
 class NullEnv(SystemEnv):
@@ -1073,7 +1053,7 @@ class NullEnv(SystemEnv):
         self._execute = execute
         self.executed = []
 
-    def _run(self, cmd, input=None):
+    def _run(self, cmd, input):
         self.executed.append(cmd)
 
         if self._execute:
