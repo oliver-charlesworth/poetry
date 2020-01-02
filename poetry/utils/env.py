@@ -463,7 +463,7 @@ class EnvManager(object):
 
         self.remove_venv(str(venv))
 
-        return VirtualEnv(venv_path, env=self._environ)
+        return VirtualEnv(venv, env=self._environ)
 
     def create_venv(
         self, io, name=None, executable=None, force=False
