@@ -43,7 +43,7 @@ def poetry(config):
 
 @pytest.fixture()
 def manager(poetry):
-    return EnvManager(poetry)
+    return EnvManager(poetry, env=os.environ)
 
 
 @pytest.fixture

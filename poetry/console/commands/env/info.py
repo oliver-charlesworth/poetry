@@ -1,3 +1,5 @@
+import os
+
 from cleo import option
 
 from ..command import Command
@@ -13,7 +15,7 @@ class EnvInfoCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        env = EnvManager(self.poetry).get()
+        env = EnvManager(self.poetry, env=os.environ).get()
 
         if self.option("path"):
             if not env.is_venv():

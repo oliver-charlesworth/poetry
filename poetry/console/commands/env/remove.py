@@ -1,3 +1,5 @@
+import os
+
 from cleo import argument
 
 from ..command import Command
@@ -15,7 +17,7 @@ class EnvRemoveCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        manager = EnvManager(self.poetry)
+        manager = EnvManager(self.poetry, env=os.environ)
         venv = manager.remove(self.argument("python"))
 
         self.line("Deleted virtualenv: <comment>{}</comment>".format(venv.path))

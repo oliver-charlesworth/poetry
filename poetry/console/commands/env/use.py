@@ -1,3 +1,5 @@
+import os
+
 from cleo import argument
 
 from ..command import Command
@@ -13,7 +15,7 @@ class EnvUseCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        manager = EnvManager(self.poetry)
+        manager = EnvManager(self.poetry, env=os.environ)
 
         if self.argument("python") == "system":
             manager.deactivate(self._io)

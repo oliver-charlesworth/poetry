@@ -163,9 +163,9 @@ class EnvManager(object):
 
     ENVS_FILE = "envs.toml"
 
-    def __init__(self, poetry):  # type: (Poetry) -> None
+    def __init__(self, poetry, env):  # type: (Poetry, Dict[str,str]) -> None
         self._poetry = poetry
-        self._environ = os.environ  # TODO - inject
+        self._environ = env
 
     def activate(self, python, io):  # type: (str, IO) -> Env
         venv_path = self._poetry.config.get("virtualenvs.path")
@@ -244,7 +244,7 @@ class EnvManager(object):
 
         # Create if needed
         if not venv.exists() or venv.exists() and create:
-            in_venv = os.environ.get("VIRTUAL_ENV") is not None
+            in_venv = self._environ.get("VIRTUAL_ENV") is not None
             if in_venv or not venv.exists():
                 create = True
 
@@ -313,8 +313,8 @@ class EnvManager(object):
         # Check if we are inside a virtualenv or not
         # Conda sets CONDA_PREFIX in its envs, see
         # https://github.com/conda/conda/issues/2764
-        env_prefix = os.environ.get("VIRTUAL_ENV", os.environ.get("CONDA_PREFIX"))
-        conda_env_name = os.environ.get("CONDA_DEFAULT_ENV")
+        env_prefix = self._environ.get("VIRTUAL_ENV", self._environ.get("CONDA_PREFIX"))
+        conda_env_name = self._environ.get("CONDA_DEFAULT_ENV")
         # It's probably not a good idea to pollute Conda's global "base" env, since
         # most users have it activated all the time.
         in_venv = env_prefix is not None and conda_env_name != "base"

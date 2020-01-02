@@ -1,3 +1,5 @@
+import os
+
 from cleo import option
 
 from ..command import Command
@@ -13,7 +15,7 @@ class EnvListCommand(Command):
     def handle(self):
         from poetry.utils.env import EnvManager
 
-        manager = EnvManager(self.poetry)
+        manager = EnvManager(self.poetry, env=os.environ)
         current_env = manager.get()
 
         for venv in manager.list():
