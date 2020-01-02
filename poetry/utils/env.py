@@ -301,22 +301,7 @@ class EnvManager(object):
         else:
             venv_path = self._venv_path(version)
 
-        if not venv_path.exists():
-            if self._create_venv:
-                io.write_line(
-                    "Creating virtualenv <c1>{}</> in {}".format(
-                        venv_path.name, str(venv_path)
-                    )
-                )
-                self.build_venv(str(venv_path), executable=executable)
-            else:
-                io.write_line(
-                    "<fg=black;bg=yellow>"
-                    "Skipping virtualenv creation, "
-                    "as specified in config file."
-                    "</>"
-                )
-        else:
+        if venv_path.exists():
             if force_recreate:
                 io.write_line(
                     "Recreating virtualenv <c1>{}</> in {}".format(
@@ -324,11 +309,28 @@ class EnvManager(object):
                     )
                 )
                 self.remove_venv(str(venv_path))
-                self.build_venv(str(venv_path), executable=executable)
             elif io.is_very_verbose():
                 io.write_line(
                     "Virtualenv <c1>{}</> already exists.".format(venv_path.name)
                 )
+                return
+        else:
+            if self._create_venv:
+                io.write_line(
+                    "Creating virtualenv <c1>{}</> in {}".format(
+                        venv_path.name, str(venv_path)
+                    )
+                )
+            else:
+                io.write_line(
+                    "<fg=black;bg=yellow>"
+                    "Skipping virtualenv creation, "
+                    "as specified in config file."
+                    "</>"
+                )
+                return
+
+        self.build_venv(str(venv_path), executable=executable)
 
     def _select_python_executable(
         self, io, executable
