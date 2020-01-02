@@ -832,19 +832,14 @@ class Env(object):
         """
         cmd = list_to_shell_command(cmd)
         try:
-            if input:
-                output = subprocess.run(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    input=encode(input),
-                    check=True,
-                    shell=True,
-                ).stdout
-            else:
-                output = subprocess.check_output(
-                    cmd, stderr=subprocess.STDOUT, shell=True,
-                )
+            output = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                input=encode(input) if input else None,
+                check=True,
+                shell=True,
+            ).stdout
         except CalledProcessError as e:
             raise EnvCommandError(e)
 
