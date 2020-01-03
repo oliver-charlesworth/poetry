@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -13,7 +14,6 @@ from tests.helpers import get_package
 
 from ..conftest import Application
 from ..conftest import Locker
-from ..conftest import Path
 
 
 PYPROJECT_CONTENT = """\

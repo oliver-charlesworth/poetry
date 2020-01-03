@@ -11,6 +11,7 @@ import pytest
 from poetry.config.config import Config as BaseConfig
 from poetry.config.dict_config_source import DictConfigSource
 from poetry.factory import Factory
+from poetry.poetry import Poetry
 from poetry.utils._compat import Path
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
@@ -113,9 +114,7 @@ def tmp_dir():
 
 
 @pytest.fixture
-def poetry_factory(request, tmp_path_factory):
-    factory = Factory()
-
+def fixtures_dir(request, tmp_path_factory):
     def _reference_path(is_root_fixture):  # type: (bool) -> Path
         if is_root_fixture:
             return Path(__file__)
@@ -123,18 +122,25 @@ def poetry_factory(request, tmp_path_factory):
             return Path(request.module.__file__)
 
     # Test cases may mutate things, so encapsulate by making a copy of the fixtures
-    def _create_copy_of_fixtures(is_root_fixture):  # type: (bool) -> Path
+    def _create(name, is_root_fixture=False):  # type: (str, bool) -> Path
         source = _reference_path(is_root_fixture).parent / "fixtures"
         target = tmp_path_factory.mktemp("target", numbered=True) / "fixtures"
 
         shutil.copytree(source.as_posix(), target.as_posix())
 
-        return target
+        return target / name
 
-    def _create(name, is_root_fixture=False):
+    return _create
+
+
+@pytest.fixture
+def poetry_factory(fixtures_dir):
+    factory = Factory()
+
+    def _create(name, is_root_fixture=False):  # type: (str, bool) -> Poetry
         return factory.create_poetry(
             env=os.environ,
-            cwd=(_create_copy_of_fixtures(is_root_fixture) / name)
+            cwd=(fixtures_dir(name, is_root_fixture))
         )
 
     return _create

@@ -8,11 +8,9 @@ from poetry.console import Application as BaseApplication
 from poetry.factory import Factory
 from poetry.installation.noop_installer import NoopInstaller
 from poetry.packages import Locker as BaseLocker
-from poetry.poetry import Poetry as BasePoetry
 from poetry.repositories import Pool
 from poetry.repositories import Repository as BaseRepository
 from poetry.repositories.exceptions import PackageNotFound
-from poetry.utils._compat import Path
 from poetry.utils.toml_file import TomlFile
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
@@ -111,18 +109,6 @@ class Locker(BaseLocker):
             return
 
         self._lock_data = None
-
-
-class Poetry(BasePoetry):
-    def __init__(self, file, local_config, package, locker, config):
-        self._file = TomlFile(file)
-        self._package = package
-        self._local_config = local_config
-        self._locker = Locker(locker.lock.path, locker._local_config)
-        self._config = config
-
-        # Configure sources
-        self._pool = Pool()
 
 
 class Repository(BaseRepository):
