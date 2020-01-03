@@ -127,7 +127,7 @@ def poetry_factory(request, tmp_path_factory):
         source = _reference_path(is_root_fixture).parent / "fixtures"
         target = tmp_path_factory.mktemp("target", numbered=True) / "fixtures"
 
-        shutil.copytree(source, target)
+        shutil.copytree(source.as_posix(), target.as_posix())
 
         return target
 

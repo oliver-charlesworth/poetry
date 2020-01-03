@@ -12,25 +12,6 @@ from poetry.utils._compat import Path
 from tests.mock_envs import NullEnv
 
 
-fixtures_dir = Path(__file__).parent / "fixtures"
-
-
-@pytest.fixture(autouse=True)
-def setup():
-    clear_samples_dist()
-
-    yield
-
-    clear_samples_dist()
-
-
-# TODO - need to implement copy-to-tmp mechanism
-def clear_samples_dist():
-    for dist in fixtures_dir.glob("**/dist"):
-        if dist.is_dir():
-            shutil.rmtree(str(dist))
-
-
 def test_wheel_module(poetry_factory):
     poetry = poetry_factory("module1")
     WheelBuilder.make(poetry, NullEnv(), NullIO())

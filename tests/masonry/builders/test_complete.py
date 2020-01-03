@@ -22,24 +22,6 @@ from poetry.utils._compat import decode
 from tests.mock_envs import NullEnv
 
 
-fixtures_dir = Path(__file__).parent / "fixtures"
-
-
-@pytest.fixture(autouse=True)
-def setup():
-    clear_samples_dist()
-
-    yield
-
-    clear_samples_dist()
-
-
-def clear_samples_dist():
-    for dist in fixtures_dir.glob("**/dist"):
-        if dist.is_dir():
-            shutil.rmtree(str(dist))
-
-
 @pytest.mark.skipif(
     sys.platform == "win32" and sys.version_info <= (3, 6),
     reason="Disable test on Windows for Python <=3.6",
@@ -233,19 +215,12 @@ My Package
         zip.close()
 
 
-def test_complete_no_vcs():
-    # Copy the complete fixtures dir to a temporary directory
-    module_path = fixtures_dir / "complete"
-    temporary_dir = Path(tempfile.mkdtemp()) / "complete"
-
-    shutil.copytree(module_path.as_posix(), temporary_dir.as_posix())
-
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=temporary_dir), NullEnv(execute=True), NullIO()
-    )
+def test_complete_no_vcs(poetry_factory):
+    poetry = poetry_factory("complete")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    whl = temporary_dir / "dist" / "my_package-1.2.3-py3-none-any.whl"
+    whl = poetry.file.parent / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
 

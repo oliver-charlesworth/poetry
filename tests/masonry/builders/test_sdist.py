@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import ast
-import os
-import shutil
 import tarfile
 
 from email.parser import Parser
 
-import pytest
-
 from clikit.io import NullIO
 
-from poetry.factory import Factory
 from poetry.masonry.builders.sdist import SdistBuilder
 from poetry.masonry.utils.package_include import PackageInclude
 from poetry.packages import Package
@@ -19,24 +14,6 @@ from poetry.utils._compat import Path
 from poetry.utils._compat import to_str
 from tests.mock_envs import NullEnv
 from tests.helpers import get_dependency
-
-
-fixtures_dir = Path(__file__).parent / "fixtures"
-
-
-@pytest.fixture(autouse=True)
-def setup():
-    clear_samples_dist()
-
-    yield
-
-    clear_samples_dist()
-
-
-def clear_samples_dist():
-    for dist in fixtures_dir.glob("**/dist"):
-        if dist.is_dir():
-            shutil.rmtree(str(dist))
 
 
 def test_convert_dependencies():
@@ -352,19 +329,12 @@ def test_default_with_excluded_data(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = [
         (
-            (
-                Path(__file__).parent
-                / "fixtures"
-                / "default_with_excluded_data"
-                / "my_package"
-                / "data"
-                / "sub_data"
-                / "data2.txt"
-            )
+            (poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt")
             .relative_to(poetry.file.parent)
             .as_posix()
         )
     ]
+    print("XXX: {}".format((poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt").relative_to(poetry.file.parent)))
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -384,9 +354,7 @@ def test_default_with_excluded_data(poetry_factory, mocker):
 
     builder.build()
 
-    sdist = (
-        poetry.file.parent / "dist" / "my-package-1.2.3.tar.gz"
-    )
+    sdist = poetry.file.parent / "dist" / "my-package-1.2.3.tar.gz"
 
     assert sdist.exists()
 
