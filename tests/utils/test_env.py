@@ -7,7 +7,6 @@ import tomlkit
 
 from clikit.io import NullIO
 
-from poetry.factory import Factory
 from poetry.semver import Version
 from poetry.utils._compat import WINDOWS
 from poetry.utils._compat import Path
@@ -32,10 +31,8 @@ print("nullpackage loaded"),
 
 
 @pytest.fixture()
-def poetry(config):
-    poetry = Factory().create_poetry(
-        env=os.environ, cwd=Path(__file__).parent.parent / "fixtures" / "simple_project"
-    )
+def poetry(poetry_factory, config):
+    poetry = poetry_factory("simple_project", is_root_fixture=True)
     poetry.set_config(config)
 
     return poetry

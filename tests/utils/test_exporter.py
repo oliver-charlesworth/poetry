@@ -40,8 +40,8 @@ def locker():
 
 
 @pytest.fixture
-def poetry(fixture_dir, locker):
-    p = Factory().create_poetry(env=os.environ, cwd=fixture_dir("sample_project"))
+def poetry(poetry_factory, locker):
+    p = poetry_factory("sample_project", is_root_fixture=True)
     p._locker = locker
 
     return p

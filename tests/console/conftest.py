@@ -148,10 +148,8 @@ def project_directory():
 
 
 @pytest.fixture
-def poetry(repo, project_directory, config):
-    p = Factory().create_poetry(
-        env=os.environ, cwd=Path(__file__).parent.parent / "fixtures" / project_directory
-    )
+def poetry(poetry_factory, repo, project_directory, config):
+    p = poetry_factory(project_directory, is_root_fixture=True)
     p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
 
     with p.file.path.open(encoding="utf-8") as f:

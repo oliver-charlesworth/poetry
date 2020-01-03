@@ -180,12 +180,8 @@ def test_find_files_to_add(poetry_factory):
     )
 
 
-def test_make_pkg_info_multi_constraints_dependency():
-    poetry = Factory().create_poetry(
-        env=os.environ, cwd=Path(__file__).parent.parent.parent
-        / "fixtures"
-        / "project_with_multi_constraints_dependency"
-    )
+def test_make_pkg_info_multi_constraints_dependency(poetry_factory):
+    poetry = poetry_factory("project_with_multi_constraints_dependency", is_root_fixture=True)
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     pkg_info = builder.build_pkg_info()

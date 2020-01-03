@@ -125,10 +125,15 @@ def tmp_dir():
 def poetry_factory(request):
     factory = Factory()
 
-    def _create(name):
+    def _create(name, is_root_fixture=False):
+        if is_root_fixture:
+            reference = __file__
+        else:
+            reference = request.module.__file__
+
         return factory.create_poetry(
             env=os.environ,
-            cwd=Path(request.module.__file__).parent / "fixtures" / name
+            cwd=Path(reference).parent / "fixtures" / name
         )
 
     return _create
