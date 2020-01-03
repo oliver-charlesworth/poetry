@@ -1,24 +1,14 @@
-import os
-
 import pytest
 
-from poetry.factory import Factory
 from poetry.io.null_io import NullIO
 from poetry.masonry.publishing.publisher import Publisher
 from poetry.utils._compat import Path
 
 
-def poetry_for(name):
-    return Factory().create_poetry(
-        env=os.environ,
-        cwd=Path(__file__).parent.parent.parent / "fixtures" / name
-    )
-
-
-def test_publish_publishes_to_pypi_by_default(fixture_dir, mocker, config):
+def test_publish_publishes_to_pypi_by_default(poetry_factory, mocker, config):
     uploader_auth = mocker.patch("poetry.masonry.publishing.uploader.Uploader.auth")
     uploader_upload = mocker.patch("poetry.masonry.publishing.uploader.Uploader.upload")
-    poetry = poetry_for("sample_project")
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge(
         {"http-basic": {"pypi": {"username": "foo", "password": "bar"}}}
@@ -34,10 +24,10 @@ def test_publish_publishes_to_pypi_by_default(fixture_dir, mocker, config):
     ] == uploader_upload.call_args
 
 
-def test_publish_can_publish_to_given_repository(fixture_dir, mocker, config):
+def test_publish_can_publish_to_given_repository(poetry_factory, mocker, config):
     uploader_auth = mocker.patch("poetry.masonry.publishing.uploader.Uploader.auth")
     uploader_upload = mocker.patch("poetry.masonry.publishing.uploader.Uploader.upload")
-    poetry = poetry_for("sample_project")
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge(
         {
@@ -56,8 +46,8 @@ def test_publish_can_publish_to_given_repository(fixture_dir, mocker, config):
     ] == uploader_upload.call_args
 
 
-def test_publish_raises_error_for_undefined_repository(fixture_dir, mocker, config):
-    poetry = poetry_for("sample_project")
+def test_publish_raises_error_for_undefined_repository(poetry_factory, mocker, config):
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge(
         {"http-basic": {"my-repo": {"username": "foo", "password": "bar"}}}
@@ -68,10 +58,10 @@ def test_publish_raises_error_for_undefined_repository(fixture_dir, mocker, conf
         publisher.publish("my-repo", None, None)
 
 
-def test_publish_uses_token_if_it_exists(fixture_dir, mocker, config):
+def test_publish_uses_token_if_it_exists(poetry_factory, mocker, config):
     uploader_auth = mocker.patch("poetry.masonry.publishing.uploader.Uploader.auth")
     uploader_upload = mocker.patch("poetry.masonry.publishing.uploader.Uploader.upload")
-    poetry = poetry_for("sample_project")
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge({"pypi-token": {"pypi": "my-token"}})
     publisher = Publisher(poetry, NullIO())
@@ -85,11 +75,11 @@ def test_publish_uses_token_if_it_exists(fixture_dir, mocker, config):
     ] == uploader_upload.call_args
 
 
-def test_publish_uses_cert(fixture_dir, mocker, config):
+def test_publish_uses_cert(poetry_factory, mocker, config):
     cert = "path/to/ca.pem"
     uploader_auth = mocker.patch("poetry.masonry.publishing.uploader.Uploader.auth")
     uploader_upload = mocker.patch("poetry.masonry.publishing.uploader.Uploader.upload")
-    poetry = poetry_for("sample_project")
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge(
         {
@@ -109,10 +99,10 @@ def test_publish_uses_cert(fixture_dir, mocker, config):
     ] == uploader_upload.call_args
 
 
-def test_publish_uses_client_cert(fixture_dir, mocker, config):
+def test_publish_uses_client_cert(poetry_factory, mocker, config):
     client_cert = "path/to/client.pem"
     uploader_upload = mocker.patch("poetry.masonry.publishing.uploader.Uploader.upload")
-    poetry = poetry_for("sample_project")
+    poetry = poetry_factory("sample_project")
     poetry._config = config
     poetry.config.merge(
         {

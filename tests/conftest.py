@@ -10,6 +10,7 @@ import pytest
 
 from poetry.config.config import Config as BaseConfig
 from poetry.config.dict_config_source import DictConfigSource
+from poetry.factory import Factory
 from poetry.utils._compat import Path
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
@@ -117,3 +118,16 @@ def tmp_dir():
     yield dir_
 
     shutil.rmtree(dir_)
+
+
+@pytest.fixture
+def poetry_factory():
+    factory = Factory()
+
+    def _create(name):
+        return factory.create_poetry(
+            env=os.environ,
+            cwd=Path(__file__).parent / "fixtures" / name
+        )
+
+    return _create
