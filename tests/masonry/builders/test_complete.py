@@ -47,7 +47,7 @@ def clear_samples_dist():
 def test_wheel_c_extension():
     module_path = fixtures_dir / "extended"
     builder = CompleteBuilder(
-        Factory().create_poetry(module_path), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -104,7 +104,7 @@ $""".format(
 def test_wheel_c_extension_src_layout():
     module_path = fixtures_dir / "src_extended"
     builder = CompleteBuilder(
-        Factory().create_poetry(module_path), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -157,7 +157,7 @@ $""".format(
 def test_complete():
     module_path = fixtures_dir / "complete"
     builder = CompleteBuilder(
-        Factory().create_poetry(module_path), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -247,7 +247,7 @@ def test_complete_no_vcs():
     shutil.copytree(module_path.as_posix(), temporary_dir.as_posix())
 
     builder = CompleteBuilder(
-        Factory().create_poetry(temporary_dir), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=temporary_dir), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -345,7 +345,7 @@ My Package
 def test_module_src():
     module_path = fixtures_dir / "source_file"
     builder = CompleteBuilder(
-        Factory().create_poetry(module_path), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -371,7 +371,7 @@ def test_module_src():
 def test_package_src():
     module_path = fixtures_dir / "source_package"
     builder = CompleteBuilder(
-        Factory().create_poetry(module_path), NullEnv(execute=True), NullIO()
+        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
     )
     builder.build()
 
@@ -417,7 +417,7 @@ def test_package_with_include(mocker):
             / "vcs_excluded.txt"
         ),
     ]
-    builder = CompleteBuilder(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    builder = CompleteBuilder(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
     builder.build()
 
     sdist = fixtures_dir / "with-include" / "dist" / "with-include-1.2.3.tar.gz"

@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import os
+
 import pytest
 
 from poetry.factory import Factory
@@ -14,7 +16,7 @@ fixtures_dir = Path(__file__).parent / "fixtures"
 
 
 def test_create_poetry():
-    poetry = Factory().create_poetry(fixtures_dir / "sample_project")
+    poetry = Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "sample_project")
 
     package = poetry.package
 
@@ -114,7 +116,7 @@ def test_create_poetry():
 
 def test_create_poetry_with_packages_and_includes():
     poetry = Factory().create_poetry(
-        fixtures_dir.parent / "masonry" / "builders" / "fixtures" / "with-include"
+        env=os.environ, cwd=fixtures_dir.parent / "masonry" / "builders" / "fixtures" / "with-include"
     )
 
     package = poetry.package
@@ -134,7 +136,7 @@ def test_create_poetry_with_packages_and_includes():
 
 def test_create_poetry_with_multi_constraints_dependency():
     poetry = Factory().create_poetry(
-        fixtures_dir / "project_with_multi_constraints_dependency"
+        env=os.environ, cwd=fixtures_dir / "project_with_multi_constraints_dependency"
     )
 
     package = poetry.package
@@ -143,14 +145,14 @@ def test_create_poetry_with_multi_constraints_dependency():
 
 
 def test_poetry_with_default_source():
-    poetry = Factory().create_poetry(fixtures_dir / "with_default_source")
+    poetry = Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "with_default_source")
 
     assert 1 == len(poetry.pool.repositories)
 
 
 def test_poetry_with_two_default_sources():
     with pytest.raises(ValueError) as e:
-        Factory().create_poetry(fixtures_dir / "with_two_default_sources")
+        Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "with_two_default_sources")
 
     assert "Only one repository can be the default" == str(e.value)
 
@@ -184,7 +186,7 @@ def test_validate_fails():
 def test_create_poetry_fails_on_invalid_configuration():
     with pytest.raises(RuntimeError) as e:
         Factory().create_poetry(
-            Path(__file__).parent / "fixtures" / "invalid_pyproject" / "pyproject.toml"
+            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "invalid_pyproject" / "pyproject.toml"
         )
 
     if PY2:
@@ -201,7 +203,7 @@ The Poetry configuration is invalid:
 
 
 def test_create_poetry_with_local_config(fixture_dir):
-    poetry = Factory().create_poetry(fixture_dir("with_local_config"))
+    poetry = Factory().create_poetry(env=os.environ, cwd=fixture_dir("with_local_config"))
 
     assert not poetry.config.get("virtualenvs.in-project")
     assert not poetry.config.get("virtualenvs.create")

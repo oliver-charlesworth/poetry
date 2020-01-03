@@ -1,3 +1,5 @@
+import os
+
 from cleo import Application as BaseApplication
 
 from poetry import __version__
@@ -46,7 +48,7 @@ class Application(BaseApplication):
         if self._poetry is not None:
             return self._poetry
 
-        self._poetry = Factory().create_poetry(Path.cwd())
+        self._poetry = Factory().create_poetry(env=os.environ, cwd=Path.cwd())
 
         return self._poetry
 

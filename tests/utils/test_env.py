@@ -34,7 +34,7 @@ print("nullpackage loaded"),
 @pytest.fixture()
 def poetry(config):
     poetry = Factory().create_poetry(
-        Path(__file__).parent.parent / "fixtures" / "simple_project"
+        env=os.environ, cwd=Path(__file__).parent.parent / "fixtures" / "simple_project"
     )
     poetry.set_config(config)
 

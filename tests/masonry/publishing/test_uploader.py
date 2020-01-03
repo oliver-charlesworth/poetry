@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from poetry.factory import Factory
@@ -16,7 +18,7 @@ def project(name):
 
 def test_uploader_properly_handles_400_errors(http):
     http.register_uri(http.POST, "https://foo.com", status=400, body="Bad request")
-    uploader = Uploader(Factory().create_poetry(project("simple_project")), NullIO())
+    uploader = Uploader(Factory().create_poetry(env=os.environ, cwd=project("simple_project")), NullIO())
 
     with pytest.raises(UploadError) as e:
         uploader.upload("https://foo.com")
@@ -26,7 +28,7 @@ def test_uploader_properly_handles_400_errors(http):
 
 def test_uploader_properly_handles_403_errors(http):
     http.register_uri(http.POST, "https://foo.com", status=403, body="Unauthorized")
-    uploader = Uploader(Factory().create_poetry(project("simple_project")), NullIO())
+    uploader = Uploader(Factory().create_poetry(env=os.environ, cwd=project("simple_project")), NullIO())
 
     with pytest.raises(UploadError) as e:
         uploader.upload("https://foo.com")
@@ -39,7 +41,7 @@ def test_uploader_registers_for_appropriate_400_errors(mocker, http):
     http.register_uri(
         http.POST, "https://foo.com", status=400, body="No package was ever registered"
     )
-    uploader = Uploader(Factory().create_poetry(project("simple_project")), NullIO())
+    uploader = Uploader(Factory().create_poetry(env=os.environ, cwd=project("simple_project")), NullIO())
 
     with pytest.raises(UploadError):
         uploader.upload("https://foo.com")

@@ -56,7 +56,7 @@ def test_display_single_setting(app, config):
 
 
 def test_display_single_local_setting(app, config, fixture_dir):
-    poetry = Factory().create_poetry(fixture_dir("with_local_config"))
+    poetry = Factory().create_poetry(env=os.environ, cwd=fixture_dir("with_local_config"))
     app._poetry = poetry
 
     command = app.find("config")

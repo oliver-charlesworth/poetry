@@ -69,7 +69,7 @@ class Application(BaseApplication):
 
     def reset_poetry(self):
         poetry = self._poetry
-        self._poetry = Factory().create_poetry(poetry.file.path.parent)
+        self._poetry = Factory().create_poetry(env=os.environ, cwd=poetry.file.path.parent)
         self._poetry.set_pool(poetry.pool)
         self._poetry.set_config(poetry.config)
         self._poetry.set_locker(poetry.locker)
@@ -150,7 +150,7 @@ def project_directory():
 @pytest.fixture
 def poetry(repo, project_directory, config):
     p = Factory().create_poetry(
-        Path(__file__).parent.parent / "fixtures" / project_directory
+        env=os.environ, cwd=Path(__file__).parent.parent / "fixtures" / project_directory
     )
     p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
 import pytest
 
 from cleo.testers import CommandTester
@@ -53,7 +55,7 @@ def poetry(repo, tmp_dir):
     with (Path(tmp_dir) / "pyproject.toml").open("w", encoding="utf-8") as f:
         f.write(PYPROJECT_CONTENT)
 
-    p = Factory().create_poetry(Path(tmp_dir))
+    p = Factory().create_poetry(env=os.environ, cwd=Path(tmp_dir))
 
     locker = Locker(p.locker.lock.path, p.locker._local_config)
     locker.write()

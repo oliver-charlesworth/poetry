@@ -31,8 +31,8 @@ class Factory:
     """
 
     def create_poetry(
-        self, cwd=None, io=None
-    ):  # type: (Optional[Path], Optional[IO]) -> Poetry
+        self, env, cwd=None, io=None
+    ):  # type: (Dict[str, str], Optional[Path], Optional[IO]) -> Poetry
         if io is None:
             io = NullIO()
 
@@ -169,7 +169,7 @@ class Factory:
             package=package,
             locker=locker,
             config=config,
-            env=os.environ,
+            env=env,
         )
 
         # Configuring sources

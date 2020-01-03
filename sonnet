@@ -61,7 +61,7 @@ class MakeReleaseCommand(Command):
         from poetry.utils.helpers import temporary_directory
         from poetry.vcs import get_vcs
 
-        project = Factory().create_poetry(Path.cwd())
+        project = Factory().create_poetry(env=os.environ, cwd=Path.cwd())
         package = project.package
         del package.dev_requires[:]
 

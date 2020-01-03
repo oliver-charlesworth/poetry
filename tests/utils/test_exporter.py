@@ -1,3 +1,4 @@
+import os
 import sys
 
 import pytest
@@ -40,7 +41,7 @@ def locker():
 
 @pytest.fixture
 def poetry(fixture_dir, locker):
-    p = Factory().create_poetry(fixture_dir("sample_project"))
+    p = Factory().create_poetry(env=os.environ, cwd=fixture_dir("sample_project"))
     p._locker = locker
 
     return p

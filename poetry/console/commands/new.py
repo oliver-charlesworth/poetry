@@ -55,7 +55,7 @@ class NewCommand(Command):
             if author_email:
                 author += " <{}>".format(author_email)
 
-        current_env = SystemEnv(Path(sys.executable), env=os.environ)
+        current_env = SystemEnv(Path(sys.executable), env=self.poetry.env)
         default_python = "^{}".format(
             ".".join(str(v) for v in current_env.version_info[:2])
         )

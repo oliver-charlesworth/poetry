@@ -126,7 +126,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         question.set_validator(self._validate_license)
         license = self.ask(question)
 
-        current_env = SystemEnv(Path(sys.executable), env=os.environ)
+        current_env = SystemEnv(Path(sys.executable), env=self.poetry.env)
         default_python = "^{}".format(
             ".".join(str(v) for v in current_env.version_info[:2])
         )

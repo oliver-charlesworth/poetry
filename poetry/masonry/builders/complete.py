@@ -32,32 +32,24 @@ class CompleteBuilder(Builder):
 
         self._io.write_line("")
 
-        dist_dir = self._path / "dist"
-
         if build_for_all_formats:
             sdist_builder = SdistBuilder(
                 self._poetry, self._env, NullIO(), ignore_packages_formats=True
             )
             with temporary_directory() as tmp_dir:
-                sdist_file = sdist_builder.build(Path(tmp_dir))
-
-                with self.unpacked_tarball(sdist_file) as tmpdir:
-                    WheelBuilder.make_in(
-                        Factory().create_poetry(tmpdir),
-                        self._env,
-                        self._io,
-                        dist_dir,
-                        original=self._poetry,
-                    )
+                self._build_from_sdist(sdist_builder.build(Path(tmp_dir)))
         else:
-            with self.unpacked_tarball(sdist_file) as tmpdir:
-                WheelBuilder.make_in(
-                    Factory().create_poetry(tmpdir),
-                    self._env,
-                    self._io,
-                    dist_dir,
-                    original=self._poetry,
-                )
+            self._build_from_sdist(sdist_file)
+
+    def _build_from_sdist(self, sdist_file):
+        with self.unpacked_tarball(sdist_file) as tmpdir:
+            WheelBuilder.make_in(
+                Factory().create_poetry(env=os.environ, cwd=tmpdir),
+                self._env,
+                self._io,
+                self._path / "dist",
+                original=self._poetry,
+            )
 
     @classmethod
     @contextmanager

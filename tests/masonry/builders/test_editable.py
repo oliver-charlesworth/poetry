@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
 import sys
 
 from clikit.io import NullIO
@@ -21,7 +22,7 @@ def test_build_should_delegate_to_pip_for_non_pure_python_packages(tmp_dir, mock
     env.site_packages.mkdir(parents=True)
     module_path = fixtures_dir / "extended"
 
-    builder = EditableBuilder(Factory().create_poetry(module_path), env, NullIO())
+    builder = EditableBuilder(Factory().create_poetry(env=os.environ, cwd=module_path), env, NullIO())
     builder.build()
 
     expected = [[sys.executable, "-m", "pip", "install", "-e", str(module_path)]]
@@ -37,7 +38,7 @@ def test_build_should_temporarily_remove_the_pyproject_file(tmp_dir, mocker):
     env.site_packages.mkdir(parents=True)
     module_path = fixtures_dir / "extended"
 
-    builder = EditableBuilder(Factory().create_poetry(module_path), env, NullIO())
+    builder = EditableBuilder(Factory().create_poetry(env=os.environ, cwd=module_path), env, NullIO())
     builder.build()
 
     expected = [[sys.executable, "-m", "pip", "install", "-e", str(module_path)]]

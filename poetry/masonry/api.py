@@ -19,11 +19,15 @@ from .builders.wheel import WheelBuilder
 log = logging.getLogger(__name__)
 
 
+def _create_poetry():  # type: () -> Poetry
+    return Factory().create_poetry(env=os.environ, cwd=Path("."))
+
+
 def get_requires_for_build_wheel(config_settings=None):
     """
     Returns a list of requirements for building, as strings
     """
-    poetry = Factory().create_poetry(Path("."))
+    poetry = _create_poetry()
 
     main, _ = SdistBuilder.convert_dependencies(poetry.package, poetry.package.requires)
 
@@ -35,7 +39,7 @@ get_requires_for_build_sdist = get_requires_for_build_wheel
 
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
-    poetry = Factory().create_poetry(Path("."))
+    poetry = _create_poetry()
     builder = WheelBuilder(poetry, SystemEnv(Path(sys.prefix), env=os.environ), NullIO())
 
     dist_info = Path(metadata_directory, builder.dist_info)
@@ -56,7 +60,7 @@ def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """Builds a wheel, places it in wheel_directory"""
-    poetry = Factory().create_poetry(Path("."))
+    poetry = _create_poetry()
 
     return unicode(
         WheelBuilder.make_in(
@@ -67,7 +71,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 def build_sdist(sdist_directory, config_settings=None):
     """Builds an sdist, places it in sdist_directory"""
-    poetry = Factory().create_poetry(Path("."))
+    poetry = _create_poetry()
 
     path = SdistBuilder(poetry, SystemEnv(Path(sys.prefix), env=os.environ), NullIO()).build(
         Path(sdist_directory)

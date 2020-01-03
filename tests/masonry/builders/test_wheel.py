@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import shutil
 import zipfile
 
@@ -33,7 +34,7 @@ def clear_samples_dist():
 
 def test_wheel_module():
     module_path = fixtures_dir / "module1"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "module1-0.1-py2.py3-none-any.whl"
 
@@ -45,7 +46,7 @@ def test_wheel_module():
 
 def test_wheel_package():
     module_path = fixtures_dir / "complete"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -57,7 +58,7 @@ def test_wheel_package():
 
 def test_wheel_prerelease():
     module_path = fixtures_dir / "prerelease"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "prerelease-0.1b1-py2.py3-none-any.whl"
 
@@ -66,7 +67,7 @@ def test_wheel_prerelease():
 
 def test_wheel_excluded_data():
     module_path = fixtures_dir / "default_with_excluded_data_toml"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -81,7 +82,7 @@ def test_wheel_excluded_data():
 
 def test_wheel_excluded_nested_data():
     module_path = fixtures_dir / "exclude_nested_data_toml"
-    poetry = Factory().create_poetry(module_path)
+    poetry = Factory().create_poetry(env=os.environ, cwd=module_path)
     WheelBuilder.make(poetry, NullEnv(), NullIO())
 
     whl = module_path / "dist" / "my_package-1.2.3-py3-none-any.whl"
@@ -102,7 +103,7 @@ def test_wheel_excluded_nested_data():
 
 def test_wheel_localversionlabel():
     module_path = fixtures_dir / "localversionlabel"
-    project = Factory().create_poetry(module_path)
+    project = Factory().create_poetry(env=os.environ, cwd=module_path)
     WheelBuilder.make(project, NullEnv(), NullIO())
     local_version_string = "localversionlabel-0.1b1+gitbranch.buildno.1"
     whl = module_path / "dist" / (local_version_string + "-py2.py3-none-any.whl")
@@ -118,7 +119,7 @@ def test_wheel_localversionlabel():
 
 def test_wheel_package_src():
     module_path = fixtures_dir / "source_package"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "package_src-0.1-py2.py3-none-any.whl"
 
@@ -131,7 +132,7 @@ def test_wheel_package_src():
 
 def test_wheel_module_src():
     module_path = fixtures_dir / "source_file"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "module_src-0.1-py2.py3-none-any.whl"
 
@@ -143,7 +144,7 @@ def test_wheel_module_src():
 
 def test_dist_info_file_permissions():
     module_path = fixtures_dir / "complete"
-    WheelBuilder.make(Factory().create_poetry(module_path), NullEnv(), NullIO())
+    WheelBuilder.make(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
 
     whl = module_path / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
