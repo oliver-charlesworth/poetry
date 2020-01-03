@@ -10,9 +10,6 @@ from poetry.utils._compat import urlparse
 from poetry.vcs.git import ParsedUrl
 
 
-FIXTURE_PATH = Path(__file__).parent / "fixtures"
-
-
 def get_package(name, version):
     return Package(name, version)
 
@@ -27,13 +24,6 @@ def get_dependency(
         optional=optional,
         allows_prereleases=allows_prereleases,
     )
-
-
-def fixture(path=None):
-    if path:
-        return FIXTURE_PATH / path
-    else:
-        return FIXTURE_PATH
 
 
 def copy_or_symlink(source, dest):
