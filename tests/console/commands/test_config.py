@@ -55,7 +55,7 @@ def test_display_single_setting(app, config):
     assert expected == tester.io.fetch_output()
 
 
-def test_display_single_local_setting(poetry_factory, app, config, fixture_dir):
+def test_display_single_local_setting(poetry_factory, app, config):
     poetry = poetry_factory("with_local_config", is_root_fixture=True)
     app._poetry = poetry  # TODO - can we do better?
 
