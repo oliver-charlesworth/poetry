@@ -113,18 +113,28 @@ def tmp_dir():
 
 
 @pytest.fixture
-def poetry_factory(request):
+def poetry_factory(request, tmp_path_factory):
     factory = Factory()
 
-    def _create(name, is_root_fixture=False):
+    def _reference_path(is_root_fixture):  # type: (bool) -> Path
         if is_root_fixture:
-            reference = __file__
+            return Path(__file__)
         else:
-            reference = request.module.__file__
+            return Path(request.module.__file__)
 
+    # Test cases may mutate things, so encapsulate by making a copy of the fixtures
+    def _create_copy_of_fixtures(is_root_fixture):  # type: (bool) -> Path
+        source = _reference_path(is_root_fixture).parent / "fixtures"
+        target = tmp_path_factory.mktemp("target", numbered=True) / "fixtures"
+
+        shutil.copytree(source, target)
+
+        return target
+
+    def _create(name, is_root_fixture=False):
         return factory.create_poetry(
             env=os.environ,
-            cwd=Path(reference).parent / "fixtures" / name
+            cwd=(_create_copy_of_fixtures(is_root_fixture) / name)
         )
 
     return _create

@@ -7,7 +7,7 @@ from poetry.masonry.publishing.uploader import UploadError
 
 def test_uploader_properly_handles_400_errors(poetry_factory, http):
     http.register_uri(http.POST, "https://foo.com", status=400, body="Bad request")
-    uploader = Uploader(poetry_factory("simple_project"), NullIO())
+    uploader = Uploader(poetry_factory("simple_project", is_root_fixture=True), NullIO())
 
     with pytest.raises(UploadError) as e:
         uploader.upload("https://foo.com")
@@ -17,7 +17,7 @@ def test_uploader_properly_handles_400_errors(poetry_factory, http):
 
 def test_uploader_properly_handles_403_errors(poetry_factory, http):
     http.register_uri(http.POST, "https://foo.com", status=403, body="Unauthorized")
-    uploader = Uploader(poetry_factory("simple_project"), NullIO())
+    uploader = Uploader(poetry_factory("simple_project", is_root_fixture=True), NullIO())
 
     with pytest.raises(UploadError) as e:
         uploader.upload("https://foo.com")
@@ -30,7 +30,7 @@ def test_uploader_registers_for_appropriate_400_errors(poetry_factory, mocker, h
     http.register_uri(
         http.POST, "https://foo.com", status=400, body="No package was ever registered"
     )
-    uploader = Uploader(poetry_factory("simple_project"), NullIO())
+    uploader = Uploader(poetry_factory("simple_project", is_root_fixture=True), NullIO())
 
     with pytest.raises(UploadError):
         uploader.upload("https://foo.com")
