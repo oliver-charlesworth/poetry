@@ -25,13 +25,6 @@ from tests.mock_envs import NullEnv
 fixtures_dir = Path(__file__).parent / "fixtures"
 
 
-def poetry_for(name):
-    return Factory().create_poetry(
-        env=os.environ,
-        cwd=Path(__file__).parent / "fixtures" / name
-    )
-
-
 @pytest.fixture(autouse=True)
 def setup():
     clear_samples_dist()
@@ -51,8 +44,8 @@ def clear_samples_dist():
     sys.platform == "win32" and sys.version_info <= (3, 6),
     reason="Disable test on Windows for Python <=3.6",
 )
-def test_wheel_c_extension():
-    poetry = poetry_for("extended")
+def test_wheel_c_extension(poetry_factory):
+    poetry = poetry_factory("extended")
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
@@ -106,8 +99,8 @@ $""".format(
     sys.platform == "win32" and sys.version_info <= (3, 6),
     reason="Disable test on Windows for Python <=3.6",
 )
-def test_wheel_c_extension_src_layout():
-    poetry = poetry_for("src_extended")
+def test_wheel_c_extension_src_layout(poetry_factory):
+    poetry = poetry_factory("src_extended")
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
@@ -157,8 +150,8 @@ $""".format(
         zip.close()
 
 
-def test_complete():
-    poetry = poetry_for("complete")
+def test_complete(poetry_factory):
+    poetry = poetry_factory("complete")
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
@@ -343,8 +336,8 @@ My Package
         zip.close()
 
 
-def test_module_src():
-    poetry = poetry_for("source_file")
+def test_module_src(poetry_factory):
+    poetry = poetry_factory("source_file")
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
@@ -367,8 +360,8 @@ def test_module_src():
         zip.close()
 
 
-def test_package_src():
-    poetry = poetry_for("source_package")
+def test_package_src(poetry_factory):
+    poetry = poetry_factory("source_package")
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
@@ -392,8 +385,8 @@ def test_package_src():
         zip.close()
 
 
-def test_package_with_include(mocker):
-    poetry = poetry_for("with-include")
+def test_package_with_include(poetry_factory, mocker):
+    poetry = poetry_factory("with-include")
 
     # Patch git module to return specific excluded files
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")

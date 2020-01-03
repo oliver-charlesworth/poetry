@@ -1,3 +1,4 @@
+import inspect
 import os
 import shutil
 import tempfile
@@ -121,13 +122,13 @@ def tmp_dir():
 
 
 @pytest.fixture
-def poetry_factory():
+def poetry_factory(request):
     factory = Factory()
 
     def _create(name):
         return factory.create_poetry(
             env=os.environ,
-            cwd=Path(__file__).parent / "fixtures" / name
+            cwd=Path(request.module.__file__).parent / "fixtures" / name
         )
 
     return _create

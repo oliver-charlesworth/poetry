@@ -1,28 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
 from email.parser import Parser
 
 from clikit.io import NullIO
 
-from poetry.factory import Factory
 from poetry.masonry.builders.builder import Builder
-from poetry.utils._compat import Path
 from tests.mock_envs import NullEnv
 
 
-def poetry_for(name):
-    return Factory().create_poetry(
-        env=os.environ,
-        cwd=Path(__file__).parent / "fixtures" / name
-    )
-
-
-def test_builder_find_excluded_files(mocker):
+def test_builder_find_excluded_files(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
     builder = Builder(
-        poetry_for("complete"),
+        poetry_factory("complete"),
         NullEnv(),
         NullIO(),
     )
@@ -30,12 +20,12 @@ def test_builder_find_excluded_files(mocker):
     assert builder.find_excluded_files() == {"my_package/sub_pkg1/extra_file.xml"}
 
 
-def test_builder_find_case_sensitive_excluded_files(mocker):
+def test_builder_find_case_sensitive_excluded_files(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
     builder = Builder(
-        poetry_for("case_sensitive_exclusions"),
+        poetry_factory("case_sensitive_exclusions"),
         NullEnv(),
         NullIO(),
     )
@@ -51,12 +41,12 @@ def test_builder_find_case_sensitive_excluded_files(mocker):
     }
 
 
-def test_builder_find_invalid_case_sensitive_excluded_files(mocker):
+def test_builder_find_invalid_case_sensitive_excluded_files(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
     builder = Builder(
-        poetry_for("invalid_case_sensitive_exclusions"),
+        poetry_factory("invalid_case_sensitive_exclusions"),
         NullEnv(),
         NullIO(),
     )
@@ -64,9 +54,9 @@ def test_builder_find_invalid_case_sensitive_excluded_files(mocker):
     assert {"my_package/Bar/foo/bar/Foo.py"} == builder.find_excluded_files()
 
 
-def test_get_metadata_content():
+def test_get_metadata_content(poetry_factory):
     builder = Builder(
-        poetry_for("complete"),
+        poetry_factory("complete"),
         NullEnv(),
         NullIO(),
     )
@@ -116,9 +106,9 @@ def test_get_metadata_content():
     ]
 
 
-def test_metadata_homepage_default():
+def test_metadata_homepage_default(poetry_factory):
     builder = Builder(
-        poetry_for("simple_version"),
+        poetry_factory("simple_version"),
         NullEnv(),
         NullIO(),
     )
@@ -128,9 +118,9 @@ def test_metadata_homepage_default():
     assert metadata["Home-page"] is None
 
 
-def test_metadata_with_vcs_dependencies():
+def test_metadata_with_vcs_dependencies(poetry_factory):
     builder = Builder(
-        poetry_for("with_vcs_dependency"),
+        poetry_factory("with_vcs_dependency"),
         NullEnv(),
         NullIO(),
     )
@@ -142,9 +132,9 @@ def test_metadata_with_vcs_dependencies():
     assert "cleo @ git+https://github.com/sdispater/cleo.git@master" == requires_dist
 
 
-def test_metadata_with_url_dependencies():
+def test_metadata_with_url_dependencies(poetry_factory):
     builder = Builder(
-        poetry_for("with_url_dependency"),
+        poetry_factory("with_url_dependency"),
         NullEnv(),
         NullIO(),
     )

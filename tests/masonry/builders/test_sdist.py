@@ -24,13 +24,6 @@ from tests.helpers import get_dependency
 fixtures_dir = Path(__file__).parent / "fixtures"
 
 
-def poetry_for(name):
-    return Factory().create_poetry(
-        env=os.environ,
-        cwd=Path(__file__).parent / "fixtures" / name
-    )
-
-
 @pytest.fixture(autouse=True)
 def setup():
     clear_samples_dist()
@@ -114,8 +107,8 @@ def test_convert_dependencies():
     assert result == (main, extras)
 
 
-def test_make_setup():
-    poetry = poetry_for("complete")
+def test_make_setup(poetry_factory):
+    poetry = poetry_factory("complete")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     setup = builder.build_setup()
@@ -144,11 +137,11 @@ def test_make_setup():
     }
 
 
-def test_make_pkg_info(mocker):
+def test_make_pkg_info(poetry_factory, mocker):
     get_metadata_content = mocker.patch(
         "poetry.masonry.builders.builder.Builder.get_metadata_content"
     )
-    poetry = poetry_for("complete")
+    poetry = poetry_factory("complete")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build_pkg_info()
@@ -156,8 +149,8 @@ def test_make_pkg_info(mocker):
     assert get_metadata_content.called
 
 
-def test_make_pkg_info_any_python():
-    poetry = poetry_for("module1")
+def test_make_pkg_info_any_python(poetry_factory):
+    poetry = poetry_factory("module1")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     pkg_info = builder.build_pkg_info()
@@ -167,8 +160,8 @@ def test_make_pkg_info_any_python():
     assert "Requires-Python" not in parsed
 
 
-def test_find_files_to_add():
-    poetry = poetry_for("complete")
+def test_find_files_to_add(poetry_factory):
+    poetry = poetry_factory("complete")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     result = builder.find_files_to_add()
@@ -206,8 +199,8 @@ def test_make_pkg_info_multi_constraints_dependency():
     ]
 
 
-def test_find_packages():
-    poetry = poetry_for("complete")
+def test_find_packages(poetry_factory):
+    poetry = poetry_factory("complete")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -223,7 +216,7 @@ def test_find_packages():
         "my_package.sub_pkg2": ["data2/*"],
     }
 
-    poetry = poetry_for("source_package")
+    poetry = poetry_factory("source_package")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -236,8 +229,8 @@ def test_find_packages():
     assert pkg_data == {"": ["*"]}
 
 
-def test_package():
-    poetry = poetry_for("complete")
+def test_package(poetry_factory):
+    poetry = poetry_factory("complete")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -250,8 +243,8 @@ def test_package():
         assert "my-package-1.2.3/LICENSE" in tar.getnames()
 
 
-def test_module():
-    poetry = poetry_for("module1")
+def test_module(poetry_factory):
+    poetry = poetry_factory("module1")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -264,8 +257,8 @@ def test_module():
         assert "module1-0.1/module1.py" in tar.getnames()
 
 
-def test_prelease():
-    poetry = poetry_for("prerelease")
+def test_prelease(poetry_factory):
+    poetry = poetry_factory("prerelease")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -275,8 +268,8 @@ def test_prelease():
     assert sdist.exists()
 
 
-def test_with_c_extensions():
-    poetry = poetry_for("extended")
+def test_with_c_extensions(poetry_factory):
+    poetry = poetry_factory("extended")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -290,8 +283,8 @@ def test_with_c_extensions():
         assert "extended-0.1/extended/extended.c" in tar.getnames()
 
 
-def test_with_c_extensions_src_layout():
-    poetry = poetry_for("src_extended")
+def test_with_c_extensions_src_layout(poetry_factory):
+    poetry = poetry_factory("src_extended")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -305,8 +298,8 @@ def test_with_c_extensions_src_layout():
         assert "extended-0.1/src/extended/extended.c" in tar.getnames()
 
 
-def test_with_src_module_file():
-    poetry = poetry_for("source_file")
+def test_with_src_module_file(poetry_factory):
+    poetry = poetry_factory("source_file")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -330,8 +323,8 @@ def test_with_src_module_file():
         assert "module-src-0.1/src/module_src.py" in tar.getnames()
 
 
-def test_with_src_module_dir():
-    poetry = poetry_for("source_package")
+def test_with_src_module_dir(poetry_factory):
+    poetry = poetry_factory("source_package")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -356,8 +349,8 @@ def test_with_src_module_dir():
         assert "package-src-0.1/src/package_src/module.py" in tar.getnames()
 
 
-def test_default_with_excluded_data(mocker):
-    poetry = poetry_for("default_with_excluded_data")
+def test_default_with_excluded_data(poetry_factory, mocker):
+    poetry = poetry_factory("default_with_excluded_data")
 
     # Patch git module to return specific excluded files
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
@@ -416,8 +409,8 @@ def test_default_with_excluded_data(mocker):
             assert 0 < tarinfo.mtime
 
 
-def test_src_excluded_nested_data():
-    poetry = poetry_for("exclude_nested_data_toml")
+def test_src_excluded_nested_data(poetry_factory):
+    poetry = poetry_factory("exclude_nested_data_toml")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
@@ -448,8 +441,8 @@ def test_src_excluded_nested_data():
         assert "my-package-1.2.3/my_package/public/item2/itemdata2.txt" not in names
 
 
-def test_proper_python_requires_if_two_digits_precision_version_specified():
-    poetry = poetry_for("simple_version")
+def test_proper_python_requires_if_two_digits_precision_version_specified(poetry_factory):
+    poetry = poetry_factory("simple_version")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     pkg_info = builder.build_pkg_info()
@@ -459,8 +452,8 @@ def test_proper_python_requires_if_two_digits_precision_version_specified():
     assert parsed["Requires-Python"] == ">=3.6,<3.7"
 
 
-def test_proper_python_requires_if_three_digits_precision_version_specified():
-    poetry = poetry_for("single_python")
+def test_proper_python_requires_if_three_digits_precision_version_specified(poetry_factory):
+    poetry = poetry_factory("single_python")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     pkg_info = builder.build_pkg_info()
