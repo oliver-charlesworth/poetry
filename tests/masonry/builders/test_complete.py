@@ -4,10 +4,8 @@ from __future__ import unicode_literals
 import ast
 import os
 import re
-import shutil
 import sys
 import tarfile
-import tempfile
 import zipfile
 
 import pytest
@@ -15,9 +13,7 @@ import pytest
 from clikit.io import NullIO
 
 from poetry import __version__
-from poetry.factory import Factory
 from poetry.masonry.builders import CompleteBuilder
-from poetry.utils._compat import Path
 from poetry.utils._compat import decode
 from tests.mock_envs import NullEnv
 
@@ -360,28 +356,9 @@ def test_package_src(poetry_factory):
         zip.close()
 
 
-def test_package_with_include(poetry_factory, mocker):
+def test_package_with_include(poetry_factory):
     poetry = poetry_factory("with-include")
 
-    # Patch git module to return specific excluded files
-    p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
-    p.return_value = [
-        str(
-            Path(__file__).parent
-            / "fixtures"
-            / "with-include"
-            / "extra_dir"
-            / "vcs_excluded.txt"
-        ),
-        str(
-            Path(__file__).parent
-            / "fixtures"
-            / "with-include"
-            / "extra_dir"
-            / "sub_pkg"
-            / "vcs_excluded.txt"
-        ),
-    ]
     builder = CompleteBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 

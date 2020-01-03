@@ -67,7 +67,7 @@ class Application(BaseApplication):
 
     def reset_poetry(self):
         poetry = self._poetry
-        self._poetry = Factory().create_poetry(env=os.environ, cwd=poetry.file.path.parent)
+        self._poetry = Factory().create_poetry(env=poetry.env, cwd=poetry.file.path.parent)
         self._poetry.set_pool(poetry.pool)
         self._poetry.set_config(poetry.config)
         self._poetry.set_locker(poetry.locker)

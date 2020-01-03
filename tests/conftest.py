@@ -122,13 +122,13 @@ def fixtures_dir(request, tmp_path_factory):
             return Path(request.module.__file__)
 
     # Test cases may mutate things, so encapsulate by making a copy of the fixtures
-    def _create(name, is_root_fixture=False):  # type: (str, bool) -> Path
+    def _create(is_root_fixture=False):  # type: (bool) -> Path
         source = _reference_path(is_root_fixture).parent / "fixtures"
         target = tmp_path_factory.mktemp("target", numbered=True) / "fixtures"
 
         shutil.copytree(source.as_posix(), target.as_posix())
 
-        return target / name
+        return target
 
     return _create
 
@@ -140,7 +140,7 @@ def poetry_factory(fixtures_dir):
     def _create(name, is_root_fixture=False):  # type: (str, bool) -> Poetry
         return factory.create_poetry(
             env=os.environ,
-            cwd=(fixtures_dir(name, is_root_fixture))
+            cwd=(fixtures_dir(is_root_fixture) / name)
         )
 
     return _create

@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from poetry.utils._compat import PY35
@@ -7,9 +5,9 @@ from poetry.utils.setup_reader import SetupReader
 
 
 @pytest.fixture()
-def setup():
+def setup(fixtures_dir):
     def _setup(name):
-        return os.path.join(os.path.dirname(__file__), "fixtures", "setups", name)
+        return fixtures_dir() / "setups" / name
 
     return _setup
 
