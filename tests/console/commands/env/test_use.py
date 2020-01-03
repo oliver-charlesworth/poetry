@@ -13,15 +13,8 @@ from tests.mock_envs import MockEnv
 from poetry.utils.toml_file import TomlFile
 
 
-CWD = Path(__file__).parent.parent / "fixtures" / "simple_project"
-
-
 def build_venv(path, executable=None):
     os.mkdir(path)
-
-
-def remove_venv(path):
-    shutil.rmtree(path)
 
 
 def check_output_wrapper(version=Version.parse("3.7.1")):

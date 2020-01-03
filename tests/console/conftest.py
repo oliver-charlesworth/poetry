@@ -152,19 +152,13 @@ def poetry(poetry_factory, repo, project_directory, config):
     p = poetry_factory(project_directory, is_root_fixture=True)
     p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
 
-    with p.file.path.open(encoding="utf-8") as f:
-        content = f.read()
-
     p.set_config(config)
 
     pool = Pool()
     pool.add_repository(repo)
     p.set_pool(pool)
 
-    yield p
-
-    with p.file.path.open("w", encoding="utf-8") as f:
-        f.write(content)
+    return p
 
 
 @pytest.fixture
