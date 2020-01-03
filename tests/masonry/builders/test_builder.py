@@ -10,12 +10,19 @@ from poetry.utils._compat import Path
 from tests.mock_envs import NullEnv
 
 
+def poetry_for(name):
+    return Factory().create_poetry(
+        env=os.environ,
+        cwd=Path(__file__).parent / "fixtures" / name
+    )
+
+
 def test_builder_find_excluded_files(mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
     builder = Builder(
-        Factory().create_poetry(env=os.environ, cwd=Path(__file__).parent / "fixtures" / "complete"),
+        poetry_for("complete"),
         NullEnv(),
         NullIO(),
     )
@@ -28,9 +35,7 @@ def test_builder_find_case_sensitive_excluded_files(mocker):
     p.return_value = []
 
     builder = Builder(
-        Factory().create_poetry(
-            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "case_sensitive_exclusions"
-        ),
+        poetry_for("case_sensitive_exclusions"),
         NullEnv(),
         NullIO(),
     )
@@ -51,9 +56,7 @@ def test_builder_find_invalid_case_sensitive_excluded_files(mocker):
     p.return_value = []
 
     builder = Builder(
-        Factory().create_poetry(
-            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "invalid_case_sensitive_exclusions"
-        ),
+        poetry_for("invalid_case_sensitive_exclusions"),
         NullEnv(),
         NullIO(),
     )
@@ -63,7 +66,7 @@ def test_builder_find_invalid_case_sensitive_excluded_files(mocker):
 
 def test_get_metadata_content():
     builder = Builder(
-        Factory().create_poetry(env=os.environ, cwd=Path(__file__).parent / "fixtures" / "complete"),
+        poetry_for("complete"),
         NullEnv(),
         NullIO(),
     )
@@ -115,7 +118,7 @@ def test_get_metadata_content():
 
 def test_metadata_homepage_default():
     builder = Builder(
-        Factory().create_poetry(env=os.environ, cwd=Path(__file__).parent / "fixtures" / "simple_version"),
+        poetry_for("simple_version"),
         NullEnv(),
         NullIO(),
     )
@@ -127,9 +130,7 @@ def test_metadata_homepage_default():
 
 def test_metadata_with_vcs_dependencies():
     builder = Builder(
-        Factory().create_poetry(
-            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "with_vcs_dependency"
-        ),
+        poetry_for("with_vcs_dependency"),
         NullEnv(),
         NullIO(),
     )
@@ -143,9 +144,7 @@ def test_metadata_with_vcs_dependencies():
 
 def test_metadata_with_url_dependencies():
     builder = Builder(
-        Factory().create_poetry(
-            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "with_url_dependency"
-        ),
+        poetry_for("with_url_dependency"),
         NullEnv(),
         NullIO(),
     )

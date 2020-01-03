@@ -25,6 +25,13 @@ from tests.mock_envs import NullEnv
 fixtures_dir = Path(__file__).parent / "fixtures"
 
 
+def poetry_for(name):
+    return Factory().create_poetry(
+        env=os.environ,
+        cwd=Path(__file__).parent / "fixtures" / name
+    )
+
+
 @pytest.fixture(autouse=True)
 def setup():
     clear_samples_dist()
@@ -45,13 +52,11 @@ def clear_samples_dist():
     reason="Disable test on Windows for Python <=3.6",
 )
 def test_wheel_c_extension():
-    module_path = fixtures_dir / "extended"
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
-    )
+    poetry = poetry_for("extended")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = fixtures_dir / "extended" / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -59,7 +64,7 @@ def test_wheel_c_extension():
         assert "extended-0.1/build.py" in tar.getnames()
         assert "extended-0.1/extended/extended.c" in tar.getnames()
 
-    whl = list((module_path / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
+    whl = list((poetry.file.parent / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
 
     assert whl.exists()
 
@@ -102,13 +107,11 @@ $""".format(
     reason="Disable test on Windows for Python <=3.6",
 )
 def test_wheel_c_extension_src_layout():
-    module_path = fixtures_dir / "src_extended"
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
-    )
+    poetry = poetry_for("src_extended")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = fixtures_dir / "src_extended" / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -116,7 +119,7 @@ def test_wheel_c_extension_src_layout():
         assert "extended-0.1/build.py" in tar.getnames()
         assert "extended-0.1/src/extended/extended.c" in tar.getnames()
 
-    whl = list((module_path / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
+    whl = list((poetry.file.parent / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
 
     assert whl.exists()
 
@@ -155,13 +158,11 @@ $""".format(
 
 
 def test_complete():
-    module_path = fixtures_dir / "complete"
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
-    )
+    poetry = poetry_for("complete")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    whl = module_path / "dist" / "my_package-1.2.3-py3-none-any.whl"
+    whl = poetry.file.parent / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
     if sys.platform != "win32":
@@ -343,20 +344,18 @@ My Package
 
 
 def test_module_src():
-    module_path = fixtures_dir / "source_file"
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
-    )
+    poetry = poetry_for("source_file")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = module_path / "dist" / "module-src-0.1.tar.gz"
+    sdist = poetry.file.parent / "dist" / "module-src-0.1.tar.gz"
 
     assert sdist.exists()
 
     with tarfile.open(str(sdist), "r") as tar:
         assert "module-src-0.1/src/module_src.py" in tar.getnames()
 
-    whl = module_path / "dist" / "module_src-0.1-py2.py3-none-any.whl"
+    whl = poetry.file.parent / "dist" / "module_src-0.1-py2.py3-none-any.whl"
 
     assert whl.exists()
 
@@ -369,20 +368,18 @@ def test_module_src():
 
 
 def test_package_src():
-    module_path = fixtures_dir / "source_package"
-    builder = CompleteBuilder(
-        Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(execute=True), NullIO()
-    )
+    poetry = poetry_for("source_package")
+    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = module_path / "dist" / "package-src-0.1.tar.gz"
+    sdist = poetry.file.parent / "dist" / "package-src-0.1.tar.gz"
 
     assert sdist.exists()
 
     with tarfile.open(str(sdist), "r") as tar:
         assert "package-src-0.1/src/package_src/module.py" in tar.getnames()
 
-    whl = module_path / "dist" / "package_src-0.1-py2.py3-none-any.whl"
+    whl = poetry.file.parent / "dist" / "package_src-0.1-py2.py3-none-any.whl"
 
     assert whl.exists()
 
@@ -396,7 +393,7 @@ def test_package_src():
 
 
 def test_package_with_include(mocker):
-    module_path = fixtures_dir / "with-include"
+    poetry = poetry_for("with-include")
 
     # Patch git module to return specific excluded files
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
@@ -417,10 +414,10 @@ def test_package_with_include(mocker):
             / "vcs_excluded.txt"
         ),
     ]
-    builder = CompleteBuilder(Factory().create_poetry(env=os.environ, cwd=module_path), NullEnv(), NullIO())
+    builder = CompleteBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = fixtures_dir / "with-include" / "dist" / "with-include-1.2.3.tar.gz"
+    sdist = poetry.file.parent / "dist" / "with-include-1.2.3.tar.gz"
 
     assert sdist.exists()
 
@@ -460,7 +457,7 @@ def test_package_with_include(mocker):
         assert ns["package_data"] == {"": ["*"]}
         assert ns["modules"] == ["my_module"]
 
-    whl = module_path / "dist" / "with_include-1.2.3-py3-none-any.whl"
+    whl = poetry.file.parent / "dist" / "with_include-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
 

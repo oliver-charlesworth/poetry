@@ -15,8 +15,15 @@ from poetry.utils.toml_file import TomlFile
 fixtures_dir = Path(__file__).parent / "fixtures"
 
 
+def poetry_for(name):
+    return Factory().create_poetry(
+        env=os.environ,
+        cwd=Path(__file__).parent / "fixtures" / name
+    )
+
+
 def test_create_poetry():
-    poetry = Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "sample_project")
+    poetry = poetry_for("sample_project")
 
     package = poetry.package
 
@@ -135,9 +142,7 @@ def test_create_poetry_with_packages_and_includes():
 
 
 def test_create_poetry_with_multi_constraints_dependency():
-    poetry = Factory().create_poetry(
-        env=os.environ, cwd=fixtures_dir / "project_with_multi_constraints_dependency"
-    )
+    poetry = poetry_for("project_with_multi_constraints_dependency")
 
     package = poetry.package
 
@@ -145,14 +150,14 @@ def test_create_poetry_with_multi_constraints_dependency():
 
 
 def test_poetry_with_default_source():
-    poetry = Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "with_default_source")
+    poetry = poetry_for("with_default_source")
 
     assert 1 == len(poetry.pool.repositories)
 
 
 def test_poetry_with_two_default_sources():
     with pytest.raises(ValueError) as e:
-        Factory().create_poetry(env=os.environ, cwd=fixtures_dir / "with_two_default_sources")
+        poetry_for("with_two_default_sources")
 
     assert "Only one repository can be the default" == str(e.value)
 
@@ -185,9 +190,7 @@ def test_validate_fails():
 
 def test_create_poetry_fails_on_invalid_configuration():
     with pytest.raises(RuntimeError) as e:
-        Factory().create_poetry(
-            env=os.environ, cwd=Path(__file__).parent / "fixtures" / "invalid_pyproject" / "pyproject.toml"
-        )
+        poetry_for("invalid_pyproject")
 
     if PY2:
         expected = """\
@@ -203,7 +206,7 @@ The Poetry configuration is invalid:
 
 
 def test_create_poetry_with_local_config(fixture_dir):
-    poetry = Factory().create_poetry(env=os.environ, cwd=fixture_dir("with_local_config"))
+    poetry = poetry_for("with_local_config")
 
     assert not poetry.config.get("virtualenvs.in-project")
     assert not poetry.config.get("virtualenvs.create")
