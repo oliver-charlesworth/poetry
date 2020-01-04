@@ -1,4 +1,5 @@
 import pytest
+
 from cleo import ApplicationTester
 
 from poetry.utils._compat import Path

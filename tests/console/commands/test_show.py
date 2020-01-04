@@ -12,7 +12,7 @@ _MINIMAL_ENV_VARS = minimal_env_vars(COLUMNS="80")  # Fix terminal width
 
 def test_show_basic_with_installed_packages(app_factory, installed):
     app = app_factory(env_vars=_MINIMAL_ENV_VARS)
-    
+
     command = app.find("show")
     tester = CommandTester(command)
 

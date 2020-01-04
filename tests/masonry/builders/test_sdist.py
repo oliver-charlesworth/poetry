@@ -336,13 +336,6 @@ def test_default_with_excluded_data(poetry_factory, mocker):
             .as_posix()
         )
     ]
-    print(
-        "XXX: {}".format(
-            (
-                poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt"
-            ).relative_to(poetry.file.parent)
-        )
-    )
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 

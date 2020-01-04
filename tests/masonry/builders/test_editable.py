@@ -10,7 +10,9 @@ from poetry.utils._compat import Path
 from tests.mock_envs import MockEnv
 
 
-def test_build_should_delegate_to_pip_for_non_pure_python_packages(poetry_factory, tmp_dir, mocker):
+def test_build_should_delegate_to_pip_for_non_pure_python_packages(
+    poetry_factory, tmp_dir, mocker
+):
     move = mocker.patch("shutil.move")
     tmp_dir = Path(tmp_dir)
     env = MockEnv(path=tmp_dir, pip_version="18.1", execute=False)
@@ -26,7 +28,9 @@ def test_build_should_delegate_to_pip_for_non_pure_python_packages(poetry_factor
     assert 0 == move.call_count
 
 
-def test_build_should_temporarily_remove_the_pyproject_file(poetry_factory, tmp_dir, mocker):
+def test_build_should_temporarily_remove_the_pyproject_file(
+    poetry_factory, tmp_dir, mocker
+):
     move = mocker.patch("shutil.move")
     tmp_dir = Path(tmp_dir)
     env = MockEnv(path=tmp_dir, pip_version="19.1", execute=False)
@@ -43,10 +47,12 @@ def test_build_should_temporarily_remove_the_pyproject_file(poetry_factory, tmp_
 
     expected_calls = [
         mocker.call(
-            str(poetry.file.parent / "pyproject.toml"), str(poetry.file.parent / "pyproject.tmp")
+            str(poetry.file.parent / "pyproject.toml"),
+            str(poetry.file.parent / "pyproject.tmp"),
         ),
         mocker.call(
-            str(poetry.file.parent / "pyproject.tmp"), str(poetry.file.parent / "pyproject.toml")
+            str(poetry.file.parent / "pyproject.tmp"),
+            str(poetry.file.parent / "pyproject.toml"),
         ),
     ]
 
