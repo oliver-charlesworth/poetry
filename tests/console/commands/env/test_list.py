@@ -7,7 +7,9 @@ from poetry.utils.env import EnvManager
 from poetry.utils.toml_file import TomlFile
 
 
-def test_none_activated(app, tmp_dir):
+def test_none_activated(app_factory, tmp_dir):
+    app = app_factory()
+
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
     venv_name = EnvManager.generate_env_name(
@@ -30,7 +32,9 @@ def test_none_activated(app, tmp_dir):
     assert expected == tester.io.fetch_output()
 
 
-def test_activated(app, tmp_dir):
+def test_activated(app_factory, tmp_dir):
+    app = app_factory()
+
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
     venv_name = EnvManager.generate_env_name(

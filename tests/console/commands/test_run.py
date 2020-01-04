@@ -4,7 +4,9 @@ from poetry.utils._compat import Path
 from tests.mock_envs import MockEnv
 
 
-def test_run_passes_all_args(app, mocker):
+def test_run_passes_all_args(app_factory, mocker):
+    app = app_factory()
+
     env = MockEnv(path=Path("/prefix"), base=Path("/base/prefix"), is_venv=True)
     mocker.patch("poetry.utils.env.EnvManager.get", return_value=env)
 

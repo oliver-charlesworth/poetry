@@ -9,7 +9,9 @@ from tests.helpers import get_dependency
 from tests.helpers import get_package
 
 
-def test_add_no_constraint(app, repo, installer):
+def test_add_no_constraint(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -42,7 +44,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert content["dependencies"]["cachy"] == "^0.2.0"
 
 
-def test_add_equal_constraint(app, repo, installer):
+def test_add_equal_constraint(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -69,7 +73,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert len(installer.installs) == 1
 
 
-def test_add_greater_constraint(app, repo, installer):
+def test_add_greater_constraint(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -96,7 +102,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert len(installer.installs) == 1
 
 
-def test_add_constraint_with_extras(app, repo, installer):
+def test_add_constraint_with_extras(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -130,7 +138,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert len(installer.installs) == 2
 
 
-def test_add_constraint_dependencies(app, repo, installer):
+def test_add_constraint_dependencies(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -163,7 +173,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert len(installer.installs) == 2
 
 
-def test_add_git_constraint(app, repo, installer):
+def test_add_git_constraint(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -198,7 +210,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_git_constraint_with_poetry(app, repo, installer):
+def test_add_git_constraint_with_poetry(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -225,7 +239,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert len(installer.installs) == 2
 
 
-def test_add_git_constraint_with_extras(app, repo, installer):
+def test_add_git_constraint_with_extras(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -264,7 +280,9 @@ Package operations: 4 installs, 0 updates, 0 removals
     }
 
 
-def test_add_git_ssh_constraint(app, repo, installer):
+def test_add_git_ssh_constraint(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -300,7 +318,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_directory_constraint(app, repo, installer, mocker):
+def test_add_directory_constraint(app_factory, repo, installer, mocker):
+    app = app_factory()
+
     p = mocker.patch("poetry.utils._compat.Path.cwd")
     p.return_value = Path(__file__) / ".."
 
@@ -336,7 +356,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert content["dependencies"]["demo"] == {"path": "../git/github.com/demo/demo"}
 
 
-def test_add_directory_with_poetry(app, repo, installer, mocker):
+def test_add_directory_with_poetry(app_factory, repo, installer, mocker):
+    app = app_factory()
+
     p = mocker.patch("poetry.utils._compat.Path.cwd")
     p.return_value = Path(__file__) / ".."
 
@@ -366,7 +388,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert len(installer.installs) == 2
 
 
-def test_add_file_constraint_wheel(app, repo, installer, mocker):
+def test_add_file_constraint_wheel(app_factory, repo, installer, mocker):
+    app = app_factory()
+
     p = mocker.patch("poetry.utils._compat.Path.cwd")
     p.return_value = Path(__file__) / ".."
 
@@ -403,7 +427,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_file_constraint_sdist(app, repo, installer, mocker):
+def test_add_file_constraint_sdist(app_factory, repo, installer, mocker):
+    app = app_factory()
+
     p = mocker.patch("poetry.utils._compat.Path.cwd")
     p.return_value = Path(__file__) / ".."
 
@@ -440,7 +466,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_constraint_with_extras_option(app, repo, installer):
+def test_add_constraint_with_extras_option(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -482,7 +510,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_url_constraint_wheel(app, repo, installer, mocker):
+def test_add_url_constraint_wheel(app_factory, repo, installer, mocker):
+    app = app_factory()
+
     p = mocker.patch("poetry.utils._compat.Path.cwd")
     p.return_value = Path(__file__) / ".."
 
@@ -521,7 +551,9 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_url_constraint_wheel_with_extras(app, repo, installer, mocker):
+def test_add_url_constraint_wheel_with_extras(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -562,7 +594,9 @@ Package operations: 4 installs, 0 updates, 0 removals
     }
 
 
-def test_add_constraint_with_python(app, repo, installer):
+def test_add_constraint_with_python(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -596,7 +630,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert content["dependencies"]["cachy"] == {"version": "0.2.0", "python": ">=2.7"}
 
 
-def test_add_constraint_with_platform(app, repo, installer):
+def test_add_constraint_with_platform(app_factory, repo, installer):
+    app = app_factory()
+
     platform = sys.platform
     command = app.find("add")
     tester = CommandTester(command)
@@ -634,7 +670,9 @@ Package operations: 1 install, 0 updates, 0 removals
     }
 
 
-def test_add_to_section_that_does_no_exist_yet(app, repo, installer):
+def test_add_to_section_that_does_no_exist_yet(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -667,7 +705,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert content["dev-dependencies"]["cachy"] == "^0.2.0"
 
 
-def test_add_should_not_select_prereleases(app, repo, installer):
+def test_add_should_not_select_prereleases(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -701,8 +741,10 @@ Package operations: 1 install, 0 updates, 0 removals
 
 
 def test_add_should_display_an_error_when_adding_existing_package_with_no_constraint(
-    app, repo, installer
+        app_factory, repo, installer
 ):
+    app = app_factory()
+
     content = app.poetry.file.read()
     content["tool"]["poetry"]["dependencies"]["foo"] = "^1.0"
     app.poetry.file.write(content)
@@ -718,8 +760,10 @@ def test_add_should_display_an_error_when_adding_existing_package_with_no_constr
 
 
 def test_add_should_work_when_adding_existing_package_with_latest_constraint(
-    app, repo, installer
+    app_factory, repo, installer
 ):
+    app = app_factory()
+
     content = app.poetry.file.read()
     content["tool"]["poetry"]["dependencies"]["foo"] = "^1.0"
     app.poetry.file.write(content)
@@ -752,7 +796,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert content["dependencies"]["foo"] == "^1.1.2"
 
 
-def test_add_chooses_prerelease_if_only_prereleases_are_available(app, repo, installer):
+def test_add_chooses_prerelease_if_only_prereleases_are_available(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 
@@ -778,7 +824,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert expected in tester.io.fetch_output()
 
 
-def test_add_preferes_stable_releases(app, repo, installer):
+def test_add_preferes_stable_releases(app_factory, repo, installer):
+    app = app_factory()
+
     command = app.find("add")
     tester = CommandTester(command)
 

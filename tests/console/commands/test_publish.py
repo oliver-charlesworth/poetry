@@ -1,7 +1,15 @@
+import pytest
+from cleo import ApplicationTester
+
 from poetry.utils._compat import Path
 
 
-def test_publish_returns_non_zero_code_for_upload_errors(app, app_tester, http):
+@pytest.fixture
+def app_tester(app_factory):
+    return ApplicationTester(app_factory())
+
+
+def test_publish_returns_non_zero_code_for_upload_errors(app_tester, http):
     http.register_uri(
         http.POST, "https://upload.pypi.org/legacy/", status=400, body="Bad Request"
     )

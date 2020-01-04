@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "project-for-exporting"
+version = "1.2.3"
+description = "This is a description"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+
+# Requirements
+[tool.poetry.dependencies]
+python = "~2.7 || ^3.4"
+foo = "^1.0"
+bar = { version = "^1.1", optional = true }
+
+[tool.poetry.extras]
+feature_bar = ["bar"]

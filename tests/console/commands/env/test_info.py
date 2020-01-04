@@ -16,7 +16,9 @@ def setup(mocker):
     )
 
 
-def test_env_info_displays_complete_info(app):
+def test_env_info_displays_complete_info(app_factory):
+    app = app_factory()
+
     command = app.find("env info")
     tester = CommandTester(command)
 
@@ -40,7 +42,9 @@ Python:   {base_prefix}
     assert expected == tester.io.fetch_output()
 
 
-def test_env_info_displays_path_only(app):
+def test_env_info_displays_path_only(app_factory):
+    app = app_factory()
+
     command = app.find("env info")
     tester = CommandTester(command)
 

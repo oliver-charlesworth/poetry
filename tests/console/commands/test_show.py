@@ -6,7 +6,9 @@ from clikit.formatter.ansi_formatter import AnsiFormatter
 from tests.helpers import get_package
 
 
-def test_show_basic_with_installed_packages(app, poetry, installed):
+def test_show_basic_with_installed_packages(app_factory, installed):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -24,7 +26,7 @@ def test_show_basic_with_installed_packages(app, poetry, installed):
     installed.add_package(pendulum_200)
     installed.add_package(pytest_373)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -78,7 +80,9 @@ pytest   3.7.3 Pytest package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_basic_with_not_installed_packages_non_decorated(app, poetry, installed):
+def test_show_basic_with_not_installed_packages_non_decorated(app_factory, installed):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -89,7 +93,7 @@ def test_show_basic_with_not_installed_packages_non_decorated(app, poetry, insta
     pendulum_200.description = "Pendulum package"
 
     installed.add_package(cachy_010)
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -132,7 +136,9 @@ pendulum (!) 2.0.0 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_basic_with_not_installed_packages_decorated(app, poetry, installed):
+def test_show_basic_with_not_installed_packages_decorated(app_factory, installed):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -143,7 +149,7 @@ def test_show_basic_with_not_installed_packages_decorated(app, poetry, installed
     pendulum_200.description = "Pendulum package"
 
     installed.add_package(cachy_010)
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -187,7 +193,9 @@ def test_show_basic_with_not_installed_packages_decorated(app, poetry, installed
     assert expected == tester.io.fetch_output()
 
 
-def test_show_latest_non_decorated(app, poetry, installed, repo):
+def test_show_latest_non_decorated(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -209,7 +217,7 @@ def test_show_latest_non_decorated(app, poetry, installed, repo):
     repo.add_package(pendulum_200)
     repo.add_package(pendulum_201)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -252,7 +260,9 @@ pendulum 2.0.0 2.0.1 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_latest_decorated(app, poetry, installed, repo):
+def test_show_latest_decorated(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -274,7 +284,7 @@ def test_show_latest_decorated(app, poetry, installed, repo):
     repo.add_package(pendulum_200)
     repo.add_package(pendulum_201)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -318,7 +328,9 @@ def test_show_latest_decorated(app, poetry, installed, repo):
     assert expected == tester.io.fetch_output()
 
 
-def test_show_outdated(app, poetry, installed, repo):
+def test_show_outdated(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -337,7 +349,7 @@ def test_show_outdated(app, poetry, installed, repo):
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -379,7 +391,9 @@ cachy 0.1.0 0.2.0 Cachy package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_outdated_with_only_up_to_date_packages(app, poetry, installed, repo):
+def test_show_outdated_with_only_up_to_date_packages(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -389,7 +403,7 @@ def test_show_outdated_with_only_up_to_date_packages(app, poetry, installed, rep
     installed.add_package(cachy_020)
     repo.add_package(cachy_020)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -419,7 +433,9 @@ def test_show_outdated_with_only_up_to_date_packages(app, poetry, installed, rep
     assert expected == tester.io.fetch_output()
 
 
-def test_show_outdated_has_prerelease_but_not_allowed(app, poetry, installed, repo):
+def test_show_outdated_has_prerelease_but_not_allowed(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -443,7 +459,7 @@ def test_show_outdated_has_prerelease_but_not_allowed(app, poetry, installed, re
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -485,7 +501,9 @@ cachy 0.1.0 0.2.0 Cachy package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_outdated_has_prerelease_and_allowed(app, poetry, installed, repo):
+def test_show_outdated_has_prerelease_and_allowed(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -509,7 +527,7 @@ def test_show_outdated_has_prerelease_and_allowed(app, poetry, installed, repo):
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -551,7 +569,9 @@ cachy 0.1.0.dev1 0.3.0.dev123 Cachy package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_outdated_formatting(app, poetry, installed, repo):
+def test_show_outdated_formatting(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -573,7 +593,7 @@ def test_show_outdated_formatting(app, poetry, installed, repo):
     repo.add_package(pendulum_200)
     repo.add_package(pendulum_201)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -617,7 +637,9 @@ pendulum 2.0.0 2.0.1 Pendulum package
 
 
 @pytest.mark.parametrize("project_directory", ["project_with_local_dependencies"])
-def test_show_outdated_local_dependencies(app, poetry, installed, repo):
+def test_show_outdated_local_dependencies(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -644,7 +666,7 @@ def test_show_outdated_local_dependencies(app, poetry, installed, repo):
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -709,6 +731,8 @@ def test_show_outdated_local_dependencies(app, poetry, installed, repo):
 
     tester.execute("--outdated")
 
+    print(tester.io.fetch_output())
+
     expected = """\
 cachy      0.1.0                       0.2.0
 my-package 0.1.1 ../project_with_setup 0.1.2 ../project_with_setup
@@ -719,7 +743,9 @@ my-package 0.1.1 ../project_with_setup 0.1.2 ../project_with_setup
 
 
 @pytest.mark.parametrize("project_directory", ["project_with_git_dev_dependency"])
-def test_show_outdated_git_dev_dependency(app, poetry, installed, repo):
+def test_show_outdated_git_dev_dependency(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -742,7 +768,7 @@ def test_show_outdated_git_dev_dependency(app, poetry, installed, repo):
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -801,7 +827,9 @@ demo  0.1.1 9cf87a2 0.1.2 9cf87a2 Demo package
 
 
 @pytest.mark.parametrize("project_directory", ["project_with_git_dev_dependency"])
-def test_show_outdated_no_dev_git_dev_dependency(app, poetry, installed, repo):
+def test_show_outdated_no_dev_git_dev_dependency(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -824,7 +852,7 @@ def test_show_outdated_no_dev_git_dev_dependency(app, poetry, installed, repo):
     repo.add_package(cachy_020)
     repo.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -881,7 +909,9 @@ cachy 0.1.0 0.2.0 Cachy package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_hides_incompatible_package(app, poetry, installed, repo):
+def test_show_hides_incompatible_package(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -893,7 +923,7 @@ def test_show_hides_incompatible_package(app, poetry, installed, repo):
 
     installed.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -936,7 +966,9 @@ pendulum 2.0.0 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_all_shows_incompatible_package(app, poetry, installed, repo):
+def test_show_all_shows_incompatible_package(app_factory, installed, repo):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -948,7 +980,7 @@ def test_show_all_shows_incompatible_package(app, poetry, installed, repo):
 
     installed.add_package(pendulum_200)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -992,7 +1024,9 @@ pendulum  2.0.0 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_non_dev_with_basic_installed_packages(app, poetry, installed):
+def test_show_non_dev_with_basic_installed_packages(app_factory, installed):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -1010,7 +1044,7 @@ def test_show_non_dev_with_basic_installed_packages(app, poetry, installed):
     installed.add_package(pendulum_200)
     installed.add_package(pytest_373)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {
@@ -1063,18 +1097,20 @@ pendulum 2.0.0 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-def test_show_tree(app, poetry, installed):
+def test_show_tree(app_factory, installed):
+    app = app_factory()
+
     command = app.find("show")
     tester = CommandTester(command)
 
-    poetry.package.add_dependency("cachy", "^0.2.0")
+    app.poetry.package.add_dependency("cachy", "^0.2.0")
 
     cachy2 = get_package("cachy", "0.2.0")
     cachy2.add_dependency("msgpack-python", ">=0.5 <0.6")
 
     installed.add_package(cachy2)
 
-    poetry.locker.mock_lock_data(
+    app.poetry.locker.mock_lock_data(
         {
             "package": [
                 {

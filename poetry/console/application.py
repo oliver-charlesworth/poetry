@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 from cleo import Application as BaseApplication
 
@@ -30,12 +31,13 @@ from .config import ApplicationConfig
 
 
 class Application(BaseApplication):
-    def __init__(self):
+    def __init__(self, env):  # type: (Dict[str, str]) -> None
         super(Application, self).__init__(
             "poetry", __version__, config=ApplicationConfig("poetry", __version__)
         )
 
         self._poetry = None
+        self._env = env
 
         for command in self.get_default_commands():
             self.add(command)
@@ -48,7 +50,7 @@ class Application(BaseApplication):
         if self._poetry is not None:
             return self._poetry
 
-        self._poetry = Factory().create_poetry(env=os.environ, cwd=Path.cwd())
+        self._poetry = Factory().create_poetry(env=self._env, cwd=Path.cwd())
 
         return self._poetry
 
@@ -90,7 +92,3 @@ class Application(BaseApplication):
         commands += [SelfCommand()]
 
         return commands
-
-
-if __name__ == "__main__":
-    Application().run()

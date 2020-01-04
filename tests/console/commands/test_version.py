@@ -5,11 +5,6 @@ from cleo import CommandTester
 from poetry.console.commands import VersionCommand
 
 
-@pytest.fixture()
-def command():
-    return VersionCommand()
-
-
 @pytest.mark.parametrize(
     "version, rule, expected",
     [
@@ -36,12 +31,12 @@ def command():
         ("0.0.0", "1.2.3", "1.2.3"),
     ],
 )
-def test_increment_version(version, rule, expected, command):
-    assert expected == command.increment_version(version, rule).text
+def test_increment_version(version, rule, expected):
+    assert expected == VersionCommand().increment_version(version, rule).text
 
 
-def test_version_show(app):
-    command = app.find("version")
+def test_version_show(app_factory):
+    command = app_factory().find("version")
     tester = CommandTester(command)
     tester.execute()
     assert "simple-project 1.2.3\n" == tester.io.fetch_output()

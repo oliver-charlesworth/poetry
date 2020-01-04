@@ -12,6 +12,7 @@ from poetry.repositories import Pool
 from poetry.repositories import Repository as BaseRepository
 from poetry.repositories.exceptions import PackageNotFound
 from poetry.utils.toml_file import TomlFile
+from tests.conftest import minimal_env
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
 
@@ -49,19 +50,10 @@ def setup(mocker, installer, installed, config):
     # Patch download to not download anything but to just copy from fixtures
     mocker.patch("poetry.utils.inspector.Inspector.download", new=mock_download)
 
-    # Setting terminal width
-    environ = dict(os.environ)
-    os.environ["COLUMNS"] = "80"
-
-    yield
-
-    os.environ.clear()
-    os.environ.update(environ)
-
 
 class Application(BaseApplication):
     def __init__(self, poetry):
-        super(Application, self).__init__()
+        super(Application, self).__init__(poetry.env)
 
         self._poetry = poetry
 
@@ -81,7 +73,7 @@ class Locker(BaseLocker):
         self._content_hash = self._get_content_hash()
         self._locked = False
         self._lock_data = None
-        self._write = False
+        self._write = True
 
     def write(self, write=True):
         self._write = write
@@ -133,18 +125,22 @@ def project_directory():
     return "simple_project"
 
 
-@pytest.fixture
-def poetry(poetry_factory, repo, project_directory, config):
-    p = poetry_factory(project_directory, is_root_fixture=True)
-    p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
-
-    p.set_config(config)
-
-    pool = Pool()
-    pool.add_repository(repo)
-    p.set_pool(pool)
-
-    return p
+# @pytest.fixture
+# def poetry(poetry_factory, repo, project_directory, config):
+#     p = poetry_factory(project_directory, is_root_fixture=True, env={
+#         "PATH": os.environ["PATH"],
+#         "VIRTUAL_ENV": os.environ["VIRTUAL_ENV"],
+#         "COLUMNS": "80"  # Setting terminal width  # TODO - is this needed?
+#     })
+#     p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
+#
+#     p.set_config(config)
+#
+#     pool = Pool()
+#     pool.add_repository(repo)
+#     p.set_pool(pool)
+#
+#     return p
 
 
 @pytest.fixture
@@ -156,5 +152,24 @@ def app(poetry):
 
 
 @pytest.fixture
-def app_tester(app):
-    return ApplicationTester(app)
+def app_factory(poetry_factory, repo, project_directory, config):
+    def _create_poetry(env):
+        p = poetry_factory(project_directory, is_root_fixture=True, env=env)
+        p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
+
+        p.set_config(config)
+
+        pool = Pool()
+        pool.add_repository(repo)
+        p.set_pool(pool)
+
+        return p
+
+    def _create(env=None):
+        poetry = _create_poetry(env or minimal_env())
+        app = Application(poetry)
+        app.config.set_terminate_after_run(False)
+
+        return app
+
+    return _create

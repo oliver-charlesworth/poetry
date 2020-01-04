@@ -1,5 +1,7 @@
+import os
+
 from .application import Application
 
 
 def main():
-    return Application().run()
+    return Application(env=os.environ).run()

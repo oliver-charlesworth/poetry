@@ -7,7 +7,9 @@ from .test_use import Version
 from .test_use import check_output_wrapper
 
 
-def test_remove_by_python_version(app, tmp_dir, mocker):
+def test_remove_by_python_version(app_factory, tmp_dir, mocker):
+    app = app_factory()
+
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
     venv_name = EnvManager.generate_env_name(
@@ -35,7 +37,9 @@ def test_remove_by_python_version(app, tmp_dir, mocker):
     assert expected == tester.io.fetch_output()
 
 
-def test_remove_by_name(app, tmp_dir):
+def test_remove_by_name(app_factory, tmp_dir):
+    app = app_factory()
+
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
     venv_name = EnvManager.generate_env_name(

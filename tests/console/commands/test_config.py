@@ -1,13 +1,15 @@
 import json
 import os
 
+import pytest
 from cleo.testers import CommandTester
 
 from poetry.config.config_source import ConfigSource
-from poetry.factory import Factory
 
 
-def test_list_displays_default_value_if_not_set(app, config):
+def test_list_displays_default_value_if_not_set(app_factory, config):
+    app = app_factory()
+
     command = app.find("config")
     tester = CommandTester(command)
     tester.execute("--list")
@@ -23,7 +25,9 @@ virtualenvs.path = {path}  # /foo{sep}virtualenvs
     assert expected == tester.io.fetch_output()
 
 
-def test_list_displays_set_get_setting(app, config):
+def test_list_displays_set_get_setting(app_factory, config):
+    app = app_factory()
+
     command = app.find("config")
     tester = CommandTester(command)
 
@@ -43,7 +47,9 @@ virtualenvs.path = {path}  # /foo{sep}virtualenvs
     assert expected == tester.io.fetch_output()
 
 
-def test_display_single_setting(app, config):
+def test_display_single_setting(app_factory, config):
+    app = app_factory()
+
     command = app.find("config")
     tester = CommandTester(command)
 
@@ -55,9 +61,12 @@ def test_display_single_setting(app, config):
     assert expected == tester.io.fetch_output()
 
 
-def test_display_single_local_setting(poetry_factory, app, config):
-    poetry = poetry_factory("with_local_config", is_root_fixture=True)
-    app._poetry = poetry  # TODO - can we do better?
+@pytest.mark.parametrize("project_directory", ["with_local_config"])
+def test_display_single_local_setting(app_factory, config):
+    app = app_factory()
+
+    # poetry = poetry_factory("with_local_config", is_root_fixture=True)
+    # app._poetry = poetry  # TODO - can we do better?
 
     command = app.find("config")
     tester = CommandTester(command)
@@ -70,7 +79,9 @@ def test_display_single_local_setting(poetry_factory, app, config):
     assert expected == tester.io.fetch_output()
 
 
-def test_list_displays_set_get_local_setting(app, config):
+def test_list_displays_set_get_local_setting(app_factory, config):
+    app = app_factory()
+
     command = app.find("config")
     tester = CommandTester(command)
 
@@ -90,7 +101,9 @@ virtualenvs.path = {path}  # /foo{sep}virtualenvs
     assert expected == tester.io.fetch_output()
 
 
-def test_set_pypi_token(app, config, config_source, auth_config_source):
+def test_set_pypi_token(app_factory, config, config_source, auth_config_source):
+    app = app_factory()
+
     command = app.find("config")
     tester = CommandTester(command)
 
@@ -101,7 +114,9 @@ def test_set_pypi_token(app, config, config_source, auth_config_source):
     assert "mytoken" == auth_config_source.config["pypi-token"]["pypi"]
 
 
-def test_set_client_cert(app, config_source, auth_config_source, mocker):
+def test_set_client_cert(app_factory, config_source, auth_config_source, mocker):
+    app = app_factory()
+
     mocker.spy(ConfigSource, "__init__")
     command = app.find("config")
     tester = CommandTester(command)
@@ -114,7 +129,9 @@ def test_set_client_cert(app, config_source, auth_config_source, mocker):
     )
 
 
-def test_set_cert(app, config_source, auth_config_source, mocker):
+def test_set_cert(app_factory, config_source, auth_config_source, mocker):
+    app = app_factory()
+
     mocker.spy(ConfigSource, "__init__")
     command = app.find("config")
     tester = CommandTester(command)

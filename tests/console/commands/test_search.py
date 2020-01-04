@@ -9,7 +9,9 @@ FIXTURES_DIRECTORY = (
 )
 
 
-def test_search(app, http):
+def test_search(app_factory, http):
+    app = app_factory()
+
     with FIXTURES_DIRECTORY.joinpath("search.html").open(encoding="utf-8") as f:
         search_results = f.read()
 

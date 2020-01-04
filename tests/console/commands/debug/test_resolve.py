@@ -3,7 +3,9 @@ from cleo.testers import CommandTester
 from tests.helpers import get_package
 
 
-def test_debug_resolve_gives_resolution_results(app, repo):
+def test_debug_resolve_gives_resolution_results(app_factory, repo):
+    app = app_factory()
+
     command = app.find("debug resolve")
     tester = CommandTester(command)
 
@@ -28,7 +30,9 @@ cachy          0.2.0
     assert expected == tester.io.fetch_output()
 
 
-def test_debug_resolve_tree_option_gives_the_dependency_tree(app, repo):
+def test_debug_resolve_tree_option_gives_the_dependency_tree(app_factory, repo):
+    app = app_factory()
+
     command = app.find("debug resolve")
     tester = CommandTester(command)
 
@@ -53,7 +57,9 @@ cachy 0.2.0
     assert expected == tester.io.fetch_output()
 
 
-def test_debug_resolve_git_dependency(app, repo):
+def test_debug_resolve_git_dependency(app_factory, repo):
+    app = app_factory()
+
     repo.add_package(get_package("pendulum", "2.0.3"))
     repo.add_package(get_package("cleo", "0.6.5"))
 

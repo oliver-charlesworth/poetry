@@ -4,7 +4,9 @@ from poetry.utils._compat import PY2
 from poetry.utils._compat import Path
 
 
-def test_check_valid(app):
+def test_check_valid(app_factory):
+    app = app_factory()
+
     command = app.find("check")
     tester = CommandTester(command)
 
@@ -17,7 +19,9 @@ All set!
     assert expected == tester.io.fetch_output()
 
 
-def test_check_invalid(app, mocker):
+def test_check_invalid(app_factory, mocker):
+    app = app_factory()
+
     mocker.patch(
         "poetry.factory.Factory.locate",
         return_value=Path(__file__).parent.parent.parent

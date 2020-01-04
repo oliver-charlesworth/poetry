@@ -1,7 +1,9 @@
 from cleo.testers import CommandTester
 
 
-def test_about(app):
+def test_about(app_factory):
+    app = app_factory()
+
     command = app.find("about")
     tester = CommandTester(command)
 
