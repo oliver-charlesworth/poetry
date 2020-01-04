@@ -4,12 +4,7 @@ import pytest
 
 from cleo.testers import CommandTester
 
-from poetry.utils._compat import Path
 from tests.helpers import get_package
-
-
-# TODO - these tests should run in a blank temp directory
-# TODO - are the "../../fixtures" prefixes kosher?
 
 
 @pytest.fixture
@@ -288,7 +283,7 @@ def test_interactive_with_directory_dependency(app, repo, pool):
         "MIT",  # License
         "~2.7 || ^3.6",  # Python
         "",  # Interactive packages
-        "../../fixtures/git/github.com/demo/demo",  # Search for package
+        "..//git/github.com/demo/demo",  # Search for package
         "",  # Stop searching for packages
         "",  # Interactive dev packages
         "pytest",  # Search for package
@@ -309,7 +304,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.6"
-demo = {path = "../../fixtures/git/github.com/demo/demo"}
+demo = {path = "../git/github.com/demo/demo"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.6.0"
@@ -334,7 +329,7 @@ def test_interactive_with_directory_dependency_and_other_name(app, repo, pool):
         "MIT",  # License
         "~2.7 || ^3.6",  # Python
         "",  # Interactive packages
-        "../../fixtures/git/github.com/demo/pyproject-demo",  # Search for package
+        "../git/github.com/demo/pyproject-demo",  # Search for package
         "",  # Stop searching for packages
         "",  # Interactive dev packages
         "pytest",  # Search for package
@@ -355,7 +350,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.6"
-demo = {path = "../../fixtures/git/github.com/demo/pyproject-demo"}
+demo = {path = "../git/github.com/demo/pyproject-demo"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.6.0"
@@ -380,7 +375,7 @@ def test_interactive_with_file_dependency(app, repo, pool):
         "MIT",  # License
         "~2.7 || ^3.6",  # Python
         "",  # Interactive packages
-        "../../fixtures/distributions/demo-0.1.0-py2.py3-none-any.whl",  # Search for package
+        "../distributions/demo-0.1.0-py2.py3-none-any.whl",  # Search for package
         "",  # Stop searching for packages
         "",  # Interactive dev packages
         "pytest",  # Search for package
@@ -401,7 +396,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.6"
-demo = {path = "../../fixtures/distributions/demo-0.1.0-py2.py3-none-any.whl"}
+demo = {path = "../distributions/demo-0.1.0-py2.py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.6.0"
