@@ -30,6 +30,11 @@ print("nullpackage loaded"),
 """
 
 
+MINIMAL_ENV = {
+    "PATH": os.environ["PATH"]
+}
+
+
 @pytest.fixture()
 def poetry(poetry_factory, config):
     poetry = poetry_factory("simple_project", is_root_fixture=True)
@@ -49,7 +54,7 @@ def tmp_venv(tmp_dir, manager):
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env=os.environ)
+    venv = VirtualEnv(venv_path, env=MINIMAL_ENV)
     yield venv
 
     shutil.rmtree(str(venv.path))
@@ -60,7 +65,7 @@ def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_dir, manager
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env=os.environ)
+    venv = VirtualEnv(venv_path, env=MINIMAL_ENV)
 
     assert venv.run("python", "-V").startswith("Python")
 
@@ -783,7 +788,7 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_standard(t
 
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=os.environ)
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=MINIMAL_ENV)
 
     assert site_packages == env.site_packages
 
@@ -792,6 +797,6 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_root(tmp_d
     site_packages = Path(tmp_dir).joinpath("site-packages")
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=os.environ)
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=MINIMAL_ENV)
 
     assert site_packages == env.site_packages
