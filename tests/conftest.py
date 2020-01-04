@@ -137,10 +137,9 @@ def fixtures_dir(request, tmp_path_factory):
 def minimal_env(
         path=os.environ["PATH"],
         virtual_env=os.environ["VIRTUAL_ENV"],
+        **kwargs
 ):
-    env = {
-        "COLUMNS": "80"  # Setting terminal width  # TODO - is this needed?
-    }
+    env = dict(kwargs)
     if path:
         env["PATH"] = path
     if virtual_env:

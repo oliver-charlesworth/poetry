@@ -3,12 +3,16 @@ import pytest
 from cleo.testers import CommandTester
 from clikit.formatter.ansi_formatter import AnsiFormatter
 
+from tests.conftest import minimal_env
 from tests.helpers import get_package
 
 
-def test_show_basic_with_installed_packages(app_factory, installed):
-    app = app_factory()
+_MINIMAL_ENV = minimal_env(COLUMNS="80")  # Fix terminal width
 
+
+def test_show_basic_with_installed_packages(app_factory, installed):
+    app = app_factory(env=_MINIMAL_ENV)
+    
     command = app.find("show")
     tester = CommandTester(command)
 
@@ -81,7 +85,7 @@ pytest   3.7.3 Pytest package
 
 
 def test_show_basic_with_not_installed_packages_non_decorated(app_factory, installed):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -137,7 +141,7 @@ pendulum (!) 2.0.0 Pendulum package
 
 
 def test_show_basic_with_not_installed_packages_decorated(app_factory, installed):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -194,7 +198,7 @@ def test_show_basic_with_not_installed_packages_decorated(app_factory, installed
 
 
 def test_show_latest_non_decorated(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -261,7 +265,7 @@ pendulum 2.0.0 2.0.1 Pendulum package
 
 
 def test_show_latest_decorated(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -329,7 +333,7 @@ def test_show_latest_decorated(app_factory, installed, repo):
 
 
 def test_show_outdated(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -392,7 +396,7 @@ cachy 0.1.0 0.2.0 Cachy package
 
 
 def test_show_outdated_with_only_up_to_date_packages(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -434,7 +438,7 @@ def test_show_outdated_with_only_up_to_date_packages(app_factory, installed, rep
 
 
 def test_show_outdated_has_prerelease_but_not_allowed(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -502,7 +506,7 @@ cachy 0.1.0 0.2.0 Cachy package
 
 
 def test_show_outdated_has_prerelease_and_allowed(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -570,7 +574,7 @@ cachy 0.1.0.dev1 0.3.0.dev123 Cachy package
 
 
 def test_show_outdated_formatting(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -637,7 +641,7 @@ pendulum 2.0.0 2.0.1 Pendulum package
 
 
 def test_show_outdated_local_dependencies(app_factory, installed, repo):
-    app = app_factory("project_with_local_dependencies")
+    app = app_factory("project_with_local_dependencies", env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -730,8 +734,6 @@ def test_show_outdated_local_dependencies(app_factory, installed, repo):
 
     tester.execute("--outdated")
 
-    print(tester.io.fetch_output())
-
     expected = """\
 cachy      0.1.0                       0.2.0
 my-package 0.1.1 ../project_with_setup 0.1.2 ../project_with_setup
@@ -742,7 +744,7 @@ my-package 0.1.1 ../project_with_setup 0.1.2 ../project_with_setup
 
 
 def test_show_outdated_git_dev_dependency(app_factory, installed, repo):
-    app = app_factory("project_with_git_dev_dependency")
+    app = app_factory("project_with_git_dev_dependency", env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -825,7 +827,7 @@ demo  0.1.1 9cf87a2 0.1.2 9cf87a2 Demo package
 
 
 def test_show_outdated_no_dev_git_dev_dependency(app_factory, installed, repo):
-    app = app_factory("project_with_git_dev_dependency")
+    app = app_factory("project_with_git_dev_dependency", env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -907,7 +909,7 @@ cachy 0.1.0 0.2.0 Cachy package
 
 
 def test_show_hides_incompatible_package(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -964,7 +966,7 @@ pendulum 2.0.0 Pendulum package
 
 
 def test_show_all_shows_incompatible_package(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -1022,7 +1024,7 @@ pendulum  2.0.0 Pendulum package
 
 
 def test_show_non_dev_with_basic_installed_packages(app_factory, installed):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -1095,7 +1097,7 @@ pendulum 2.0.0 Pendulum package
 
 
 def test_show_tree(app_factory, installed):
-    app = app_factory()
+    app = app_factory(env=_MINIMAL_ENV)
 
     command = app.find("show")
     tester = CommandTester(command)

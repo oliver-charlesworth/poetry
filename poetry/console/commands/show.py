@@ -102,13 +102,14 @@ lists all packages available."""
 
         show_latest = self.option("latest")
         show_all = self.option("all")
-        terminal = Terminal()
-        width = terminal.width
         name_length = version_length = latest_length = 0
         latest_packages = {}
         latest_statuses = {}
         installed_repo = InstalledRepository.load(self.env)
         skipped = []
+
+        # Terminal() inspects COLUMNS via os.environ, so we do this ourselves via injected env
+        width = int(self.poetry.env.get("COLUMNS", Terminal().width))
 
         python = Version.parse(".".join([str(i) for i in self.env.version_info[:3]]))
 
