@@ -51,12 +51,12 @@ else:
 
 
 if PY35:
-    from pathlib import Path
+    pass
 else:
-    from pathlib2 import Path
+    pass
 
 if not PY36:
-    from collections import OrderedDict
+    pass
 else:
     OrderedDict = dict
 

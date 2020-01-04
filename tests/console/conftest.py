@@ -1,9 +1,6 @@
-import os
 import subprocess
 
 import pytest
-
-from cleo import ApplicationTester
 
 from poetry.console import Application
 from poetry.factory import Factory

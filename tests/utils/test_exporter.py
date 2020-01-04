@@ -1,9 +1,7 @@
-import os
 import sys
 
 import pytest
 
-from poetry.factory import Factory
 from poetry.packages import Locker as BaseLocker
 from poetry.repositories.auth import Auth
 from poetry.repositories.legacy_repository import LegacyRepository

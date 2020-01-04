@@ -6,7 +6,6 @@ import os.path
 import re
 import sys
 import warnings
-
 from collections import defaultdict
 from distutils.command.build_scripts import build_scripts as BuildScripts
 from distutils.command.sdist import sdist as SDist

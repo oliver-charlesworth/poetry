@@ -1,5 +1,3 @@
-import pytest
-
 from cleo.testers import CommandTester
 from clikit.formatter.ansi_formatter import AnsiFormatter
 

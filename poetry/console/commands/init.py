@@ -14,7 +14,6 @@ from cleo import option
 from tomlkit import inline_table
 
 from poetry.utils._compat import OrderedDict
-from poetry.utils._compat import Path
 from poetry.utils._compat import urlparse
 
 from .command import Command

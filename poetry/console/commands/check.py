@@ -1,5 +1,4 @@
 from poetry.factory import Factory
-from poetry.utils._compat import Path
 from poetry.utils.toml_file import TomlFile
 
 from .command import Command

@@ -28,7 +28,6 @@ class KeyRing:
         if not self.is_available():
             return
 
-        import keyring
         import keyring.errors
 
         name = self.get_entry_name(name)
@@ -44,7 +43,6 @@ class KeyRing:
         if not self.is_available():
             return
 
-        import keyring
         import keyring.errors
 
         name = self.get_entry_name(name)
@@ -62,7 +60,6 @@ class KeyRing:
         if not self.is_available():
             return
 
-        import keyring
         import keyring.errors
 
         name = self.get_entry_name(name)

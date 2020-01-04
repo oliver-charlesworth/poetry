@@ -1,5 +1,3 @@
-import os
-
 from cleo import argument
 
 from ..command import Command

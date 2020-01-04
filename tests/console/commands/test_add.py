@@ -4,7 +4,6 @@ import pytest
 
 from cleo.testers import CommandTester
 
-from poetry.utils._compat import Path
 from tests.helpers import get_dependency
 from tests.helpers import get_package
 
@@ -418,7 +417,7 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_file_constraint_sdist(app_factory, repo, installer, mocker):
+def test_add_file_constraint_sdist(app_factory, repo, installer):
     app = app_factory()
 
     command = app.find("add")

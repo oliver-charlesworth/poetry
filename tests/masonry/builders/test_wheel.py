@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-import shutil
 import zipfile
-
-import pytest
 
 from clikit.io import NullIO
 
 from poetry.masonry.builders.wheel import WheelBuilder
 from poetry.masonry.publishing.uploader import Uploader
-from poetry.utils._compat import Path
 from tests.mock_envs import NullEnv
 
 

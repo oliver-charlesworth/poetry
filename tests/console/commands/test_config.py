@@ -1,8 +1,6 @@
 import json
 import os
 
-import pytest
-
 from cleo.testers import CommandTester
 
 from poetry.config.config_source import ConfigSource
