@@ -113,7 +113,8 @@ def test_create_poetry(poetry_factory):
 
 def test_create_poetry_with_packages_and_includes(poetry_factory):
     poetry = Factory().create_poetry(
-        env_vars=os.environ, cwd=fixtures_dir.parent / "masonry" / "builders" / "fixtures" / "with-include"
+        env_vars=os.environ,
+        cwd=fixtures_dir.parent / "masonry" / "builders" / "fixtures" / "with-include",
     )
 
     package = poetry.package

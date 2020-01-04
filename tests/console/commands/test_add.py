@@ -726,7 +726,7 @@ Package operations: 1 install, 0 updates, 0 removals
 
 
 def test_add_should_display_an_error_when_adding_existing_package_with_no_constraint(
-        app_factory, repo, installer
+    app_factory, repo, installer
 ):
     app = app_factory()
 
@@ -781,7 +781,9 @@ Package operations: 1 install, 0 updates, 0 removals
     assert content["dependencies"]["foo"] == "^1.1.2"
 
 
-def test_add_chooses_prerelease_if_only_prereleases_are_available(app_factory, repo, installer):
+def test_add_chooses_prerelease_if_only_prereleases_are_available(
+    app_factory, repo, installer
+):
     app = app_factory()
 
     command = app.find("add")

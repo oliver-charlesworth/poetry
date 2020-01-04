@@ -30,7 +30,9 @@ class Factory:
     Factory class to create various elements needed by Poetry.
     """
 
-    def create_poetry(self, env_vars, cwd, io=None):  # type: (Dict[str, str], Path, Optional[IO]) -> Poetry
+    def create_poetry(
+        self, env_vars, cwd, io=None
+    ):  # type: (Dict[str, str], Path, Optional[IO]) -> Poetry
         if io is None:
             io = NullIO()
 

@@ -1,5 +1,6 @@
 import os
 import sys
+
 from pathlib import Path
 from typing import Tuple
 
@@ -35,14 +36,14 @@ class NullEnv(SystemEnv):
 
 class MockEnv(NullEnv):
     def __init__(
-            self,
-            version_info=(3, 7, 0),
-            python_implementation="CPython",
-            platform="darwin",
-            os_name="posix",
-            is_venv=False,
-            pip_version="19.1",
-            **kwargs
+        self,
+        version_info=(3, 7, 0),
+        python_implementation="CPython",
+        platform="darwin",
+        os_name="posix",
+        is_venv=False,
+        pip_version="19.1",
+        **kwargs
     ):
         super(MockEnv, self).__init__(**kwargs)
 

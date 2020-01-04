@@ -228,7 +228,9 @@ class EnvManager(object):
             return self.get(reload=True)
 
         envs = tomlkit.document()
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
+        base_env_name = self.generate_env_name(
+            self._poetry.package.name, str(project_root)
+        )
         if envs_file.exists():
             envs = envs_file.read()
             current_env = envs.get(base_env_name)
@@ -304,7 +306,9 @@ class EnvManager(object):
         project_root = self._poetry.file.parent
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
         env = None
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
+        base_env_name = self.generate_env_name(
+            self._poetry.package.name, str(project_root)
+        )
         if envs_file.exists():
             envs = envs_file.read()
             env = envs.get(base_env_name)
@@ -314,7 +318,9 @@ class EnvManager(object):
         # Check if we are inside a virtualenv or not
         # Conda sets CONDA_PREFIX in its envs, see
         # https://github.com/conda/conda/issues/2764
-        env_prefix = self._env_vars.get("VIRTUAL_ENV", self._env_vars.get("CONDA_PREFIX"))
+        env_prefix = self._env_vars.get(
+            "VIRTUAL_ENV", self._env_vars.get("CONDA_PREFIX")
+        )
         conda_env_name = self._env_vars.get("CONDA_DEFAULT_ENV")
         # It's probably not a good idea to pollute Conda's global "base" env, since
         # most users have it activated all the time.
@@ -382,7 +388,9 @@ class EnvManager(object):
 
         project_root = self._poetry.file.parent
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
+        base_env_name = self.generate_env_name(
+            self._poetry.package.name, str(project_root)
+        )
 
         if python.startswith(base_env_name):
             venvs = self.list()
@@ -395,7 +403,9 @@ class EnvManager(object):
                         return venv
 
                     venv_minor = ".".join(str(v) for v in venv.version_info[:2])
-                    base_env_name = self.generate_env_name(project_root.name, str(project_root))
+                    base_env_name = self.generate_env_name(
+                        project_root.name, str(project_root)
+                    )
                     envs = envs_file.read()
 
                     current_env = envs.get(base_env_name)
@@ -631,7 +641,9 @@ class EnvManager(object):
         p_venv = os.path.normcase(str(venv))
         if any(p.startswith(p_venv) for p in paths):
             # Running properly in the virtualenv, don't need to do anything
-            return SystemEnv(Path(sys.prefix), base=self.get_base_prefix(), env_vars=self._env_vars)
+            return SystemEnv(
+                Path(sys.prefix), base=self.get_base_prefix(), env_vars=self._env_vars
+            )
 
         return VirtualEnv(venv, env_vars=self._env_vars)
 
@@ -901,7 +913,9 @@ class SystemEnv(Env):
     A system (i.e. not a virtualenv) Python environment.
     """
 
-    def __init__(self, path, env_vars, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+    def __init__(
+        self, path, env_vars, base=None
+    ):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(SystemEnv, self).__init__(path, base)
         self._original_env_vars = env_vars
 
@@ -973,7 +987,9 @@ class VirtualEnv(Env):
     A virtual Python environment.
     """
 
-    def __init__(self, path, env_vars, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+    def __init__(
+        self, path, env_vars, base=None
+    ):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(VirtualEnv, self).__init__(path, base)
         self._original_env_vars = env_vars
 

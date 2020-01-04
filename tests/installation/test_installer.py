@@ -15,10 +15,10 @@ from poetry.repositories import Repository
 from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils._compat import PY2
 from poetry.utils._compat import Path
-from tests.mock_envs import NullEnv
 from poetry.utils.toml_file import TomlFile
 from tests.helpers import get_dependency
 from tests.helpers import get_package
+from tests.mock_envs import NullEnv
 from tests.repositories.test_legacy_repository import (
     MockRepository as MockLegacyRepository,
 )

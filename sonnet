@@ -109,7 +109,9 @@ class MakeReleaseCommand(Command):
                         shell=WINDOWS,
                     ).stdout
                 )
-                env = VirtualEnv(Path(prefix.strip()), base=Path(prefix.strip()), env=os.environ)
+                env = VirtualEnv(
+                    Path(prefix.strip()), base=Path(prefix.strip()), env=os.environ
+                )
                 with package.with_python_versions("~{}".format(version)):
                     solver = Solver(package, pool, Repository(), Repository(), self.io)
                     ops = solver.solve()

@@ -327,7 +327,9 @@ class Provider:
             try:
                 with temporary_directory() as tmp_dir:
                     EnvManager.build_venv(tmp_dir)
-                    venv = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env_vars=os.environ)
+                    venv = VirtualEnv(
+                        Path(tmp_dir), base=Path(tmp_dir), env_vars=os.environ
+                    )
                     venv.run("python", "setup.py", "egg_info")
             except EnvCommandError:
                 result = SetupReader.read_from_directory(directory)

@@ -1,11 +1,14 @@
 import os
+
 from pathlib import Path
-from typing import Dict, Callable
+from typing import Callable
+from typing import Dict
 
 from cleo import Application as BaseApplication
 
 from poetry import __version__
 
+from ..poetry import Poetry
 from .commands.about import AboutCommand
 from .commands.add import AddCommand
 from .commands.build import BuildCommand
@@ -29,15 +32,14 @@ from .commands.show import ShowCommand
 from .commands.update import UpdateCommand
 from .commands.version import VersionCommand
 from .config import ApplicationConfig
-from ..poetry import Poetry
 
 
 class Application(BaseApplication):
     def __init__(
-            self,
-            env_vars,       # type: Dict[str, str]
-            cwd,            # type: Path
-            create_poetry   # type: Callable[[Dict[str, str], Path], Poetry]
+        self,
+        env_vars,  # type: Dict[str, str]
+        cwd,  # type: Path
+        create_poetry,  # type: Callable[[Dict[str, str], Path], Poetry]
     ):  # type: (...) -> None
         super(Application, self).__init__(
             "poetry", __version__, config=ApplicationConfig("poetry", __version__)

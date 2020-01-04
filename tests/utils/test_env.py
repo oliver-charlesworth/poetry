@@ -17,6 +17,7 @@ from poetry.utils.env import VirtualEnv
 from poetry.utils.toml_file import TomlFile
 from tests.conftest import minimal_env_vars
 
+
 MINIMAL_SCRIPT = """\
 
 print("Minimal Output"),
@@ -35,7 +36,9 @@ MINIMAL_ENV_VARS = minimal_env_vars(virtual_env=None)
 
 @pytest.fixture()
 def poetry(poetry_factory, config):
-    poetry = poetry_factory("simple_project", is_root_fixture=True, env_vars=MINIMAL_ENV_VARS)
+    poetry = poetry_factory(
+        "simple_project", is_root_fixture=True, env_vars=MINIMAL_ENV_VARS
+    )
     poetry.set_config(config)
 
     return poetry

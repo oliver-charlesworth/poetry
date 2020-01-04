@@ -11,7 +11,8 @@ from clikit.io import NullIO
 
 from poetry.repositories.pool import Pool
 from poetry.utils._compat import encode
-from poetry.utils.env import Env, SystemEnv
+from poetry.utils.env import Env
+from poetry.utils.env import SystemEnv
 from poetry.utils.helpers import safe_rmtree
 
 from .base_installer import BaseInstaller
@@ -209,7 +210,7 @@ class PipInstaller(BaseInstaller):
             builder = SdistBuilder(
                 Factory().create_poetry(env_vars=os.environ, cwd=pyproject.parent),
                 SystemEnv(Path(sys.executable), env_vars=os.environ),
-                NullIO()
+                NullIO(),
             )
 
             with open(setup, "w", encoding="utf-8") as f:

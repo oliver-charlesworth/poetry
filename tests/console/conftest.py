@@ -126,7 +126,7 @@ def app_factory(fixtures_dir, pool, config):
         app = Application(
             env_vars=env_vars or minimal_env_vars(),
             cwd=path,
-            create_poetry=_create_poetry
+            create_poetry=_create_poetry,
         )
         app.config.set_terminate_after_run(False)
 

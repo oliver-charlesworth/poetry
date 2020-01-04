@@ -3,8 +3,10 @@ import shutil
 import subprocess
 import tempfile
 
-from typing import Any, Optional, Callable
+from typing import Any
+from typing import Callable
 from typing import Dict
+from typing import Optional
 
 import httpretty
 import pytest
@@ -135,9 +137,7 @@ def fixtures_dir(request, tmp_path_factory):
 
 
 def minimal_env_vars(
-        path=os.environ["PATH"],
-        virtual_env=os.environ["VIRTUAL_ENV"],
-        **kwargs
+    path=os.environ["PATH"], virtual_env=os.environ["VIRTUAL_ENV"], **kwargs
 ):
     env = dict(kwargs)
     if path:
@@ -156,17 +156,12 @@ def poetry_factory(fixtures_dir):
         subprocess.check_output(["git", "init"], cwd=path.as_posix())
 
     def _create(
-            name,
-            is_root_fixture=False,
-            env_vars=None
+        name, is_root_fixture=False, env_vars=None
     ):  # type: (str, bool, Optional[Dict[str, str]]) -> Poetry
         path = fixtures_dir(is_root_fixture) / name
 
         _init_as_git_repo(path)
 
-        return factory.create_poetry(
-            env_vars=env_vars or minimal_env_vars(),
-            cwd=path
-        )
+        return factory.create_poetry(env_vars=env_vars or minimal_env_vars(), cwd=path)
 
     return _create

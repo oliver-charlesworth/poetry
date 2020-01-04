@@ -12,8 +12,8 @@ from poetry.packages import Package
 from poetry.packages.vcs_dependency import VCSDependency
 from poetry.utils._compat import Path
 from poetry.utils._compat import to_str
-from tests.mock_envs import NullEnv
 from tests.helpers import get_dependency
+from tests.mock_envs import NullEnv
 
 
 def test_convert_dependencies():
@@ -158,7 +158,9 @@ def test_find_files_to_add(poetry_factory):
 
 
 def test_make_pkg_info_multi_constraints_dependency(poetry_factory):
-    poetry = poetry_factory("project_with_multi_constraints_dependency", is_root_fixture=True)
+    poetry = poetry_factory(
+        "project_with_multi_constraints_dependency", is_root_fixture=True
+    )
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     pkg_info = builder.build_pkg_info()
@@ -334,7 +336,13 @@ def test_default_with_excluded_data(poetry_factory, mocker):
             .as_posix()
         )
     ]
-    print("XXX: {}".format((poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt").relative_to(poetry.file.parent)))
+    print(
+        "XXX: {}".format(
+            (
+                poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt"
+            ).relative_to(poetry.file.parent)
+        )
+    )
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
@@ -405,7 +413,9 @@ def test_src_excluded_nested_data(poetry_factory):
         assert "my-package-1.2.3/my_package/public/item2/itemdata2.txt" not in names
 
 
-def test_proper_python_requires_if_two_digits_precision_version_specified(poetry_factory):
+def test_proper_python_requires_if_two_digits_precision_version_specified(
+    poetry_factory,
+):
     poetry = poetry_factory("simple_version")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
@@ -416,7 +426,9 @@ def test_proper_python_requires_if_two_digits_precision_version_specified(poetry
     assert parsed["Requires-Python"] == ">=3.6,<3.7"
 
 
-def test_proper_python_requires_if_three_digits_precision_version_specified(poetry_factory):
+def test_proper_python_requires_if_three_digits_precision_version_specified(
+    poetry_factory,
+):
     poetry = poetry_factory("single_python")
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
