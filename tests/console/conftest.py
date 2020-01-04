@@ -121,40 +121,9 @@ def repo():
 
 
 @pytest.fixture
-def project_directory():
-    return "simple_project"
-
-
-# @pytest.fixture
-# def poetry(poetry_factory, repo, project_directory, config):
-#     p = poetry_factory(project_directory, is_root_fixture=True, env={
-#         "PATH": os.environ["PATH"],
-#         "VIRTUAL_ENV": os.environ["VIRTUAL_ENV"],
-#         "COLUMNS": "80"  # Setting terminal width  # TODO - is this needed?
-#     })
-#     p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
-#
-#     p.set_config(config)
-#
-#     pool = Pool()
-#     pool.add_repository(repo)
-#     p.set_pool(pool)
-#
-#     return p
-
-
-@pytest.fixture
-def app(poetry):
-    app_ = Application(poetry)
-    app_.config.set_terminate_after_run(False)
-
-    return app_
-
-
-@pytest.fixture
-def app_factory(poetry_factory, repo, project_directory, config):
-    def _create_poetry(env):
-        p = poetry_factory(project_directory, is_root_fixture=True, env=env)
+def app_factory(poetry_factory, repo, config):
+    def _create_poetry(name, env):
+        p = poetry_factory(name, is_root_fixture=True, env=env)
         p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
 
         p.set_config(config)
@@ -165,8 +134,8 @@ def app_factory(poetry_factory, repo, project_directory, config):
 
         return p
 
-    def _create(env=None):
-        poetry = _create_poetry(env or minimal_env())
+    def _create(name="simple_project", env=None):
+        poetry = _create_poetry(name, env or minimal_env())
         app = Application(poetry)
         app.config.set_terminate_after_run(False)
 

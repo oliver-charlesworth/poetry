@@ -636,9 +636,8 @@ pendulum 2.0.0 2.0.1 Pendulum package
     assert expected == tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["project_with_local_dependencies"])
 def test_show_outdated_local_dependencies(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory("project_with_local_dependencies")
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -742,9 +741,8 @@ my-package 0.1.1 ../project_with_setup 0.1.2 ../project_with_setup
     )
 
 
-@pytest.mark.parametrize("project_directory", ["project_with_git_dev_dependency"])
 def test_show_outdated_git_dev_dependency(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory("project_with_git_dev_dependency")
 
     command = app.find("show")
     tester = CommandTester(command)
@@ -826,9 +824,8 @@ demo  0.1.1 9cf87a2 0.1.2 9cf87a2 Demo package
     assert expected == tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["project_with_git_dev_dependency"])
 def test_show_outdated_no_dev_git_dev_dependency(app_factory, installed, repo):
-    app = app_factory()
+    app = app_factory("project_with_git_dev_dependency")
 
     command = app.find("show")
     tester = CommandTester(command)

@@ -8,10 +8,12 @@ from cleo.testers import CommandTester
 from tests.helpers import get_package
 
 
-@pytest.mark.parametrize("project_directory", ["project_for_exporting"])
-def test_export_exports_requirements_txt_file_locks_if_no_lock_file(app_factory, repo):
-    app = app_factory()
+@pytest.fixture
+def app(app_factory):
+    return app_factory(name="project_for_exporting")
 
+
+def test_export_exports_requirements_txt_file_locks_if_no_lock_file(app, repo):
     command = app.find("export")
     tester = CommandTester(command)
 
@@ -38,10 +40,7 @@ foo==1.0.0
     assert "The lock file does not exist. Locking." in tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["project_for_exporting"])
-def test_export_exports_requirements_txt_uses_lock_file(app_factory, repo):
-    app = app_factory()
-
+def test_export_exports_requirements_txt_uses_lock_file(app, repo):
     repo.add_package(get_package("foo", "1.0.0"))
     repo.add_package(get_package("bar", "1.1.0"))
 
@@ -72,10 +71,7 @@ foo==1.0.0
     assert "The lock file does not exist. Locking." not in tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["project_for_exporting"])
-def test_export_fails_on_invalid_format(app_factory, repo):
-    app = app_factory()
-
+def test_export_fails_on_invalid_format(app, repo):
     repo.add_package(get_package("foo", "1.0.0"))
     repo.add_package(get_package("bar", "1.1.0"))
 
@@ -92,10 +88,7 @@ def test_export_fails_on_invalid_format(app_factory, repo):
         tester.execute("--format invalid")
 
 
-@pytest.mark.parametrize("project_directory", ["project_for_exporting"])
-def test_export_prints_to_stdout_by_default(app_factory, repo):
-    app = app_factory()
-
+def test_export_prints_to_stdout_by_default(app, repo):
     repo.add_package(get_package("foo", "1.0.0"))
     repo.add_package(get_package("bar", "1.1.0"))
 
@@ -117,10 +110,7 @@ foo==1.0.0
     assert expected == tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["project_for_exporting"])
-def test_export_includes_extras_by_flag(app_factory, repo):
-    app = app_factory()
-
+def test_export_includes_extras_by_flag(app, repo):
     repo.add_package(get_package("foo", "1.0.0"))
     repo.add_package(get_package("bar", "1.1.0"))
 

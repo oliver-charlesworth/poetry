@@ -61,12 +61,8 @@ def test_display_single_setting(app_factory, config):
     assert expected == tester.io.fetch_output()
 
 
-@pytest.mark.parametrize("project_directory", ["with_local_config"])
 def test_display_single_local_setting(app_factory, config):
-    app = app_factory()
-
-    # poetry = poetry_factory("with_local_config", is_root_fixture=True)
-    # app._poetry = poetry  # TODO - can we do better?
+    app = app_factory("with_local_config")
 
     command = app.find("config")
     tester = CommandTester(command)
