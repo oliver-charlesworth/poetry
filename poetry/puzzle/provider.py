@@ -302,7 +302,7 @@ class Provider:
             )
 
         if supports_poetry:
-            poetry = Factory().create_poetry(env=os.environ, cwd=directory)
+            poetry = Factory().create_poetry(env_vars=os.environ, cwd=directory)
 
             pkg = poetry.package
             package = Package(pkg.name, pkg.version)
@@ -327,7 +327,7 @@ class Provider:
             try:
                 with temporary_directory() as tmp_dir:
                     EnvManager.build_venv(tmp_dir)
-                    venv = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=os.environ)
+                    venv = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env_vars=os.environ)
                     venv.run("python", "setup.py", "egg_info")
             except EnvCommandError:
                 result = SetupReader.read_from_directory(directory)

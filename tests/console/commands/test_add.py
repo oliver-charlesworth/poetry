@@ -318,11 +318,8 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_directory_constraint(app_factory, repo, installer, mocker):
+def test_add_directory_constraint(app_factory, repo, installer):
     app = app_factory()
-
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__) / ".."
 
     command = app.find("add")
     tester = CommandTester(command)
@@ -356,11 +353,8 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert content["dependencies"]["demo"] == {"path": "../git/github.com/demo/demo"}
 
 
-def test_add_directory_with_poetry(app_factory, repo, installer, mocker):
+def test_add_directory_with_poetry(app_factory, repo, installer):
     app = app_factory()
-
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__) / ".."
 
     command = app.find("add")
     tester = CommandTester(command)
@@ -388,11 +382,8 @@ Package operations: 2 installs, 0 updates, 0 removals
     assert len(installer.installs) == 2
 
 
-def test_add_file_constraint_wheel(app_factory, repo, installer, mocker):
+def test_add_file_constraint_wheel(app_factory, repo, installer):
     app = app_factory()
-
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__) / ".."
 
     command = app.find("add")
     tester = CommandTester(command)
@@ -429,9 +420,6 @@ Package operations: 2 installs, 0 updates, 0 removals
 
 def test_add_file_constraint_sdist(app_factory, repo, installer, mocker):
     app = app_factory()
-
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__) / ".."
 
     command = app.find("add")
     tester = CommandTester(command)
@@ -510,11 +498,8 @@ Package operations: 2 installs, 0 updates, 0 removals
     }
 
 
-def test_add_url_constraint_wheel(app_factory, repo, installer, mocker):
+def test_add_url_constraint_wheel(app_factory, repo, installer):
     app = app_factory()
-
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__) / ".."
 
     command = app.find("add")
     tester = CommandTester(command)

@@ -1,20 +1,22 @@
 import sys
 
+import pytest
 from cleo.testers import CommandTester
 
 from poetry.utils._compat import Path
 from tests.helpers import get_package
 
+# TODO - these tests should run in a blank temp directory
+# TODO - are the "../../fixtures" prefixes kosher?
 
-def test_basic_interactive(app_factory, mocker):
-    app = app_factory()
 
+@pytest.fixture
+def app(app_factory):
+    return app_factory("blank")
+
+
+def test_basic_interactive(app):
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__)
 
     tester = CommandTester(command)
     inputs = [
@@ -47,18 +49,12 @@ python = "~2.7 || ^3.6"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_dependencies(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_dependencies(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -101,15 +97,8 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_empty_license(app_factory, mocker):
-    app = app_factory()
-
+def test_empty_license(app):
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__)
 
     tester = CommandTester(command)
     inputs = [
@@ -143,18 +132,12 @@ python = "^{python}"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_git_dependencies(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_git_dependencies(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -195,18 +178,12 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_git_dependencies_with_reference(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_git_dependencies_with_reference(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -247,18 +224,12 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_git_dependencies_and_other_name(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_git_dependencies_and_other_name(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -299,18 +270,12 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_directory_dependency(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_directory_dependency(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -351,18 +316,12 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_directory_dependency_and_other_name(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_directory_dependency_and_other_name(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [
@@ -403,18 +362,12 @@ pytest = "^3.6.0"
     assert expected in tester.io.fetch_output()
 
 
-def test_interactive_with_file_dependency(app_factory, repo, mocker):
-    app = app_factory()
-
+def test_interactive_with_file_dependency(app, repo, pool):
     repo.add_package(get_package("pendulum", "2.0.0"))
     repo.add_package(get_package("pytest", "3.6.0"))
 
     command = app.find("init")
-    command._pool = app.poetry.pool
-
-    mocker.patch("poetry.utils._compat.Path.open")
-    p = mocker.patch("poetry.utils._compat.Path.cwd")
-    p.return_value = Path(__file__).parent
+    command._pool = pool
 
     tester = CommandTester(command)
     inputs = [

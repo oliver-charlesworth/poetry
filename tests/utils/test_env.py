@@ -15,7 +15,7 @@ from poetry.utils.env import EnvManager
 from poetry.utils.env import NoCompatiblePythonVersionFound
 from poetry.utils.env import VirtualEnv
 from poetry.utils.toml_file import TomlFile
-from tests.conftest import minimal_env
+from tests.conftest import minimal_env_vars
 
 MINIMAL_SCRIPT = """\
 
@@ -30,12 +30,12 @@ print("nullpackage loaded"),
 """
 
 
-MINIMAL_ENV = minimal_env(virtual_env=None)
+MINIMAL_ENV_VARS = minimal_env_vars(virtual_env=None)
 
 
 @pytest.fixture()
 def poetry(poetry_factory, config):
-    poetry = poetry_factory("simple_project", is_root_fixture=True, env=MINIMAL_ENV)
+    poetry = poetry_factory("simple_project", is_root_fixture=True, env_vars=MINIMAL_ENV_VARS)
     poetry.set_config(config)
 
     return poetry
@@ -52,7 +52,7 @@ def tmp_venv(tmp_dir, manager):
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env=MINIMAL_ENV)
+    venv = VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
     yield venv
 
     shutil.rmtree(str(venv.path))
@@ -63,7 +63,7 @@ def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_dir, manager
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env=MINIMAL_ENV)
+    venv = VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
 
     assert venv.run("python", "-V").startswith("Python")
 
@@ -739,7 +739,7 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_standard(t
 
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=MINIMAL_ENV)
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env_vars=MINIMAL_ENV_VARS)
 
     assert site_packages == env.site_packages
 
@@ -748,6 +748,6 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_root(tmp_d
     site_packages = Path(tmp_dir).joinpath("site-packages")
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env=MINIMAL_ENV)
+    env = VirtualEnv(Path(tmp_dir), base=Path(tmp_dir), env_vars=MINIMAL_ENV_VARS)
 
     assert site_packages == env.site_packages

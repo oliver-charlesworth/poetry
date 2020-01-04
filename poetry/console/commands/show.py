@@ -109,7 +109,7 @@ lists all packages available."""
         skipped = []
 
         # Terminal() inspects COLUMNS via os.environ, so we do this ourselves via injected env
-        width = int(self.poetry.env.get("COLUMNS", Terminal().width))
+        width = int(self.env_vars.get("COLUMNS", Terminal().width))
 
         python = Version.parse(".".join([str(i) for i in self.env.version_info[:3]]))
 

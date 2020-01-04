@@ -1,10 +1,11 @@
 import os
+import subprocess
 
 import pytest
 
 from cleo import ApplicationTester
 
-from poetry.console import Application as BaseApplication
+from poetry.console import Application
 from poetry.factory import Factory
 from poetry.installation.noop_installer import NoopInstaller
 from poetry.packages import Locker as BaseLocker
@@ -12,7 +13,7 @@ from poetry.repositories import Pool
 from poetry.repositories import Repository as BaseRepository
 from poetry.repositories.exceptions import PackageNotFound
 from poetry.utils.toml_file import TomlFile
-from tests.conftest import minimal_env
+from tests.conftest import minimal_env_vars
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
 
@@ -49,20 +50,6 @@ def setup(mocker, installer, installed, config):
 
     # Patch download to not download anything but to just copy from fixtures
     mocker.patch("poetry.utils.inspector.Inspector.download", new=mock_download)
-
-
-class Application(BaseApplication):
-    def __init__(self, poetry):
-        super(Application, self).__init__(poetry.env)
-
-        self._poetry = poetry
-
-    def reset_poetry(self):
-        poetry = self._poetry
-        self._poetry = Factory().create_poetry(env=poetry.env, cwd=poetry.file.path.parent)
-        self._poetry.set_pool(poetry.pool)
-        self._poetry.set_config(poetry.config)
-        self._poetry.set_locker(poetry.locker)
 
 
 class Locker(BaseLocker):
@@ -121,22 +108,34 @@ def repo():
 
 
 @pytest.fixture
-def app_factory(poetry_factory, repo, config):
-    def _create_poetry(name, env):
-        p = poetry_factory(name, is_root_fixture=True, env=env)
-        p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
+def pool(repo):
+    pool = Pool()
+    pool.add_repository(repo)
+    return pool
 
-        p.set_config(config)
 
-        pool = Pool()
-        pool.add_repository(repo)
-        p.set_pool(pool)
+@pytest.fixture
+def app_factory(fixtures_dir, pool, config):
+    # TODO - de-dupe with stuff in tests/conftest.py
+    def _create(name="simple_project", env_vars=None):
+        path = fixtures_dir(is_root_fixture=True) / name
 
-        return p
+        # Tests generally rely on fixtures looking like a Git repo
+        subprocess.check_output(["git", "init"], cwd=path.as_posix())
 
-    def _create(name="simple_project", env=None):
-        poetry = _create_poetry(name, env or minimal_env())
-        app = Application(poetry)
+        def _create_poetry(env_vars, cwd):
+            p = Factory().create_poetry(env_vars, cwd)
+            p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
+            p.set_config(config)
+            p.set_pool(pool)
+
+            return p
+
+        app = Application(
+            env_vars=env_vars or minimal_env_vars(),
+            cwd=path,
+            create_poetry=_create_poetry
+        )
         app.config.set_terminate_after_run(False)
 
         return app

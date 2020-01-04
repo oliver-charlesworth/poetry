@@ -165,7 +165,8 @@ class EnvManager(object):
 
     def __init__(self, poetry):  # type: (Poetry) -> None
         self._poetry = poetry
-        self._environ = poetry.env
+        self._env_vars = poetry.env_vars
+        self._cwd = poetry.cwd
 
     def activate(self, python, io):  # type: (str, IO) -> Env
         venv_path = self._poetry.config.get("virtualenvs.path")
@@ -174,7 +175,7 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        cwd = self._poetry.file.parent
+        project_root = self._poetry.file.parent
 
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
 
@@ -216,7 +217,7 @@ class EnvManager(object):
             venv = self._poetry.file.parent / ".venv"
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv, env=self._environ)
+                _venv = VirtualEnv(venv, env_vars=self._env_vars)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -227,7 +228,7 @@ class EnvManager(object):
             return self.get(reload=True)
 
         envs = tomlkit.document()
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(cwd))
+        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
         if envs_file.exists():
             envs = envs_file.read()
             current_env = envs.get(base_env_name)
@@ -244,13 +245,13 @@ class EnvManager(object):
 
         # Create if needed
         if not venv.exists() or venv.exists() and create:
-            in_venv = self._environ.get("VIRTUAL_ENV") is not None
+            in_venv = self._env_vars.get("VIRTUAL_ENV") is not None
             if in_venv or not venv.exists():
                 create = True
 
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv, env=self._environ)
+                _venv = VirtualEnv(venv, env_vars=self._env_vars)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -300,10 +301,10 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        cwd = self._poetry.file.parent
+        project_root = self._poetry.file.parent
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
         env = None
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(cwd))
+        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
         if envs_file.exists():
             envs = envs_file.read()
             env = envs.get(base_env_name)
@@ -313,23 +314,23 @@ class EnvManager(object):
         # Check if we are inside a virtualenv or not
         # Conda sets CONDA_PREFIX in its envs, see
         # https://github.com/conda/conda/issues/2764
-        env_prefix = self._environ.get("VIRTUAL_ENV", self._environ.get("CONDA_PREFIX"))
-        conda_env_name = self._environ.get("CONDA_DEFAULT_ENV")
+        env_prefix = self._env_vars.get("VIRTUAL_ENV", self._env_vars.get("CONDA_PREFIX"))
+        conda_env_name = self._env_vars.get("CONDA_DEFAULT_ENV")
         # It's probably not a good idea to pollute Conda's global "base" env, since
         # most users have it activated all the time.
         in_venv = env_prefix is not None and conda_env_name != "base"
 
         if not in_venv or env is not None:
             # Checking if a local virtualenv exists
-            if (cwd / ".venv").exists() and (cwd / ".venv").is_dir():
-                venv = cwd / ".venv"
+            if (project_root / ".venv").exists() and (project_root / ".venv").is_dir():
+                venv = project_root / ".venv"
 
-                return VirtualEnv(venv, env=self._environ)
+                return VirtualEnv(venv, env_vars=self._env_vars)
 
             create_venv = self._poetry.config.get("virtualenvs.create", True)
 
             if not create_venv:
-                return SystemEnv(Path(sys.prefix), env=self._environ)
+                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
 
             venv_path = self._poetry.config.get("virtualenvs.path")
             if venv_path is None:
@@ -342,9 +343,9 @@ class EnvManager(object):
             venv = venv_path / name
 
             if not venv.exists():
-                return SystemEnv(Path(sys.prefix), env=self._environ)
+                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
 
-            return VirtualEnv(venv, env=self._environ)
+            return VirtualEnv(venv, env_vars=self._env_vars)
 
         if env_prefix is not None:
             prefix = Path(env_prefix)
@@ -353,7 +354,7 @@ class EnvManager(object):
             prefix = Path(sys.prefix)
             base_prefix = self.get_base_prefix()
 
-        return VirtualEnv(prefix, base=base_prefix, env=self._environ)
+        return VirtualEnv(prefix, base=base_prefix, env_vars=self._env_vars)
 
     def list(self, name=None):  # type: (Optional[str]) -> List[VirtualEnv]
         if name is None:
@@ -368,7 +369,7 @@ class EnvManager(object):
             venv_path = Path(venv_path)
 
         return [
-            VirtualEnv(Path(p), env=self._environ)
+            VirtualEnv(Path(p), env_vars=self._env_vars)
             for p in sorted(venv_path.glob("{}-py*".format(venv_name)))
         ]
 
@@ -379,9 +380,9 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        cwd = self._poetry.file.parent
+        project_root = self._poetry.file.parent
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
-        base_env_name = self.generate_env_name(self._poetry.package.name, str(cwd))
+        base_env_name = self.generate_env_name(self._poetry.package.name, str(project_root))
 
         if python.startswith(base_env_name):
             venvs = self.list()
@@ -394,7 +395,7 @@ class EnvManager(object):
                         return venv
 
                     venv_minor = ".".join(str(v) for v in venv.version_info[:2])
-                    base_env_name = self.generate_env_name(cwd.name, str(cwd))
+                    base_env_name = self.generate_env_name(project_root.name, str(project_root))
                     envs = envs_file.read()
 
                     current_env = envs.get(base_env_name)
@@ -463,7 +464,7 @@ class EnvManager(object):
 
         self.remove_venv(str(venv))
 
-        return VirtualEnv(venv, env=self._environ)
+        return VirtualEnv(venv, env_vars=self._env_vars)
 
     def create_venv(
         self, io, name=None, executable=None, force=False
@@ -471,7 +472,7 @@ class EnvManager(object):
         if self._env is not None and not force:
             return self._env
 
-        cwd = self._poetry.file.parent
+        project_root = self._poetry.file.parent
         env = self.get(reload=True)
         if env.is_venv() and not force:
             # Already inside a virtualenv.
@@ -482,7 +483,7 @@ class EnvManager(object):
 
         venv_path = self._poetry.config.get("virtualenvs.path")
         if root_venv:
-            venv_path = cwd / ".venv"
+            venv_path = project_root / ".venv"
         elif venv_path is None:
             venv_path = Path(CACHE_DIR) / "virtualenvs"
         else:
@@ -584,12 +585,14 @@ class EnvManager(object):
         if root_venv:
             venv = venv_path
         else:
-            name = self.generate_env_name(name, str(cwd))
+            name = self.generate_env_name(name, str(project_root))
             name = "{}-py{}".format(name, python_minor.strip())
             venv = venv_path / name
 
         if not venv.exists():
             if create_venv is False:
+                # TODO - this path not covered by tests
+
                 io.write_line(
                     "<fg=black;bg=yellow>"
                     "Skipping virtualenv creation, "
@@ -597,7 +600,7 @@ class EnvManager(object):
                     "</>"
                 )
 
-                return SystemEnv(Path(sys.prefix))
+                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
 
             io.write_line(
                 "Creating virtualenv <c1>{}</> in {}".format(name, str(venv_path))
@@ -628,9 +631,9 @@ class EnvManager(object):
         p_venv = os.path.normcase(str(venv))
         if any(p.startswith(p_venv) for p in paths):
             # Running properly in the virtualenv, don't need to do anything
-            return SystemEnv(Path(sys.prefix), base=self.get_base_prefix(), env=self._environ)
+            return SystemEnv(Path(sys.prefix), base=self.get_base_prefix(), env_vars=self._env_vars)
 
-        return VirtualEnv(venv, env=self._environ)
+        return VirtualEnv(venv, env_vars=self._env_vars)
 
     @classmethod
     def build_venv(cls, path, executable=None):
@@ -680,10 +683,10 @@ class EnvManager(object):
         return sys.prefix
 
     @classmethod
-    def generate_env_name(cls, name, cwd):  # type: (str, str) -> str
+    def generate_env_name(cls, name, project_root):  # type: (str, str) -> str
         name = name.lower()
         sanitized_name = re.sub(r'[ $`!*@"\\\r\n\t]', "_", name)[:42]
-        h = hashlib.sha256(encode(cwd)).digest()
+        h = hashlib.sha256(encode(project_root)).digest()
         h = base64.urlsafe_b64encode(h).decode()[:8]
 
         return "{}-{}".format(sanitized_name, h)
@@ -839,7 +842,7 @@ class Env(object):
                     input=encode(input) if input else None,
                     check=True,
                     shell=True,
-                    env=self._env(),
+                    env=self._env_vars(),
                 ).stdout
             )
         except CalledProcessError as e:
@@ -848,19 +851,19 @@ class Env(object):
     def execute(self, bin, *args):
         bin = self._bin(bin)
         args = [bin] + list(args)
-        env = self._env()
+        env_vars = self._env_vars()
 
         if not self._is_windows:
-            return os.execvpe(bin, args, env)
+            return os.execvpe(bin, args, env_vars)
         else:
-            exe = subprocess.Popen(args)
+            exe = subprocess.Popen(args=args, env=env_vars)
             exe.communicate()
             return exe.returncode
 
     def is_venv(self):  # type: () -> bool
         raise NotImplementedError()
 
-    def _env(self):  # type () -> Dict[str, str]
+    def _env_vars(self):  # type () -> Dict[str, str]
         raise NotImplementedError()
 
     def _bin(self, bin):  # type: (str) -> str
@@ -898,9 +901,9 @@ class SystemEnv(Env):
     A system (i.e. not a virtualenv) Python environment.
     """
 
-    def __init__(self, path, env, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+    def __init__(self, path, env_vars, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(SystemEnv, self).__init__(path, base)
-        self._original_env = env
+        self._original_env_vars = env_vars
 
     @property
     def sys_path(self):  # type: () -> List[str]
@@ -961,8 +964,8 @@ class SystemEnv(Env):
     def is_venv(self):  # type: () -> bool
         return self._path != self._base
 
-    def _env(self):  # type: () -> Dict[str, str]
-        return self._original_env
+    def _env_vars(self):  # type: () -> Dict[str, str]
+        return self._original_env_vars
 
 
 class VirtualEnv(Env):
@@ -970,9 +973,9 @@ class VirtualEnv(Env):
     A virtual Python environment.
     """
 
-    def __init__(self, path, env, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+    def __init__(self, path, env_vars, base=None):  # type: (Path, Dict[str, str], Optional[Path]) -> None
         super(VirtualEnv, self).__init__(path, base)
-        self._original_env = env
+        self._original_env_vars = env_vars
 
         # If base is None, it probably means this is
         # a virtualenv created from VIRTUAL_ENV.
@@ -1038,8 +1041,8 @@ class VirtualEnv(Env):
         # A virtualenv is considered sane if both "python" and "pip" exist.
         return os.path.exists(self._bin("python")) and os.path.exists(self._bin("pip"))
 
-    def _env(self):  # type: () -> Dict[str, str]
-        e = dict(self._original_env)
+    def _env_vars(self):  # type: () -> Dict[str, str]
+        e = dict(self._original_env_vars)
         e["PATH"] = os.pathsep.join([str(self._bin_dir), e["PATH"]])
         e["VIRTUAL_ENV"] = str(self._path)
         e.pop("PYTHONHOME", None)

@@ -9,7 +9,7 @@ from cleo.testers import CommandTester
 from poetry.semver import Version
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvManager
-from tests.conftest import minimal_env
+from tests.conftest import minimal_env_vars
 from tests.mock_envs import MockEnv
 from poetry.utils.toml_file import TomlFile
 
@@ -31,7 +31,7 @@ def check_output_wrapper(version=Version.parse("3.7.1")):
 
 
 def test_activate_activates_non_existing_virtualenv_no_envs_file(app_factory, tmp_dir, mocker):
-    app = app_factory(env=minimal_env(virtual_env=None))
+    app = app_factory(env_vars=minimal_env_vars(virtual_env=None))
 
     app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
 
@@ -76,7 +76,7 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(app_factory, tmp_dir, mocker):
-    app = app_factory(env=minimal_env(virtual_env="/environment/prefix"))
+    app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.file.parent)
@@ -116,7 +116,7 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(app_factory, tmp_dir, mocker):
-    app = app_factory(env=minimal_env(virtual_env="/environment/prefix"))
+    app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.file.parent)

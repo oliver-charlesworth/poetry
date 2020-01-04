@@ -12,7 +12,7 @@ class NullEnv(SystemEnv):
         if path is None:
             path = Path(sys.prefix)
 
-        super(NullEnv, self).__init__(path, base=base, env=os.environ)
+        super(NullEnv, self).__init__(path, base=base, env_vars=os.environ)
 
         self._execute = execute
         self.executed = []

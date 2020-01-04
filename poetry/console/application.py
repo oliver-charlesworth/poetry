@@ -1,5 +1,6 @@
 import os
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Callable
 
 from cleo import Application as BaseApplication
 
@@ -28,29 +29,40 @@ from .commands.show import ShowCommand
 from .commands.update import UpdateCommand
 from .commands.version import VersionCommand
 from .config import ApplicationConfig
+from ..poetry import Poetry
 
 
 class Application(BaseApplication):
-    def __init__(self, env):  # type: (Dict[str, str]) -> None
+    def __init__(
+            self,
+            env_vars,       # type: Dict[str, str]
+            cwd,            # type: Path
+            create_poetry   # type: Callable[[Dict[str, str], Path], Poetry]
+    ):  # type: (...) -> None
         super(Application, self).__init__(
             "poetry", __version__, config=ApplicationConfig("poetry", __version__)
         )
 
         self._poetry = None
-        self._env = env
+        self._create_poetry = create_poetry
+        self._env_vars = env_vars
+        self._cwd = cwd
 
         for command in self.get_default_commands():
             self.add(command)
 
     @property
+    def env_vars(self):  # type: () -> Dict[str, str]
+        return self._env_vars  # TODO - should we return a copy?
+
+    @property
+    def cwd(self):  # type: () -> Path
+        return self._cwd
+
+    @property
     def poetry(self):
-        from poetry.factory import Factory
-        from poetry.utils._compat import Path
-
-        if self._poetry is not None:
-            return self._poetry
-
-        self._poetry = Factory().create_poetry(env=self._env, cwd=Path.cwd())
+        if self._poetry is None:
+            self._poetry = self._create_poetry(self._env_vars, self._cwd)
 
         return self._poetry
 

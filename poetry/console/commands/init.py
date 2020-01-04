@@ -66,7 +66,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         from poetry.utils.env import SystemEnv
         from poetry.vcs.git import GitConfig
 
-        if (Path.cwd() / "pyproject.toml").exists():
+        if (self.cwd / "pyproject.toml").exists():
             self.line("<error>A pyproject.toml file already exists.</error>")
             return 1
 
@@ -80,7 +80,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
         name = self.option("name")
         if not name:
-            name = Path.cwd().name.lower()
+            name = self.cwd.name.lower()
 
             question = self.create_question(
                 "Package name [<comment>{}</comment>]: ".format(name), default=name
@@ -126,7 +126,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         question.set_validator(self._validate_license)
         license = self.ask(question)
 
-        current_env = SystemEnv(Path(sys.executable), env=self.poetry.env)
+        current_env = SystemEnv(Path(sys.executable), env_vars=self.env_vars)
         default_python = "^{}".format(
             ".".join(str(v) for v in current_env.version_info[:2])
         )
@@ -200,7 +200,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
             return 1
 
-        with (Path.cwd() / "pyproject.toml").open("w", encoding="utf-8") as f:
+        with (self.cwd / "pyproject.toml").open("w", encoding="utf-8") as f:
             f.write(content)
 
     def _determine_requirements(
@@ -351,7 +351,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         try:
             cwd = self.poetry.file.parent
         except RuntimeError:
-            cwd = Path.cwd()
+            cwd = self.cwd
 
         for requirement in requirements:
             requirement = requirement.strip()
@@ -507,6 +507,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         from poetry.repositories import Pool
         from poetry.repositories.pypi_repository import PyPiRepository
 
+        # TODO - these two lines are a no-op
         if isinstance(self, EnvCommand):
             return self.poetry.pool
 

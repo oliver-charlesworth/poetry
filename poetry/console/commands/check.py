@@ -12,7 +12,7 @@ class CheckCommand(Command):
 
     def handle(self):
         # Load poetry config and display errors, if any
-        poetry_file = Factory.locate(Path.cwd())
+        poetry_file = Factory.locate(self.cwd)
         config = TomlFile(str(poetry_file)).read()["tool"]["poetry"]
         check_result = Factory.validate(config, strict=True)
         if not check_result["errors"] and not check_result["warnings"]:

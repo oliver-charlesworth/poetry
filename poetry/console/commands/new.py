@@ -32,7 +32,7 @@ class NewCommand(Command):
         else:
             layout_ = layout("standard")
 
-        path = Path.cwd() / Path(self.argument("path"))
+        path = self.cwd / Path(self.argument("path"))
         name = self.option("name")
         if not name:
             name = path.name
@@ -55,7 +55,7 @@ class NewCommand(Command):
             if author_email:
                 author += " <{}>".format(author_email)
 
-        current_env = SystemEnv(Path(sys.executable), env=self.poetry.env)
+        current_env = SystemEnv(Path(sys.executable), env_vars=self.env_vars)
         default_python = "^{}".format(
             ".".join(str(v) for v in current_env.version_info[:2])
         )
@@ -79,6 +79,6 @@ class NewCommand(Command):
 
         self.line(
             "Created package <info>{}</> in <fg=blue>{}</>".format(
-                module_name(name), path.relative_to(Path.cwd())
+                module_name(name), path.relative_to(self.cwd)
             )
         )

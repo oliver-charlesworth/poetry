@@ -23,14 +23,16 @@ class Poetry:
         package,  # type: ProjectPackage
         locker,  # type: Locker
         config,  # type: Config,
-        env,  # type: Dict[str, str]
+        env_vars,  # type: Dict[str, str]
+        cwd,  # type: Path
     ):
         self._file = TomlFile(file)
         self._package = package
         self._local_config = local_config
         self._locker = locker
         self._config = config
-        self._env = env
+        self._env_vars = env_vars
+        self._cwd = cwd
         self._pool = Pool()
 
     @property
@@ -58,8 +60,12 @@ class Poetry:
         return self._config
 
     @property
-    def env(self):  # type: () -> Dict[str, str]
-        return self._env
+    def env_vars(self):  # type: () -> Dict[str, str]
+        return self._env_vars
+
+    @property
+    def cwd(self):  # type: () -> Path
+        return self._cwd
 
     # TODO - can we get rid of these setters?
 

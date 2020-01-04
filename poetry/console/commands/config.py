@@ -76,7 +76,7 @@ To remove a repository (repo is a short alias for repositories):
             if local_config_file.exists():
                 config.merge(local_config_file.read())
         except RuntimeError:
-            local_config_file = TomlFile(Path.cwd() / "poetry.toml")
+            local_config_file = TomlFile(self.cwd / "poetry.toml")
 
         if self.option("local"):
             config.set_config_source(FileConfigSource(local_config_file))
