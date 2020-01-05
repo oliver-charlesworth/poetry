@@ -16,7 +16,7 @@ foo = ["cleo"]
 [package.source]
 reference = ""
 type = "file"
-url = "tests/fixtures/directory/project_with_transitive_file_dependencies/../../distributions/demo-0.1.0-py2.py3-none-any.whl"
+url = "../directory/project_with_transitive_file_dependencies/../../distributions/demo-0.1.0-py2.py3-none-any.whl"
 
 [[package]]
 category = "main"
@@ -41,7 +41,7 @@ demo = "*"
 [package.source]
 reference = ""
 type = "directory"
-url = "tests/fixtures/directory/project_with_transitive_file_dependencies"
+url = "../directory/project_with_transitive_file_dependencies"
 
 [metadata]
 content-hash = "123456789"

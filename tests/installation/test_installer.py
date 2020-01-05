@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import os
 import sys
 
 import pytest
@@ -15,6 +16,7 @@ from poetry.repositories import Repository
 from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils._compat import PY2
 from poetry.utils._compat import Path
+from poetry.utils.env import SystemEnv
 from poetry.utils.toml_file import TomlFile
 from tests.helpers import get_dependency
 from tests.helpers import get_package
@@ -23,9 +25,6 @@ from tests.repositories.test_legacy_repository import (
     MockRepository as MockLegacyRepository,
 )
 from tests.repositories.test_pypi_repository import MockRepository
-
-
-fixtures_dir = Path("tests/fixtures")
 
 
 class Installer(BaseInstaller):
@@ -85,9 +84,14 @@ class Locker(BaseLocker):
 
 
 @pytest.fixture()
-def package():
+def fixture_dir(fixtures_dir):
+    return fixtures_dir(is_root_fixture=True) / "blank"
+
+
+@pytest.fixture()
+def package(fixture_dir):
     p = ProjectPackage("root", "1.0")
-    p.root_dir = Path.cwd()
+    p.root_dir = fixture_dir
 
     return p
 
@@ -117,7 +121,7 @@ def locker():
 
 @pytest.fixture()
 def env():
-    return NullEnv()
+    return SystemEnv(path=Path(sys.prefix), env_vars=os.environ)
 
 
 @pytest.fixture()
@@ -665,7 +669,7 @@ def test_installer_with_pypi_repository(package, locker, installed):
 
 
 def test_run_installs_with_local_file(installer, locker, repo, package):
-    file_path = fixtures_dir / "distributions/demo-0.1.0-py2.py3-none-any.whl"
+    file_path = "../distributions/demo-0.1.0-py2.py3-none-any.whl"
     package.add_dependency("demo", {"file": str(file_path)})
 
     repo.add_package(get_package("pendulum", "1.4.4"))
@@ -680,9 +684,7 @@ def test_run_installs_with_local_file(installer, locker, repo, package):
 
 
 def test_run_installs_wheel_with_no_requires_dist(installer, locker, repo, package):
-    file_path = (
-        fixtures_dir / "wheel_with_no_requires_dist/demo-0.1.0-py2.py3-none-any.whl"
-    )
+    file_path = "../wheel_with_no_requires_dist/demo-0.1.0-py2.py3-none-any.whl"
     package.add_dependency("demo", {"file": str(file_path)})
 
     installer.run()
@@ -694,10 +696,8 @@ def test_run_installs_wheel_with_no_requires_dist(installer, locker, repo, packa
     assert len(installer.installer.installs) == 1
 
 
-def test_run_installs_with_local_poetry_directory_and_extras(
-    installer, locker, repo, package, tmpdir
-):
-    file_path = fixtures_dir / "project_with_extras"
+def test_run_installs_with_local_poetry_directory_and_extras(installer, locker, repo, package, tmpdir):
+    file_path = "../project_with_extras"
     package.add_dependency(
         "project-with-extras", {"path": str(file_path), "extras": ["extras_a"]}
     )
@@ -716,9 +716,7 @@ def test_run_installs_with_local_poetry_directory_and_extras(
 def test_run_installs_with_local_poetry_directory_transitive(
     installer, locker, repo, package, tmpdir
 ):
-    file_path = (
-        fixtures_dir / "directory/project_with_transitive_directory_dependencies/"
-    )
+    file_path = "../directory/project_with_transitive_directory_dependencies/"
     package.add_dependency(
         "project-with-transitive-directory-dependencies", {"path": str(file_path)}
     )
@@ -738,7 +736,7 @@ def test_run_installs_with_local_poetry_directory_transitive(
 def test_run_installs_with_local_poetry_file_transitive(
     installer, locker, repo, package, tmpdir
 ):
-    file_path = fixtures_dir / "directory/project_with_transitive_file_dependencies/"
+    file_path = "../directory/project_with_transitive_file_dependencies/"
     package.add_dependency(
         "project-with-transitive-file-dependencies", {"path": str(file_path)}
     )
@@ -758,7 +756,7 @@ def test_run_installs_with_local_poetry_file_transitive(
 def test_run_installs_with_local_setuptools_directory(
     installer, locker, repo, package, tmpdir
 ):
-    file_path = fixtures_dir / "project_with_setup/"
+    file_path = "../project_with_setup"
     package.add_dependency("my-package", {"path": str(file_path)})
 
     repo.add_package(get_package("pendulum", "1.4.4"))

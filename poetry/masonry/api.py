@@ -14,7 +14,7 @@ from poetry.utils.env import SystemEnv
 
 from .builders.sdist import SdistBuilder
 from .builders.wheel import WheelBuilder
-
+from ..poetry import Poetry
 
 log = logging.getLogger(__name__)
 

@@ -44,11 +44,10 @@ class CompleteBuilder(Builder):
     def _build_from_sdist(self, sdist_file):
         with self.unpacked_tarball(sdist_file) as tmpdir:
             WheelBuilder.make_in(
-                Factory().create_poetry(env_vars=os.environ, cwd=tmpdir),
+                Factory().create_poetry(env_vars=self._poetry.env_vars, cwd=tmpdir),
                 self._env,
                 self._io,
                 self._path / "dist",
-                original=self._poetry,
             )
 
     @classmethod

@@ -40,18 +40,15 @@ class WheelBuilder(Builder):
 
     format = "wheel"
 
-    def __init__(self, poetry, env, io, target_dir=None, original=None):
+    def __init__(self, poetry, env, io, target_dir=None):
         super(WheelBuilder, self).__init__(poetry, env, io)
 
         self._records = []
-        self._original_path = self._path
         self._target_dir = target_dir or (self._poetry.root / "dist")
-        if original:
-            self._original_path = original.root
 
     @classmethod
-    def make_in(cls, poetry, env, io, directory=None, original=None):
-        wb = WheelBuilder(poetry, env, io, target_dir=directory, original=original)
+    def make_in(cls, poetry, env, io, directory=None):
+        wb = WheelBuilder(poetry, env, io, target_dir=directory)
         wb.build()
 
         return wb.wheel_filename

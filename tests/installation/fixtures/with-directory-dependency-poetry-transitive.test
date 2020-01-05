@@ -14,7 +14,7 @@ extras_b = ["cachy (>=0.2.0)"]
 [package.source]
 reference = ""
 type = "directory"
-url = "tests/fixtures/directory/project_with_transitive_directory_dependencies/../../project_with_extras"
+url = "../directory/project_with_transitive_directory_dependencies/../../project_with_extras"
 
 [[package]]
 category = "main"
@@ -31,7 +31,7 @@ project-with-extras = "*"
 [package.source]
 reference = ""
 type = "directory"
-url = "tests/fixtures/directory/project_with_transitive_directory_dependencies"
+url = "../directory/project_with_transitive_directory_dependencies"
 
 [metadata]
 content-hash = "123456789"

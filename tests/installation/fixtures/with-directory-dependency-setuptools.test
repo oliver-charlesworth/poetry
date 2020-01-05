@@ -18,7 +18,7 @@ python-versions = "*"
 [package.source]
 type = "directory"
 reference = ""
-url = "tests/fixtures/project_with_setup"
+url = "../project_with_setup"
 
 [package.dependencies]
 cachy = {version = ">=0.2.0", extras = ["msgpack"]}
