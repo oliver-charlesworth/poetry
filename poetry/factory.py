@@ -150,7 +150,7 @@ class Factory:
         locker = Locker(poetry_file.parent / "poetry.lock", local_config)
 
         # Loading global configuration
-        config = self.create_config(io)
+        config = self.create_config(env_vars, io)
 
         # Loading local configuration
         local_config_file = TomlFile(poetry_file.parent / "poetry.toml")
@@ -201,11 +201,11 @@ class Factory:
         return poetry
 
     @classmethod
-    def create_config(cls, io=None):  # type: (Optional[IO]) -> Config
+    def create_config(cls, env_vars, io=None):  # type: (Dict[str, str], Optional[IO]) -> Config
         if io is None:
             io = NullIO()
 
-        config = Config()
+        config = Config(env_vars)
         # Load global config
         config_file = TomlFile(Path(CONFIG_DIR) / "config.toml")
         if config_file.exists():

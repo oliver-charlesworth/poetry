@@ -40,17 +40,17 @@ class Config(object):
     }
 
     def __init__(
-        self, use_environment=True, base_dir=None
-    ):  # type: (bool, Optional[Path]) -> None
+        self, env_vars, base_dir=None
+    ):  # type: (Dict[str, str], Optional[Path]) -> None
         self._config = deepcopy(self.default_config)
-        self._use_environment = use_environment
+        self._env_vars = env_vars
         self._base_dir = base_dir
         self._config_source = DictConfigSource()
         self._auth_config_source = DictConfigSource()
 
     @property
     def name(self):
-        return str(self._file.path)
+        return str(self._file.path)  # TODO - _file is never set
 
     @property
     def config(self):
@@ -106,13 +106,12 @@ class Config(object):
 
         # Looking in the environment if the setting
         # is set via a POETRY_* environment variable
-        if self._use_environment:
-            env = "POETRY_{}".format(
-                "_".join(k.upper().replace("-", "_") for k in keys)
-            )
-            value = os.getenv(env, _NOT_SET)
-            if value is not _NOT_SET:
-                return self.process(self._get_normalizer(setting_name)(value))
+        env = "POETRY_{}".format(
+            "_".join(k.upper().replace("-", "_") for k in keys)
+        )
+        value = self._env_vars.get(env, _NOT_SET)
+        if value is not _NOT_SET:
+            return self.process(self._get_normalizer(setting_name)(value))
 
         value = self._config
         for key in keys:

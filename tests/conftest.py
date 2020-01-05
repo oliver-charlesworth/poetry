@@ -19,7 +19,11 @@ from tests.helpers import mock_clone
 from tests.helpers import mock_download
 
 
+# TODO - what is the point of this?
 class Config(BaseConfig):
+    def __init__(self, env_vars):
+        super(Config, self).__init__(env_vars=env_vars)
+
     def get(self, setting_name, default=None):  # type: (str, Any) -> Any
         self.merge(self._config_source.config)
         self.merge(self._auth_config_source.config)
@@ -61,7 +65,7 @@ def config(config_source, auth_config_source, mocker):
 
     keyring.set_keyring(Keyring())
 
-    c = Config()
+    c = Config(env_vars={})
     c.merge(config_source.config)
     c.set_config_source(config_source)
     c.set_auth_config_source(auth_config_source)
@@ -76,16 +80,6 @@ def config(config_source, auth_config_source, mocker):
 def download_mock(mocker):
     # Patch download to not download anything but to just copy from fixtures
     mocker.patch("poetry.utils.inspector.Inspector.download", new=mock_download)
-
-
-@pytest.fixture
-def environ():
-    original_environ = dict(os.environ)
-
-    yield
-
-    os.environ.clear()
-    os.environ.update(original_environ)
 
 
 @pytest.fixture(autouse=True)

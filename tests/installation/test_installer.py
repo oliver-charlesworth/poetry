@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import os
 import sys
 
 import pytest
@@ -121,7 +120,7 @@ def locker():
 
 @pytest.fixture()
 def env():
-    return SystemEnv(path=Path(sys.prefix), env_vars=os.environ)
+    return SystemEnv(path=Path(sys.prefix), env_vars={})
 
 
 @pytest.fixture()

@@ -68,7 +68,7 @@ To remove a repository (repo is a short alias for repositories):
         from poetry.utils._compat import basestring
         from poetry.utils.toml_file import TomlFile
 
-        config = Factory.create_config(self.io)
+        config = Factory.create_config(self.env_vars, self.io)
         config_file = TomlFile(Path(CONFIG_DIR) / "config.toml")
 
         try:
