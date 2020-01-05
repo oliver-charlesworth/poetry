@@ -37,7 +37,7 @@ def test_repository_no_repository():
 
 
 def test_repository_from_normal_pool():
-    repo = LegacyRepository("foo", "https://foo.bar")
+    repo = LegacyRepository("foo", "https://foo.bar", env_vars={})
     pool = Pool()
     pool.add_repository(repo)
 
@@ -45,7 +45,7 @@ def test_repository_from_normal_pool():
 
 
 def test_repository_from_secondary_pool():
-    repo = LegacyRepository("foo", "https://foo.bar")
+    repo = LegacyRepository("foo", "https://foo.bar", env_vars={})
     pool = Pool()
     pool.add_repository(repo, secondary=True)
 
@@ -53,10 +53,10 @@ def test_repository_from_secondary_pool():
 
 
 def test_repository_with_normal_default_and_secondary_repositories():
-    secondary = LegacyRepository("secondary", "https://secondary.com")
-    default = LegacyRepository("default", "https://default.com")
-    repo1 = LegacyRepository("foo", "https://foo.bar")
-    repo2 = LegacyRepository("bar", "https://bar.baz")
+    secondary = LegacyRepository("secondary", "https://secondary.com", env_vars={})
+    default = LegacyRepository("default", "https://default.com", env_vars={})
+    repo1 = LegacyRepository("foo", "https://foo.bar", env_vars={})
+    repo2 = LegacyRepository("bar", "https://bar.baz", env_vars={})
 
     pool = Pool()
     pool.add_repository(repo1)

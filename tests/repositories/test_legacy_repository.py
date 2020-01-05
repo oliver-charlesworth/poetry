@@ -23,7 +23,7 @@ class MockRepository(LegacyRepository):
 
     def __init__(self, auth=None):
         super(MockRepository, self).__init__(
-            "legacy", url="http://foo.bar", auth=auth, disable_cache=True
+            name="legacy", url="http://foo.bar", env_vars={}, auth=auth, disable_cache=True
         )
 
     def _get(self, endpoint):

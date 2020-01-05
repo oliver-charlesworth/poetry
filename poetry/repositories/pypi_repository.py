@@ -50,7 +50,7 @@ class PyPiRepository(Repository):
 
     CACHE_VERSION = parse_constraint("1.0.0")
 
-    def __init__(self, url="https://pypi.org/", disable_cache=False, fallback=True):
+    def __init__(self, env_vars, url="https://pypi.org/", disable_cache=False, fallback=True):
         self._url = url
         self._disable_cache = disable_cache
         self._fallback = fallback
@@ -69,7 +69,7 @@ class PyPiRepository(Repository):
 
         self._cache_control_cache = FileCache(str(release_cache_dir / "_http"))
         self._session = CacheControl(session(), cache=self._cache_control_cache)
-        self._inspector = Inspector(env_vars=os.environ)
+        self._inspector = Inspector(env_vars=env_vars)
 
         super(PyPiRepository, self).__init__()
 

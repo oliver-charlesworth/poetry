@@ -18,6 +18,7 @@ from .packages.dependency import Dependency
 from .packages.locker import Locker
 from .packages.project_package import ProjectPackage
 from .poetry import Poetry
+from .repositories.legacy_repository import LegacyRepository
 from .repositories.pypi_repository import PyPiRepository
 from .spdx import license_by_id
 from .utils._compat import Path
@@ -29,13 +30,13 @@ class Factory:
     Factory class to create various elements needed by Poetry.
     """
 
-    def create_poetry(
-        self, env_vars, cwd, io=None
-    ):  # type: (Dict[str, str], Path, Optional[IO]) -> Poetry
-        if io is None:
-            io = NullIO()
+    def __init__(self, env_vars, cwd, io=None):  # type: (Dict[str, str], Path, Optional[IO]) -> None
+        self._env_vars = env_vars
+        self._cwd = cwd
+        self._io = io or NullIO()
 
-        poetry_file = self.locate(cwd)
+    def create_poetry(self):  # type: () -> Poetry
+        poetry_file = self.locate(self._cwd)
 
         local_config = TomlFile(poetry_file.as_posix()).read()
         if "tool" not in local_config or "poetry" not in local_config["tool"]:
@@ -150,13 +151,13 @@ class Factory:
         locker = Locker(poetry_file.parent / "poetry.lock", local_config)
 
         # Loading global configuration
-        config = self.create_config(env_vars, io)
+        config = self.create_config(self._env_vars, self._io)
 
         # Loading local configuration
         local_config_file = TomlFile(poetry_file.parent / "poetry.toml")
         if local_config_file.exists():
-            if io.is_debug():
-                io.write_line(
+            if self._io.is_debug():
+                self._io.write_line(
                     "Loading configuration file {}".format(local_config_file.path)
                 )
 
@@ -168,8 +169,8 @@ class Factory:
             package=package,
             locker=locker,
             config=config,
-            env_vars=env_vars,
-            cwd=cwd,
+            env_vars=self._env_vars,
+            cwd=self._cwd,
         )
 
         # Configuring sources
@@ -177,7 +178,7 @@ class Factory:
             repository = self.create_legacy_repository(source, config)
             is_default = source.get("default", False)
             is_secondary = source.get("secondary", False)
-            if io.is_debug():
+            if self._io.is_debug():
                 message = "Adding repository {} ({})".format(
                     repository.name, repository.url
                 )
@@ -186,17 +187,17 @@ class Factory:
                 elif is_secondary:
                     message += " and setting it as secondary"
 
-                io.write_line(message)
+                self._io.write_line(message)
 
             poetry.pool.add_repository(repository, is_default, secondary=is_secondary)
 
         # Always put PyPI last to prefer private repositories
         # but only if we have no other default source
         if not poetry.pool.has_default():
-            poetry.pool.add_repository(PyPiRepository(), True)
+            poetry.pool.add_repository(PyPiRepository(env_vars=self._env_vars), True)
         else:
-            if io.is_debug():
-                io.write_line("Deactivating the PyPI repository")
+            if self._io.is_debug():
+                self._io.write_line("Deactivating the PyPI repository")
 
         return poetry
 
@@ -263,6 +264,7 @@ class Factory:
         return LegacyRepository(
             name,
             url,
+            env_vars=self._env_vars,
             auth=auth,
             cert=get_cert(auth_config, name),
             client_cert=get_client_cert(auth_config, name),

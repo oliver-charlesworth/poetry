@@ -654,6 +654,7 @@ def test_exporter_exports_requirements_txt_with_legacy_packages(tmp_dir, poetry)
         LegacyRepository(
             "custom",
             "https://example.com/simple",
+            env_vars={},
             auth=Auth("https://example.com/simple", "foo", "bar"),
         )
     )
@@ -713,10 +714,11 @@ def test_exporter_exports_requirements_txt_with_legacy_packages_and_duplicate_so
         LegacyRepository(
             "custom",
             "https://example.com/simple",
+            env_vars={},
             auth=Auth("https://example.com/simple", "foo", "bar"),
         )
     )
-    poetry.pool.add_repository(LegacyRepository("custom", "https://foobaz.com/simple",))
+    poetry.pool.add_repository(LegacyRepository("custom", "https://foobaz.com/simple", env_vars={}))
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -793,6 +795,7 @@ def test_exporter_exports_requirements_txt_with_legacy_packages_and_credentials(
         LegacyRepository(
             "custom",
             "https://example.com/simple",
+            env_vars={},
             auth=Auth("https://example.com/simple", "foo", "bar"),
         )
     )

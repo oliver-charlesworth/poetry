@@ -142,8 +142,6 @@ def minimal_env_vars(
 
 @pytest.fixture
 def poetry_factory(fixtures_dir):
-    factory = Factory()
-
     # Tests generally rely on fixtures looking like a Git repo
     def _init_as_git_repo(path):  # type: (Path) -> None
         subprocess.check_output(["git", "init"], cwd=path.as_posix())
@@ -155,6 +153,6 @@ def poetry_factory(fixtures_dir):
 
         _init_as_git_repo(path)
 
-        return factory.create_poetry(env_vars=env_vars or minimal_env_vars(), cwd=path)
+        return Factory(env_vars=env_vars or minimal_env_vars(), cwd=path).create_poetry()
 
     return _create

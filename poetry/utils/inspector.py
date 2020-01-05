@@ -154,7 +154,7 @@ class Inspector:
             pyproject_content = pyproject.read()
             if "tool" in pyproject_content and "poetry" in pyproject_content["tool"]:
                 package = (
-                    Factory().create_poetry(env_vars=self._env_vars, cwd=sdist_dir).package
+                    Factory(env_vars=self._env_vars, cwd=sdist_dir).create_poetry().package
                 )
                 return {
                     "name": package.name,

@@ -512,6 +512,6 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
         if self._pool is None:
             self._pool = Pool()
-            self._pool.add_repository(PyPiRepository())
+            self._pool.add_repository(PyPiRepository(env_vars=self.env_vars))
 
         return self._pool

@@ -70,7 +70,7 @@ class SelfUpdateCommand(Command):
         if not version:
             version = ">=" + __version__
 
-        repo = PyPiRepository(fallback=False)
+        repo = PyPiRepository(env_vars=self.env_vars, fallback=False)
         packages = repo.find_packages(
             "poetry", version, allow_prereleases=self.option("preview")
         )

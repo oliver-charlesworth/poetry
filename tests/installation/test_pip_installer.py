@@ -71,8 +71,8 @@ def test_requirement_git_develop_false(installer, package_git):
 
 
 def test_install_with_non_pypi_default_repository(pool, installer):
-    default = LegacyRepository("default", "https://default.com")
-    another = LegacyRepository("another", "https://another.com")
+    default = LegacyRepository("default", "https://default.com", env_vars={})
+    another = LegacyRepository("another", "https://another.com", env_vars={})
 
     pool.add_repository(default, default=True)
     pool.add_repository(another)
@@ -94,7 +94,7 @@ def test_install_with_cert():
     ca_path = "path/to/cert.pem"
     pool = Pool()
 
-    default = LegacyRepository("default", "https://foo.bar", cert=Path(ca_path))
+    default = LegacyRepository("default", "https://foo.bar", env_vars={}, cert=Path(ca_path))
 
     pool.add_repository(default, default=True)
 
@@ -122,7 +122,7 @@ def test_install_with_client_cert():
     pool = Pool()
 
     default = LegacyRepository(
-        "default", "https://foo.bar", client_cert=Path(client_path)
+        "default", "https://foo.bar", env_vars={}, client_cert=Path(client_path)
     )
 
     pool.add_repository(default, default=True)

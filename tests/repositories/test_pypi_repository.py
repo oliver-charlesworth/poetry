@@ -22,7 +22,7 @@ class MockRepository(PyPiRepository):
 
     def __init__(self, fallback=False):
         super(MockRepository, self).__init__(
-            url="http://foo.bar", disable_cache=True, fallback=fallback
+            env_vars={}, url="http://foo.bar", disable_cache=True, fallback=fallback
         )
 
     def _get(self, url):
@@ -204,7 +204,7 @@ def test_get_should_invalid_cache_on_too_many_redirects_error(mocker):
         "cachecontrol.adapter.CacheControlAdapter.send",
         side_effect=[TooManyRedirects(), response],
     )
-    repository = PyPiRepository()
+    repository = PyPiRepository(env_vars={})
     repository._get("https://pypi.org/pypi/async-timeout/json")
 
     assert delete_cache.called

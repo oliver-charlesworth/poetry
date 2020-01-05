@@ -4,7 +4,7 @@ import re
 import warnings
 
 from collections import defaultdict
-from typing import Generator
+from typing import Generator, Dict
 from typing import Optional
 from typing import Union
 
@@ -163,8 +163,14 @@ class Page:
 
 class LegacyRepository(PyPiRepository):
     def __init__(
-        self, name, url, auth=None, disable_cache=False, cert=None, client_cert=None
-    ):  # type: (str, str, Optional[Auth], bool, Optional[Path], Optional[Path]) -> None
+        self, name, url, env_vars, auth=None, disable_cache=False, cert=None, client_cert=None
+    ):  # type: (str, str, Dict[str, str], Optional[Auth], bool, Optional[Path], Optional[Path]) -> None
+        super(LegacyRepository, self).__init__(
+            env_vars=env_vars,
+            url=url,
+            disable_cache=disable_cache,
+        )
+
         if name == "pypi":
             raise ValueError("The name [pypi] is reserved for repositories")
 
@@ -174,7 +180,6 @@ class LegacyRepository(PyPiRepository):
         self._auth = auth
         self._client_cert = client_cert
         self._cert = cert
-        self._inspector = Inspector(env_vars=os.environ)
         self._cache_dir = Path(CACHE_DIR) / "cache" / "repositories" / name
         self._cache = CacheManager(
             {

@@ -208,7 +208,7 @@ class PipInstaller(BaseInstaller):
             # build-system for editable packages
             # We also need it for non-PEP-517 packages
             builder = SdistBuilder(
-                Factory().create_poetry(env_vars=os.environ, cwd=pyproject.parent),
+                Factory(env_vars=os.environ, cwd=pyproject.parent).create_poetry(),
                 SystemEnv(Path(sys.executable), env_vars=os.environ),
                 NullIO(),
             )

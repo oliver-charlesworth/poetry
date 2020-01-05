@@ -113,7 +113,7 @@ def app_factory(fixtures_dir, pool, config):
         subprocess.check_output(["git", "init"], cwd=path.as_posix())
 
         def _create_poetry(env_vars, cwd):
-            p = Factory().create_poetry(env_vars, cwd)
+            p = Factory(env_vars, cwd).create_poetry()
             p.set_locker(Locker(p.locker.lock.path, p.locker._local_config))
             p.set_config(config)
             p.set_pool(pool)

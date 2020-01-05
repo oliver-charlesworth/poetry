@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def _create_poetry():  # type: () -> Poetry
-    return Factory().create_poetry(env_vars=os.environ, cwd=Path("."))
+    return Factory(env_vars=os.environ, cwd=Path(".")).create_poetry()
 
 
 def get_requires_for_build_wheel(config_settings=None):

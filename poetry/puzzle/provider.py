@@ -304,7 +304,7 @@ class Provider:
             )
 
         if supports_poetry:
-            poetry = Factory().create_poetry(env_vars=env_vars, cwd=directory)
+            poetry = Factory(env_vars=env_vars, cwd=directory).create_poetry()
 
             pkg = poetry.package
             package = Package(pkg.name, pkg.version)

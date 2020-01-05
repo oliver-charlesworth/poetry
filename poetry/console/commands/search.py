@@ -13,7 +13,7 @@ class SearchCommand(Command):
     def handle(self):
         from poetry.repositories.pypi_repository import PyPiRepository
 
-        results = PyPiRepository().search(self.argument("tokens"))
+        results = PyPiRepository(env_vars=self.env_vars).search(self.argument("tokens"))
 
         for result in results:
             self.line("")
