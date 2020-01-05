@@ -23,6 +23,10 @@ def _create_poetry():  # type: () -> Poetry
     return Factory(env_vars=os.environ, cwd=Path(".")).create_poetry()
 
 
+def _create_env():  # type: () -> SystemEnv
+    return SystemEnv(Path(sys.prefix), env_vars=os.environ)
+
+
 def get_requires_for_build_wheel(config_settings=None):
     """
     Returns a list of requirements for building, as strings
@@ -40,9 +44,7 @@ get_requires_for_build_sdist = get_requires_for_build_wheel
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
     poetry = _create_poetry()
-    builder = WheelBuilder(
-        poetry, SystemEnv(Path(sys.prefix), env_vars=os.environ), NullIO()
-    )
+    builder = WheelBuilder(poetry, _create_env(), NullIO())
 
     dist_info = Path(metadata_directory, builder.dist_info)
     dist_info.mkdir(parents=True, exist_ok=True)
@@ -62,12 +64,10 @@ def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """Builds a wheel, places it in wheel_directory"""
-    poetry = _create_poetry()
-
     return unicode(
         WheelBuilder.make_in(
-            poetry,
-            SystemEnv(Path(sys.prefix), env_vars=os.environ),
+            _create_poetry,
+            _create_env(),
             NullIO(),
             Path(wheel_directory),
         )
@@ -76,10 +76,6 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 def build_sdist(sdist_directory, config_settings=None):
     """Builds an sdist, places it in sdist_directory"""
-    poetry = _create_poetry()
-
-    path = SdistBuilder(
-        poetry, SystemEnv(Path(sys.prefix), env_vars=os.environ), NullIO()
-    ).build(Path(sdist_directory))
+    path = SdistBuilder(_create_poetry, _create_env(), NullIO()).build(Path(sdist_directory))
 
     return unicode(path.name)
