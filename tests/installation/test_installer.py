@@ -85,7 +85,7 @@ class Locker(BaseLocker):
 
 @pytest.fixture()
 def fixture_dir(fixtures_dir):
-    return fixtures_dir(is_root_fixture=True) / "blank"
+    return fixtures_dir(relative_to_root="") / "blank"
 
 
 @pytest.fixture()

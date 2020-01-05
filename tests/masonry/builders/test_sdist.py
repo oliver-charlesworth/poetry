@@ -159,7 +159,7 @@ def test_find_files_to_add(poetry_factory):
 
 def test_make_pkg_info_multi_constraints_dependency(poetry_factory):
     poetry = poetry_factory(
-        "project_with_multi_constraints_dependency", is_root_fixture=True
+        "project_with_multi_constraints_dependency", relative_to_root=""
     )
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())

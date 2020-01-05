@@ -37,7 +37,7 @@ MINIMAL_ENV_VARS = minimal_env_vars(virtual_env=None)
 @pytest.fixture()
 def poetry(poetry_factory, config):
     poetry = poetry_factory(
-        "simple_project", is_root_fixture=True, env_vars=MINIMAL_ENV_VARS
+        "simple_project", relative_to_root="", env_vars=MINIMAL_ENV_VARS
     )
     poetry.set_config(config)
 

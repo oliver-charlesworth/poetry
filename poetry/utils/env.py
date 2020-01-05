@@ -737,6 +737,7 @@ class Env(object):
     def python_implementation(self):  # type: () -> str
         return self.marker_env["platform_python_implementation"]
 
+    # TODO - this is only used in tests
     @property
     def python(self):  # type: () -> str
         """
@@ -751,6 +752,7 @@ class Env(object):
 
         return self._marker_env
 
+    # TODO - this is not used *anywhere*
     @property
     def pip(self):  # type: () -> str
         """
@@ -947,6 +949,7 @@ class SystemEnv(Env):
             iver = "0"
             implementation_name = ""
 
+        # TODO - this retrieves info from Poetry's Python, not necessarily the system Python
         return {
             "implementation_name": implementation_name,
             "implementation_version": iver,

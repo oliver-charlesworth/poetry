@@ -117,15 +117,15 @@ def tmp_dir():
 
 @pytest.fixture
 def fixtures_dir(request, tmp_path_factory):
-    def _reference_path(is_root_fixture):  # type: (bool) -> Path
-        if is_root_fixture:
-            return Path(__file__)
+    def _reference_path(relative_to_root):  # type: (str) -> Path
+        if relative_to_root is None:
+            return Path(request.module.__file__).parent
         else:
-            return Path(request.module.__file__)
+            return Path(__file__).parent / relative_to_root  # Relies on *this* conftest file being in the tests/ root
 
     # Test cases may mutate things, so encapsulate by making a copy of the fixtures
-    def _create(is_root_fixture=False):  # type: (bool) -> Path
-        source = _reference_path(is_root_fixture).parent / "fixtures"
+    def _create(relative_to_root=None):  # type: (str) -> Path
+        source = _reference_path(relative_to_root) / "fixtures"
         target = tmp_path_factory.mktemp("target", numbered=True) / "fixtures"
 
         shutil.copytree(source.as_posix(), target.as_posix())
@@ -155,9 +155,9 @@ def poetry_factory(fixtures_dir):
         subprocess.check_output(["git", "init"], cwd=path.as_posix())
 
     def _create(
-        name, is_root_fixture=False, env_vars=None
+        name, relative_to_root=None, env_vars=None
     ):  # type: (str, bool, Optional[Dict[str, str]]) -> Poetry
-        path = fixtures_dir(is_root_fixture) / name
+        path = fixtures_dir(relative_to_root) / name
 
         _init_as_git_repo(path)
 

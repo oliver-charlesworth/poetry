@@ -39,7 +39,7 @@ def locker():
 
 @pytest.fixture
 def poetry(poetry_factory, locker):
-    p = poetry_factory("sample_project", is_root_fixture=True)
+    p = poetry_factory("sample_project", relative_to_root="")
     p._locker = locker
 
     return p

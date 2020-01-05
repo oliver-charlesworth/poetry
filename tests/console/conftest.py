@@ -107,7 +107,7 @@ def pool(repo):
 def app_factory(fixtures_dir, pool, config):
     # TODO - de-dupe with stuff in tests/conftest.py
     def _create(name="simple_project", env_vars=None):
-        path = fixtures_dir(is_root_fixture=True) / name
+        path = fixtures_dir(relative_to_root="") / name
 
         # Tests generally rely on fixtures looking like a Git repo
         subprocess.check_output(["git", "init"], cwd=path.as_posix())

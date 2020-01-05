@@ -2,8 +2,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import os
-
 import pytest
 
 from poetry.factory import Factory
@@ -112,10 +110,7 @@ def test_create_poetry(poetry_factory):
 
 
 def test_create_poetry_with_packages_and_includes(poetry_factory):
-    poetry = Factory().create_poetry(
-        env_vars=os.environ,
-        cwd=fixtures_dir.parent / "masonry" / "builders" / "fixtures" / "with-include",
-    )
+    poetry = poetry_factory("with-include", relative_to_root="masonry/builders")
 
     package = poetry.package
 
