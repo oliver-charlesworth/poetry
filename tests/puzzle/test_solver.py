@@ -11,6 +11,7 @@ from poetry.repositories.pool import Pool
 from poetry.repositories.repository import Repository
 from poetry.utils._compat import Path
 from poetry.version.markers import parse_marker
+from tests.conftest import minimal_env_vars
 from tests.helpers import get_dependency
 from tests.helpers import get_package
 from tests.repositories.test_legacy_repository import (
@@ -51,7 +52,14 @@ def pool(repo):
 
 @pytest.fixture()
 def solver(package, pool, installed, locked, io):
-    return Solver(package, pool, installed, locked, io)
+    return Solver(
+        package=package,
+        pool=pool,
+        env_vars=minimal_env_vars(),
+        installed=installed,
+        locked=locked,
+        io=io
+    )
 
 
 def check_solver_result(ops, expected):
@@ -1576,7 +1584,7 @@ def test_solver_can_solve_with_legacy_repository_using_proper_dists(
     repo = MockLegacyRepository()
     pool = Pool([repo])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     package.add_dependency("isort", "4.3.4")
 
@@ -1602,7 +1610,7 @@ def test_solver_can_solve_with_legacy_repository_using_proper_python_compatible_
     repo = MockLegacyRepository()
     pool = Pool([repo])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     package.add_dependency("isort", "4.3.4")
 
@@ -1619,7 +1627,7 @@ def test_solver_skips_invalid_versions(package, installed, locked, io):
     repo = MockPyPIRepository()
     pool = Pool([repo])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     package.add_dependency("trackpy", "^0.4")
 
@@ -1657,7 +1665,7 @@ def test_solver_chooses_most_recent_version_amongst_repositories(
     repo = MockLegacyRepository()
     pool = Pool([repo, MockPyPIRepository()])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1678,7 +1686,7 @@ def test_solver_chooses_from_correct_repository_if_forced(
     repo = MockLegacyRepository()
     pool = Pool([repo, MockPyPIRepository()])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1702,7 +1710,7 @@ def test_solver_chooses_from_correct_repository_if_forced_and_transitive_depende
     repo.add_package(foo)
     pool = Pool([MockLegacyRepository(), repo, MockPyPIRepository()])
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1730,7 +1738,7 @@ def test_solver_does_not_choose_from_secondary_repository_by_default(
     pool.add_repository(MockPyPIRepository(), secondary=True)
     pool.add_repository(MockLegacyRepository())
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1757,7 +1765,7 @@ def test_solver_chooses_from_secondary_if_explicit(package, installed, locked, i
     pool.add_repository(MockPyPIRepository(), secondary=True)
     pool.add_repository(MockLegacyRepository())
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1796,7 +1804,7 @@ def test_solver_discards_packages_with_empty_markers(
     repo.add_package(package_b)
     repo.add_package(package_c)
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 
@@ -1876,7 +1884,7 @@ def test_solver_does_not_fail_with_locked_git_and_non_git_dependencies(
 
     repo.add_package(get_package("a", "1.2.3"))
 
-    solver = Solver(package, pool, installed, locked, io)
+    solver = Solver(package, pool, {}, installed, locked, io)
 
     ops = solver.solve()
 

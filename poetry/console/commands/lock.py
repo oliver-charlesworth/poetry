@@ -20,7 +20,7 @@ file.
         from poetry.installation.installer import Installer
 
         installer = Installer(
-            self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
+            self.env_vars, self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
         )
 
         installer.lock()

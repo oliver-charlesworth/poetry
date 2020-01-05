@@ -6,7 +6,7 @@ import time
 
 from contextlib import contextmanager
 from tempfile import mkdtemp
-from typing import Any
+from typing import Any, Dict
 from typing import List
 from typing import Optional
 
@@ -62,9 +62,10 @@ class Provider:
 
     UNSAFE_PACKAGES = {"setuptools", "distribute", "pip"}
 
-    def __init__(self, package, pool, io):  # type: (Package, Pool, Any) -> None
+    def __init__(self, package, pool, env_vars, io):  # type: (Package, Pool, Dict[str, str], Any) -> None
         self._package = package
         self._pool = pool
+        self._env_vars = env_vars
         self._io = io
         self._inspector = Inspector()
         self._python_constraint = package.python_constraint
@@ -164,9 +165,10 @@ class Provider:
         and get the information we need by checking out the specified reference.
         """
         package = self.get_package_from_vcs(
-            dependency.vcs,
-            dependency.source,
-            dependency.reference,
+            vcs=dependency.vcs,
+            url=dependency.source,
+            env_vars=self._env_vars,
+            reference=dependency.reference,
             name=dependency.name,
         )
 
@@ -181,8 +183,8 @@ class Provider:
 
     @classmethod
     def get_package_from_vcs(
-        cls, vcs, url, reference=None, name=None
-    ):  # type: (str, str, Optional[str], Optional[str]) -> Package
+        cls, vcs, url, env_vars, reference=None, name=None
+    ):  # type: (str, str, Dict[str, str], Optional[str], Optional[str]) -> Package
         if vcs != "git":
             raise ValueError("Unsupported VCS dependency {}".format(vcs))
 
@@ -200,7 +202,7 @@ class Provider:
 
             revision = git.rev_parse(reference, tmp_dir).strip()
 
-            package = cls.get_package_from_directory(tmp_dir, name=name)
+            package = cls.get_package_from_directory(tmp_dir, env_vars=env_vars, name=name)
 
             package.source_type = "git"
             package.source_url = url
@@ -270,7 +272,7 @@ class Provider:
         self, dependency
     ):  # type: (DirectoryDependency) -> List[Package]
         package = self.get_package_from_directory(
-            dependency.full_path, name=dependency.name
+            dependency.full_path, env_vars=self._env_vars, name=dependency.name
         )
 
         package.source_url = dependency.path.as_posix()
@@ -290,8 +292,8 @@ class Provider:
 
     @classmethod
     def get_package_from_directory(
-        cls, directory, name=None
-    ):  # type: (Path, Optional[str]) -> Package
+        cls, directory, env_vars, name=None
+    ):  # type: (Path, Dict[str, str], Optional[str]) -> Package
         supports_poetry = False
         pyproject = directory.joinpath("pyproject.toml")
         if pyproject.exists():
@@ -302,7 +304,7 @@ class Provider:
             )
 
         if supports_poetry:
-            poetry = Factory().create_poetry(env_vars=os.environ, cwd=directory)
+            poetry = Factory().create_poetry(env_vars=env_vars, cwd=directory)
 
             pkg = poetry.package
             package = Package(pkg.name, pkg.version)
@@ -328,7 +330,7 @@ class Provider:
                 with temporary_directory() as tmp_dir:
                     EnvManager.build_venv(tmp_dir)
                     venv = VirtualEnv(
-                        Path(tmp_dir), base=Path(tmp_dir), env_vars=os.environ
+                        Path(tmp_dir), base=Path(tmp_dir), env_vars=env_vars
                     )
                     venv.run("python", "setup.py", "egg_info")
             except EnvCommandError:

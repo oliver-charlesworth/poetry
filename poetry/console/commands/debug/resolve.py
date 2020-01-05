@@ -76,7 +76,14 @@ class DebugResolveCommand(InitCommand):
 
         pool = self.poetry.pool
 
-        solver = Solver(package, pool, Repository(), Repository(), self._io)
+        solver = Solver(
+            package=package,
+            pool=pool,
+            env_vars=self.env_vars,
+            installed=Repository(),
+            locked=Repository(),
+            io=self._io
+        )
 
         ops = solver.solve()
 
@@ -114,7 +121,14 @@ class DebugResolveCommand(InitCommand):
             pool.add_repository(locked_repository)
 
             with package.with_python_versions(current_python_version):
-                solver = Solver(package, pool, Repository(), Repository(), NullIO())
+                solver = Solver(
+                    package=package,
+                    pool=pool,
+                    installed=Repository(),
+                    locked=Repository(),
+                    env_vars=self.env_vars,
+                    io=NullIO()
+                )
                 ops = solver.solve()
 
         for op in ops:

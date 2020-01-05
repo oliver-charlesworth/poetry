@@ -14,6 +14,7 @@ from poetry.repositories.repository import Repository
 from poetry.utils._compat import PY35
 from poetry.utils._compat import Path
 from poetry.utils.env import EnvCommandError
+from tests.conftest import minimal_env_vars
 from tests.helpers import get_dependency
 
 
@@ -37,7 +38,7 @@ def pool(repository):
 
 @pytest.fixture
 def provider(root, pool):
-    return Provider(root, pool, NullIO())
+    return Provider(root, pool, env_vars=minimal_env_vars(), io=NullIO())
 
 
 def test_search_for_vcs_setup_egg_info(provider):

@@ -333,7 +333,12 @@ lists all packages available."""
 
             for dep in requires:
                 if dep.name == package.name:
-                    provider = Provider(self.poetry.package, self.poetry.pool, NullIO())
+                    provider = Provider(
+                        package=self.poetry.package,
+                        pool=self.poetry.pool,
+                        env_vars=self.env_vars,
+                        io=NullIO()
+                    )
 
                     if dep.is_vcs():
                         return provider.search_for_vcs(dep)[0]

@@ -21,13 +21,13 @@ from .provider import Provider
 
 
 class Solver:
-    def __init__(self, package, pool, installed, locked, io):
+    def __init__(self, package, pool, env_vars, installed, locked, io):
         self._package = package
         self._pool = pool
         self._installed = installed
         self._locked = locked
         self._io = io
-        self._provider = Provider(self._package, self._pool, self._io)
+        self._provider = Provider(self._package, self._pool, env_vars=env_vars, io=self._io)
         self._branches = []
 
     def solve(self, use_latest=None):  # type: (...) -> List[Operation]

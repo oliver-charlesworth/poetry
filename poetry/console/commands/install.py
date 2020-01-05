@@ -45,7 +45,7 @@ exist it will look for <comment>pyproject.toml</> and do the same.
         from poetry.masonry.utils.module import ModuleOrPackageNotFound
 
         installer = Installer(
-            self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
+            self.env_vars, self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
         )
 
         extras = []

@@ -63,7 +63,7 @@ list of installed packages
         self.reset_poetry()
 
         installer = Installer(
-            self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
+            self.env_vars, self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
         )
 
         installer.dry_run(self.option("dry-run"))

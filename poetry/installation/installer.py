@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from typing import Union
 
 from clikit.api.io import IO
@@ -25,6 +25,7 @@ from .pip_installer import PipInstaller
 class Installer:
     def __init__(
         self,
+        env_vars,  # type: Dict[str, str]
         io,  # type: IO
         env,
         package,  # type: Package
@@ -32,6 +33,7 @@ class Installer:
         pool,  # type: Pool
         installed=None,  # type: (Union[InstalledRepository, None])
     ):
+        self._env_vars = env_vars
         self._io = io
         self._env = env
         self._package = package
@@ -151,11 +153,12 @@ class Installer:
 
             self._io.write_line("<info>Updating dependencies</>")
             solver = Solver(
-                self._package,
-                self._pool,
-                self._installed_repository,
-                locked_repository,
-                self._io,
+                package=self._package,
+                pool=self._pool,
+                env_vars=self._env_vars,
+                installed=self._installed_repository,
+                locked=locked_repository,
+                io=self._io,
             )
 
             ops = solver.solve(use_latest=self._whitelist)
@@ -219,7 +222,12 @@ class Installer:
                 whitelist.append(pkg.name)
 
             solver = Solver(
-                root, pool, self._installed_repository, locked_repository, NullIO()
+                package=root,
+                pool=pool,
+                env_vars=self._env_vars,
+                installed=self._installed_repository,
+                locked=locked_repository,
+                io=NullIO()
             )
 
             ops = solver.solve(use_latest=whitelist)

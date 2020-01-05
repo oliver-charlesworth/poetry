@@ -378,7 +378,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
                         pair["extras"] = extras
 
                     package = Provider.get_package_from_vcs(
-                        "git", url.url, reference=pair.get("rev")
+                        "git", url.url, env_vars=self.env_vars, reference=pair.get("rev")
                     )
                     pair["name"] = package.name
                     result.append(pair)
@@ -402,7 +402,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
                 if path.is_file():
                     package = Provider.get_package_from_file(path.resolve())
                 else:
-                    package = Provider.get_package_from_directory(path)
+                    package = Provider.get_package_from_directory(path, env_vars=self.env_vars)
 
                 result.append(
                     OrderedDict(

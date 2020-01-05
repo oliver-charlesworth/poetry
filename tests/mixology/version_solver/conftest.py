@@ -28,4 +28,4 @@ def root():
 
 @pytest.fixture
 def provider(pool, root):
-    return Provider(root, pool, NullIO())
+    return Provider(root, pool, env_vars={}, io=NullIO())

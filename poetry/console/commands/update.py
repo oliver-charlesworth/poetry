@@ -33,7 +33,7 @@ class UpdateCommand(EnvCommand):
         packages = self.argument("packages")
 
         installer = Installer(
-            self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
+            self.env_vars, self.io, self.env, self.poetry.package, self.poetry.locker, self.poetry.pool
         )
 
         if packages:
