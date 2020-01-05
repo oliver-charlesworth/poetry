@@ -6,6 +6,7 @@ from typing import Tuple
 
 from poetry.semver import Version
 from poetry.utils.env import SystemEnv
+from tests.conftest import minimal_env_vars
 
 
 class NullEnv(SystemEnv):
@@ -13,7 +14,7 @@ class NullEnv(SystemEnv):
         if path is None:
             path = Path(sys.prefix)
 
-        super(NullEnv, self).__init__(path, base=base, env_vars=os.environ)
+        super(NullEnv, self).__init__(path, base=base, env_vars=minimal_env_vars())
 
         self._execute = execute
         self.executed = []

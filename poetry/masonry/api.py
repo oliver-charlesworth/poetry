@@ -18,6 +18,8 @@ from ..poetry import Poetry
 
 log = logging.getLogger(__name__)
 
+# TODO - how do we inject env_vars / cwd for test ?
+
 
 def _create_poetry():  # type: () -> Poetry
     return Factory(env_vars=os.environ, cwd=Path(".")).create_poetry()
@@ -66,7 +68,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """Builds a wheel, places it in wheel_directory"""
     return unicode(
         WheelBuilder.make_in(
-            _create_poetry,
+            _create_poetry(),
             _create_env(),
             NullIO(),
             Path(wheel_directory),
@@ -76,6 +78,6 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 def build_sdist(sdist_directory, config_settings=None):
     """Builds an sdist, places it in sdist_directory"""
-    path = SdistBuilder(_create_poetry, _create_env(), NullIO()).build(Path(sdist_directory))
+    path = SdistBuilder(_create_poetry(), _create_env(), NullIO()).build(Path(sdist_directory))
 
     return unicode(path.name)

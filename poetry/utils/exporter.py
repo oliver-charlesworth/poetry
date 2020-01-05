@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List, Optional
 
 from clikit.api.io import IO
 
@@ -26,18 +26,16 @@ class Exporter(object):
     def export(
         self,
         fmt,
-        cwd,
         output,
         with_hashes=True,
         dev=False,
         extras=None,
         with_credentials=False,
-    ):  # type: (str, Path, Union[IO, str], bool, bool, bool) -> None
+    ):  # type: (str, Union[IO, str], bool, bool, Optional[List[str]], bool) -> None
         if fmt not in self.ACCEPTED_FORMATS:
             raise ValueError("Invalid export format: {}".format(fmt))
 
         getattr(self, "_export_{}".format(fmt.replace(".", "_")))(
-            cwd,
             output,
             with_hashes=with_hashes,
             dev=dev,
@@ -47,13 +45,12 @@ class Exporter(object):
 
     def _export_requirements_txt(
         self,
-        cwd,
         output,
         with_hashes=True,
         dev=False,
         extras=None,
         with_credentials=False,
-    ):  # type: (Path, Union[IO, str], bool, bool, bool) -> None
+    ):  # type: (Union[IO, str], bool, bool, Optional[List[str]], bool) -> None
         indexes = set()
         content = ""
         packages = self._poetry.locker.locked_repository(dev).packages
@@ -83,10 +80,10 @@ class Exporter(object):
                 )
             elif package.source_type in ["directory", "file", "url"]:
                 if package.source_type == "file":
-                    dependency = FileDependency(package.name, Path(package.source_url))
+                    dependency = FileDependency(package.name, Path(package.source_url), base=self._poetry.root)
                 elif package.source_type == "directory":
                     dependency = DirectoryDependency(
-                        package.name, Path(package.source_url)
+                        package.name, Path(package.source_url), base=self._poetry.root
                     )
                 else:
                     dependency = URLDependency(package.name, package.source_url)
@@ -161,7 +158,7 @@ class Exporter(object):
 
             content = indexes_header + "\n" + content
 
-        self._output(content, cwd, output)
+        self._output(content, self._poetry.root, output)
 
     def _output(
         self, content, cwd, output

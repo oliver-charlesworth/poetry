@@ -11,7 +11,6 @@ from poetry import __version__
 from poetry.masonry import api
 from poetry.utils._compat import Path
 from poetry.utils._compat import decode
-from poetry.utils.helpers import temporary_directory
 
 
 @contextmanager
@@ -39,11 +38,11 @@ def test_get_requires_for_build_sdist():
         api.get_requires_for_build_sdist() == expected
 
 
-def test_build_wheel():
-    with temporary_directory() as tmp_dir, cwd(os.path.join(fixtures, "complete")):
-        filename = api.build_wheel(tmp_dir)
+def test_build_wheel(tmp_path):
+    with cwd(os.path.join(fixtures, "complete")):
+        filename = api.build_wheel(tmp_path)
 
-        with zipfile.ZipFile(str(os.path.join(tmp_dir, filename))) as zip:
+        with zipfile.ZipFile(str(os.path.join(tmp_path, filename))) as zip:
             namelist = zip.namelist()
 
             assert "my_package-1.2.3.dist-info/entry_points.txt" in namelist
@@ -51,17 +50,17 @@ def test_build_wheel():
             assert "my_package-1.2.3.dist-info/METADATA" in namelist
 
 
-def test_build_sdist():
-    with temporary_directory() as tmp_dir, cwd(os.path.join(fixtures, "complete")):
-        filename = api.build_sdist(tmp_dir)
+def test_build_sdist(tmp_path):
+    with cwd(os.path.join(fixtures, "complete")):
+        filename = api.build_sdist(tmp_path)
 
-        with tarfile.open(str(os.path.join(tmp_dir, filename))) as tar:
+        with tarfile.open(str(os.path.join(tmp_path, filename))) as tar:
             namelist = tar.getnames()
 
             assert "my-package-1.2.3/LICENSE" in namelist
 
 
-def test_prepare_metadata_for_build_wheel():
+def test_prepare_metadata_for_build_wheel(tmp_path):
     entry_points = """\
 [console_scripts]
 extra-script=my_package.extra:main[time]
@@ -110,12 +109,12 @@ My Package
 ==========
 
 """
-    with temporary_directory() as tmp_dir, cwd(os.path.join(fixtures, "complete")):
-        dirname = api.prepare_metadata_for_build_wheel(tmp_dir)
+    with cwd(os.path.join(fixtures, "complete")):
+        dirname = api.prepare_metadata_for_build_wheel(tmp_path)
 
         assert "my_package-1.2.3.dist-info" == dirname
 
-        dist_info = Path(tmp_dir, dirname)
+        dist_info = Path(tmp_path, dirname)
 
         assert (dist_info / "entry_points.txt").exists()
         assert (dist_info / "WHEEL").exists()

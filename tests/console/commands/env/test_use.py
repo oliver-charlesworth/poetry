@@ -30,11 +30,11 @@ def check_output_wrapper(version=Version.parse("3.7.1")):
 
 
 def test_activate_activates_non_existing_virtualenv_no_envs_file(
-    app_factory, tmp_dir, mocker
+    app_factory, tmp_path, mocker
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env=None))
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -55,10 +55,10 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
     )
 
     m.assert_called_with(
-        os.path.join(tmp_dir, "{}-py3.7".format(venv_name)), executable="python3.7"
+        os.path.join(tmp_path, "{}-py3.7".format(venv_name)), executable="python3.7"
     )
 
-    envs_file = TomlFile(Path(tmp_dir) / "envs.toml")
+    envs_file = TomlFile(tmp_path / "envs.toml")
     assert envs_file.exists()
     envs = envs_file.read()
     assert envs[venv_name]["minor"] == "3.7"
@@ -69,15 +69,15 @@ Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
         "{}-py3.7".format(venv_name),
-        tmp_dir,
-        os.path.join(tmp_dir, "{}-py3.7".format(venv_name)),
+        tmp_path,
+        os.path.join(tmp_path, "{}-py3.7".format(venv_name)),
     )
 
     assert expected == tester.io.fetch_output()
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
-    app_factory, tmp_dir, mocker
+    app_factory, tmp_path, mocker
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
@@ -88,10 +88,10 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     python_minor = ".".join(str(v) for v in current_python[:2])
     python_patch = ".".join(str(v) for v in current_python)
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
-    (Path(tmp_dir) / "{}-py{}".format(venv_name, python_minor)).mkdir()
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
+    (tmp_path / "{}-py{}".format(venv_name, python_minor)).mkdir()
 
-    envs_file = TomlFile(Path(tmp_dir) / "envs.toml")
+    envs_file = TomlFile(tmp_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {"minor": python_minor, "patch": python_patch}
     envs_file.write(doc)
@@ -112,14 +112,14 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     expected = """\
 Using virtualenv: {}
 """.format(
-        os.path.join(tmp_dir, "{}-py{}".format(venv_name, python_minor))
+        os.path.join(tmp_path, "{}-py{}".format(venv_name, python_minor))
     )
 
     assert expected == tester.io.fetch_output()
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
-    app_factory, tmp_dir, mocker
+    app_factory, tmp_path, mocker
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
@@ -129,7 +129,7 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     mocker.patch(
         "poetry.utils.env.EnvManager._env",
@@ -161,8 +161,8 @@ Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
         "{}-py{}".format(venv_name, python_minor),
-        tmp_dir,
-        os.path.join(tmp_dir, "{}-py{}".format(venv_name, python_minor)),
+        tmp_path,
+        os.path.join(tmp_path, "{}-py{}".format(venv_name, python_minor)),
     )
 
     assert expected == tester.io.fetch_output()

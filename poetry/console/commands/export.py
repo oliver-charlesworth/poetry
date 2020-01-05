@@ -59,7 +59,6 @@ class ExportCommand(Command):
         exporter = Exporter(self.poetry)
         exporter.export(
             fmt,
-            self.poetry.root,
             output or self.io,
             with_hashes=not self.option("without-hashes"),
             dev=self.option("dev"),

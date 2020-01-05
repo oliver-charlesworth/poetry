@@ -11,11 +11,10 @@ from tests.mock_envs import MockEnv
 
 
 def test_build_should_delegate_to_pip_for_non_pure_python_packages(
-    poetry_factory, tmp_dir, mocker
+    poetry_factory, tmp_path, mocker
 ):
     move = mocker.patch("shutil.move")
-    tmp_dir = Path(tmp_dir)
-    env = MockEnv(path=tmp_dir, pip_version="18.1", execute=False)
+    env = MockEnv(path=tmp_path, pip_version="18.1", execute=False)
     env.site_packages.mkdir(parents=True)
     poetry = poetry_factory("extended")
 
@@ -29,11 +28,10 @@ def test_build_should_delegate_to_pip_for_non_pure_python_packages(
 
 
 def test_build_should_temporarily_remove_the_pyproject_file(
-    poetry_factory, tmp_dir, mocker
+    poetry_factory, tmp_path, mocker
 ):
     move = mocker.patch("shutil.move")
-    tmp_dir = Path(tmp_dir)
-    env = MockEnv(path=tmp_dir, pip_version="19.1", execute=False)
+    env = MockEnv(path=tmp_path, pip_version="19.1", execute=False)
     env.site_packages.mkdir(parents=True)
     poetry = poetry_factory("extended")
 

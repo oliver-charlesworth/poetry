@@ -45,7 +45,7 @@ def poetry(poetry_factory, locker):
     return p
 
 
-def test_exporter_can_export_requirements_txt_with_standard_packages(tmp_dir, poetry):
+def test_exporter_can_export_requirements_txt_with_standard_packages(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -73,9 +73,9 @@ def test_exporter_can_export_requirements_txt_with_standard_packages(tmp_dir, po
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -86,9 +86,7 @@ foo==1.2.3
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_standard_packages_and_markers(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_standard_packages_and_markers(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -118,9 +116,9 @@ def test_exporter_can_export_requirements_txt_with_standard_packages_and_markers
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -131,9 +129,7 @@ foo==1.2.3; python_version < "3.7"
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -161,9 +157,9 @@ def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes(
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -176,9 +172,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes_disabled(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes_disabled(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -207,10 +201,10 @@ def test_exporter_can_export_requirements_txt_with_standard_packages_and_hashes_
     exporter = Exporter(poetry)
 
     exporter.export(
-        "requirements.txt", Path(tmp_dir), "requirements.txt", with_hashes=False
+        "requirements.txt", "requirements.txt", with_hashes=False
     )
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -221,9 +215,7 @@ foo==1.2.3
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_without_dev_packages_by_default(
-    tmp_dir, poetry
-):
+def test_exporter_exports_requirements_txt_without_dev_packages_by_default(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -251,9 +243,9 @@ def test_exporter_exports_requirements_txt_without_dev_packages_by_default(
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -264,9 +256,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_with_dev_packages_if_opted_in(
-    tmp_dir, poetry
-):
+def test_exporter_exports_requirements_txt_with_dev_packages_if_opted_in(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -294,9 +284,9 @@ def test_exporter_exports_requirements_txt_with_dev_packages_if_opted_in(
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt", dev=True)
+    exporter.export("requirements.txt", "requirements.txt", dev=True)
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -309,7 +299,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_without_optional_packages(tmp_dir, poetry):
+def test_exporter_exports_requirements_txt_without_optional_packages(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -337,9 +327,9 @@ def test_exporter_exports_requirements_txt_without_optional_packages(tmp_dir, po
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt", dev=True)
+    exporter.export("requirements.txt", "requirements.txt", dev=True)
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -350,9 +340,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_with_optional_packages_if_opted_in(
-    tmp_dir, poetry
-):
+def test_exporter_exports_requirements_txt_with_optional_packages_if_opted_in(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -391,13 +379,12 @@ def test_exporter_exports_requirements_txt_with_optional_packages_if_opted_in(
 
     exporter.export(
         "requirements.txt",
-        Path(tmp_dir),
         "requirements.txt",
         dev=True,
         extras=["feature_bar"],
     )
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -412,7 +399,7 @@ spam==0.1.0 \\
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_git_packages(tmp_dir, poetry):
+def test_exporter_can_export_requirements_txt_with_git_packages(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -438,9 +425,9 @@ def test_exporter_can_export_requirements_txt_with_git_packages(tmp_dir, poetry)
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -450,9 +437,7 @@ def test_exporter_can_export_requirements_txt_with_git_packages(tmp_dir, poetry)
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_git_packages_and_markers(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_git_packages_and_markers(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -479,9 +464,9 @@ def test_exporter_can_export_requirements_txt_with_git_packages_and_markers(
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -491,7 +476,7 @@ def test_exporter_can_export_requirements_txt_with_git_packages_and_markers(
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_directory_packages(tmp_dir, poetry):
+def test_exporter_can_export_requirements_txt_with_directory_packages(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -503,7 +488,7 @@ def test_exporter_can_export_requirements_txt_with_directory_packages(tmp_dir, p
                     "python-versions": "*",
                     "source": {
                         "type": "directory",
-                        "url": "tests/fixtures/sample_project",
+                        "url": "../sample_project",
                         "reference": "",
                     },
                 }
@@ -517,21 +502,19 @@ def test_exporter_can_export_requirements_txt_with_directory_packages(tmp_dir, p
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
--e tests/fixtures/sample_project
+-e ../sample_project
 """
 
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_directory_packages_and_markers(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_directory_packages_and_markers(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -544,7 +527,7 @@ def test_exporter_can_export_requirements_txt_with_directory_packages_and_marker
                     "marker": "python_version < '3.7'",
                     "source": {
                         "type": "directory",
-                        "url": "tests/fixtures/sample_project",
+                        "url": "../sample_project",
                         "reference": "",
                     },
                 }
@@ -558,19 +541,19 @@ def test_exporter_can_export_requirements_txt_with_directory_packages_and_marker
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
--e tests/fixtures/sample_project; python_version < "3.7"
+-e ../sample_project; python_version < "3.7"
 """
 
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_file_packages(tmp_dir, poetry):
+def test_exporter_can_export_requirements_txt_with_file_packages(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -582,7 +565,7 @@ def test_exporter_can_export_requirements_txt_with_file_packages(tmp_dir, poetry
                     "python-versions": "*",
                     "source": {
                         "type": "file",
-                        "url": "tests/fixtures/distributions/demo-0.1.0.tar.gz",
+                        "url": "../distributions/demo-0.1.0.tar.gz",
                         "reference": "",
                     },
                 }
@@ -596,21 +579,19 @@ def test_exporter_can_export_requirements_txt_with_file_packages(tmp_dir, poetry
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
--e tests/fixtures/distributions/demo-0.1.0.tar.gz
+-e ../distributions/demo-0.1.0.tar.gz
 """
 
     assert expected == content
 
 
-def test_exporter_can_export_requirements_txt_with_file_packages_and_markers(
-    tmp_dir, poetry
-):
+def test_exporter_can_export_requirements_txt_with_file_packages_and_markers(poetry):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -623,7 +604,7 @@ def test_exporter_can_export_requirements_txt_with_file_packages_and_markers(
                     "marker": "python_version < '3.7'",
                     "source": {
                         "type": "file",
-                        "url": "tests/fixtures/distributions/demo-0.1.0.tar.gz",
+                        "url": "../distributions/demo-0.1.0.tar.gz",
                         "reference": "",
                     },
                 }
@@ -637,19 +618,19 @@ def test_exporter_can_export_requirements_txt_with_file_packages_and_markers(
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt")
+    exporter.export("requirements.txt", "requirements.txt")
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
--e tests/fixtures/distributions/demo-0.1.0.tar.gz; python_version < "3.7"
+-e ../distributions/demo-0.1.0.tar.gz; python_version < "3.7"
 """
 
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_with_legacy_packages(tmp_dir, poetry):
+def test_exporter_exports_requirements_txt_with_legacy_packages(poetry):
     poetry.pool.add_repository(
         LegacyRepository(
             "custom",
@@ -690,9 +671,9 @@ def test_exporter_exports_requirements_txt_with_legacy_packages(tmp_dir, poetry)
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt", dev=True)
+    exporter.export("requirements.txt", "requirements.txt", dev=True)
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -707,9 +688,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_with_legacy_packages_and_duplicate_sources(
-    tmp_dir, poetry
-):
+def test_exporter_exports_requirements_txt_with_legacy_packages_and_duplicate_sources(poetry):
     poetry.pool.add_repository(
         LegacyRepository(
             "custom",
@@ -768,9 +747,9 @@ def test_exporter_exports_requirements_txt_with_legacy_packages_and_duplicate_so
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), "requirements.txt", dev=True)
+    exporter.export("requirements.txt", "requirements.txt", dev=True)
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -788,9 +767,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_with_legacy_packages_and_credentials(
-    tmp_dir, poetry, config
-):
+def test_exporter_exports_requirements_txt_with_legacy_packages_and_credentials(poetry, config):
     poetry.pool.add_repository(
         LegacyRepository(
             "custom",
@@ -833,13 +810,12 @@ def test_exporter_exports_requirements_txt_with_legacy_packages_and_credentials(
 
     exporter.export(
         "requirements.txt",
-        Path(tmp_dir),
         "requirements.txt",
         dev=True,
         with_credentials=True,
     )
 
-    with (Path(tmp_dir) / "requirements.txt").open(encoding="utf-8") as f:
+    with (poetry.root / "requirements.txt").open(encoding="utf-8") as f:
         content = f.read()
 
     expected = """\
@@ -854,7 +830,7 @@ foo==1.2.3 \\
     assert expected == content
 
 
-def test_exporter_exports_requirements_txt_to_standard_output(tmp_dir, poetry, capsys):
+def test_exporter_exports_requirements_txt_to_standard_output(poetry, capsys):
     poetry.locker.mock_lock_data(
         {
             "package": [
@@ -882,7 +858,7 @@ def test_exporter_exports_requirements_txt_to_standard_output(tmp_dir, poetry, c
     )
     exporter = Exporter(poetry)
 
-    exporter.export("requirements.txt", Path(tmp_dir), sys.stdout)
+    exporter.export("requirements.txt", sys.stdout)
 
     out, err = capsys.readouterr()
     expected = """\

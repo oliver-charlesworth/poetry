@@ -101,15 +101,6 @@ def http():
 
 
 @pytest.fixture
-def tmp_dir():
-    dir_ = tempfile.mkdtemp(prefix="poetry_")
-
-    yield dir_
-
-    shutil.rmtree(dir_)
-
-
-@pytest.fixture
 def fixtures_dir(request, tmp_path_factory):
     def _reference_path(relative_to_root):  # type: (str) -> Path
         if relative_to_root is None:

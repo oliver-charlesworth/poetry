@@ -7,16 +7,16 @@ from poetry.utils.env import EnvManager
 from poetry.utils.toml_file import TomlFile
 
 
-def test_none_activated(app_factory, tmp_dir):
+def test_none_activated(app_factory, tmp_path):
     app = app_factory()
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
     )
-    (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
-    (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
 
     command = app.find("env list")
     tester = CommandTester(command)
@@ -32,18 +32,18 @@ def test_none_activated(app_factory, tmp_dir):
     assert expected == tester.io.fetch_output()
 
 
-def test_activated(app_factory, tmp_dir):
+def test_activated(app_factory, tmp_path):
     app = app_factory()
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
     )
-    (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
-    (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
 
-    envs_file = TomlFile(Path(tmp_dir) / "envs.toml")
+    envs_file = TomlFile(tmp_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {"minor": "3.7", "patch": "3.7.0"}
     envs_file.write(doc)

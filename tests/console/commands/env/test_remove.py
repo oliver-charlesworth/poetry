@@ -7,16 +7,16 @@ from .test_use import Version
 from .test_use import check_output_wrapper
 
 
-def test_remove_by_python_version(app_factory, tmp_dir, mocker):
+def test_remove_by_python_version(app_factory, tmp_path, mocker):
     app = app_factory()
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
     )
-    (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
-    (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
 
     check_output = mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -28,34 +28,34 @@ def test_remove_by_python_version(app_factory, tmp_dir, mocker):
     tester.execute("3.6")
 
     assert check_output.called
-    assert not (Path(tmp_dir) / "{}-py3.6".format(venv_name)).exists()
+    assert not (tmp_path / "{}-py3.6".format(venv_name)).exists()
 
     expected = "Deleted virtualenv: {}\n".format(
-        (Path(tmp_dir) / "{}-py3.6".format(venv_name))
+        (tmp_path / "{}-py3.6".format(venv_name))
     )
 
     assert expected == tester.io.fetch_output()
 
 
-def test_remove_by_name(app_factory, tmp_dir):
+def test_remove_by_name(app_factory, tmp_path):
     app = app_factory()
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_dir)}})
+    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
     )
-    (Path(tmp_dir) / "{}-py3.7".format(venv_name)).mkdir()
-    (Path(tmp_dir) / "{}-py3.6".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
+    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
 
     command = app.find("env remove")
     tester = CommandTester(command)
     tester.execute("{}-py3.6".format(venv_name))
 
-    assert not (Path(tmp_dir) / "{}-py3.6".format(venv_name)).exists()
+    assert not (tmp_path / "{}-py3.6".format(venv_name)).exists()
 
     expected = "Deleted virtualenv: {}\n".format(
-        (Path(tmp_dir) / "{}-py3.6".format(venv_name))
+        (tmp_path / "{}-py3.6".format(venv_name))
     )
 
     assert expected == tester.io.fetch_output()
