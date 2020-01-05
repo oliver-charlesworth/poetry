@@ -61,7 +61,7 @@ class Uploader:
 
     @property
     def files(self):  # type: () -> List[str]
-        dist = self._poetry.file.parent / "dist"
+        dist = self._poetry.root / "dist"
         version = normalize_version(self._package.version.text)
 
         wheels = list(
@@ -271,7 +271,7 @@ class Uploader:
         """
         Register a package to a repository.
         """
-        dist = self._poetry.file.parent / "dist"
+        dist = self._poetry.root / "dist"
         file = dist / "{}-{}.tar.gz".format(
             self._package.name, normalize_version(self._package.version.text)
         )

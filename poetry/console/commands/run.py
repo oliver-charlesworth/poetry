@@ -54,7 +54,7 @@ class RunCommand(EnvCommand):
 
         poetry = self.poetry
         package = poetry.package
-        path = poetry.file.parent
+        path = poetry.root
         module = Module(package.name, path.as_posix(), package.packages)
 
         return module

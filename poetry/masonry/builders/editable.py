@@ -73,12 +73,12 @@ class EditableBuilder(Builder):
     def _build_egg_link(self):
         egg_link = self._env.site_packages / "{}.egg-link".format(self._package.name)
         with egg_link.open("w", encoding="utf-8") as f:
-            f.write(str(self._poetry.file.parent.resolve()) + "\n")
+            f.write(str(self._poetry.root.resolve()) + "\n")
             f.write(".")
 
     def _add_easy_install_entry(self):
         easy_install_pth = self._env.site_packages / "easy-install.pth"
-        path = str(self._poetry.file.parent.resolve())
+        path = str(self._poetry.root.resolve())
         content = ""
         if easy_install_pth.exists():
             with easy_install_pth.open(encoding="utf-8") as f:

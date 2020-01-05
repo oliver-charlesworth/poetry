@@ -179,7 +179,7 @@ def test_find_packages(poetry_factory):
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
-    include = PackageInclude(poetry.file.parent, "my_package")
+    include = PackageInclude(poetry.root, "my_package")
 
     pkg_dir, packages, pkg_data = builder.find_packages(include)
 
@@ -195,11 +195,11 @@ def test_find_packages(poetry_factory):
 
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
 
-    include = PackageInclude(poetry.file.parent, "package_src", source="src")
+    include = PackageInclude(poetry.root, "package_src", source="src")
 
     pkg_dir, packages, pkg_data = builder.find_packages(include)
 
-    assert pkg_dir == str(poetry.file.parent / "src")
+    assert pkg_dir == str(poetry.root / "src")
     assert packages == ["package_src"]
     assert pkg_data == {"": ["*"]}
 
@@ -210,7 +210,7 @@ def test_package(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "my-package-1.2.3.tar.gz"
+    sdist = poetry.root / "dist" / "my-package-1.2.3.tar.gz"
 
     assert sdist.exists()
 
@@ -224,7 +224,7 @@ def test_module(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "module1-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "module1-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -238,7 +238,7 @@ def test_prelease(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "prerelease-0.1b1.tar.gz"
+    sdist = poetry.root / "dist" / "prerelease-0.1b1.tar.gz"
 
     assert sdist.exists()
 
@@ -249,7 +249,7 @@ def test_with_c_extensions(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -264,7 +264,7 @@ def test_with_c_extensions_src_layout(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -290,7 +290,7 @@ def test_with_src_module_file(poetry_factory):
 
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "module-src-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "module-src-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -315,7 +315,7 @@ def test_with_src_module_dir(poetry_factory):
 
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "package-src-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "package-src-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -331,8 +331,8 @@ def test_default_with_excluded_data(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = [
         (
-            (poetry.file.parent / "my_package" / "data" / "sub_data" / "data2.txt")
-            .relative_to(poetry.file.parent)
+            (poetry.root / "my_package" / "data" / "sub_data" / "data2.txt")
+            .relative_to(poetry.root)
             .as_posix()
         )
     ]
@@ -355,7 +355,7 @@ def test_default_with_excluded_data(poetry_factory, mocker):
 
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "my-package-1.2.3.tar.gz"
+    sdist = poetry.root / "dist" / "my-package-1.2.3.tar.gz"
 
     assert sdist.exists()
 
@@ -380,7 +380,7 @@ def test_src_excluded_nested_data(poetry_factory):
     builder = SdistBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "my-package-1.2.3.tar.gz"
+    sdist = poetry.root / "dist" / "my-package-1.2.3.tar.gz"
 
     assert sdist.exists()
 

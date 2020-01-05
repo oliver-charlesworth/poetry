@@ -27,7 +27,7 @@ def test_wheel_c_extension(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -35,7 +35,7 @@ def test_wheel_c_extension(poetry_factory):
         assert "extended-0.1/build.py" in tar.getnames()
         assert "extended-0.1/extended/extended.c" in tar.getnames()
 
-    whl = list((poetry.file.parent / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
+    whl = list((poetry.root / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
 
     assert whl.exists()
 
@@ -82,7 +82,7 @@ def test_wheel_c_extension_src_layout(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "extended-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
     assert sdist.exists()
 
@@ -90,7 +90,7 @@ def test_wheel_c_extension_src_layout(poetry_factory):
         assert "extended-0.1/build.py" in tar.getnames()
         assert "extended-0.1/src/extended/extended.c" in tar.getnames()
 
-    whl = list((poetry.file.parent / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
+    whl = list((poetry.root / "dist").glob("extended-0.1-cp*-cp*-*.whl"))[0]
 
     assert whl.exists()
 
@@ -133,7 +133,7 @@ def test_complete(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    whl = poetry.file.parent / "dist" / "my_package-1.2.3-py3-none-any.whl"
+    whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
     if sys.platform != "win32":
@@ -216,7 +216,7 @@ def test_complete_no_vcs(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    whl = poetry.file.parent / "dist" / "my_package-1.2.3-py3-none-any.whl"
+    whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
 
@@ -312,14 +312,14 @@ def test_module_src(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "module-src-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "module-src-0.1.tar.gz"
 
     assert sdist.exists()
 
     with tarfile.open(str(sdist), "r") as tar:
         assert "module-src-0.1/src/module_src.py" in tar.getnames()
 
-    whl = poetry.file.parent / "dist" / "module_src-0.1-py2.py3-none-any.whl"
+    whl = poetry.root / "dist" / "module_src-0.1-py2.py3-none-any.whl"
 
     assert whl.exists()
 
@@ -336,14 +336,14 @@ def test_package_src(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "package-src-0.1.tar.gz"
+    sdist = poetry.root / "dist" / "package-src-0.1.tar.gz"
 
     assert sdist.exists()
 
     with tarfile.open(str(sdist), "r") as tar:
         assert "package-src-0.1/src/package_src/module.py" in tar.getnames()
 
-    whl = poetry.file.parent / "dist" / "package_src-0.1-py2.py3-none-any.whl"
+    whl = poetry.root / "dist" / "package_src-0.1-py2.py3-none-any.whl"
 
     assert whl.exists()
 
@@ -362,7 +362,7 @@ def test_package_with_include(poetry_factory):
     builder = CompleteBuilder(poetry, NullEnv(), NullIO())
     builder.build()
 
-    sdist = poetry.file.parent / "dist" / "with-include-1.2.3.tar.gz"
+    sdist = poetry.root / "dist" / "with-include-1.2.3.tar.gz"
 
     assert sdist.exists()
 
@@ -402,7 +402,7 @@ def test_package_with_include(poetry_factory):
         assert ns["package_data"] == {"": ["*"]}
         assert ns["modules"] == ["my_module"]
 
-    whl = poetry.file.parent / "dist" / "with_include-1.2.3-py3-none-any.whl"
+    whl = poetry.root / "dist" / "with_include-1.2.3-py3-none-any.whl"
 
     assert whl.exists()
 

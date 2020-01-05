@@ -40,6 +40,10 @@ class Poetry:
         return self._file
 
     @property
+    def root(self):
+        return self._file.parent
+
+    @property
     def package(self):  # type: () -> ProjectPackage
         return self._package
 

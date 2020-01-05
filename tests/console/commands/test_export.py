@@ -24,7 +24,7 @@ def test_export_exports_requirements_txt_file_locks_if_no_lock_file(app, repo):
 
     tester.execute("--format requirements.txt --output requirements.txt")
 
-    requirements = app.poetry.file.parent / "requirements.txt"
+    requirements = app.poetry.root / "requirements.txt"
     assert requirements.exists()
 
     with requirements.open(encoding="utf-8") as f:
@@ -55,7 +55,7 @@ def test_export_exports_requirements_txt_uses_lock_file(app, repo):
 
     tester.execute("--format requirements.txt --output requirements.txt")
 
-    requirements = app.poetry.file.parent / "requirements.txt"
+    requirements = app.poetry.root / "requirements.txt"
     assert requirements.exists()
 
     with requirements.open(encoding="utf-8") as f:

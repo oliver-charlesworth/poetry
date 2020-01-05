@@ -348,7 +348,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
         result = []
 
         try:
-            cwd = self.poetry.file.parent
+            cwd = self.poetry.root
         except RuntimeError:
             cwd = self.cwd
 

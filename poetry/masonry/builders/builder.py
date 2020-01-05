@@ -43,7 +43,7 @@ class Builder(object):
         self._env = env
         self._io = io
         self._package = poetry.package
-        self._path = poetry.file.parent
+        self._path = poetry.root
 
         packages = []
         for p in self._package.packages:

@@ -175,7 +175,7 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        project_root = self._poetry.file.parent
+        project_root = self._poetry.root
 
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
 
@@ -214,7 +214,7 @@ class EnvManager(object):
         # create or recreate it if needed
         if is_root_venv:
             create = False
-            venv = self._poetry.file.parent / ".venv"
+            venv = self._poetry.root / ".venv"
             if venv.exists():
                 # We need to check if the patch version is correct
                 _venv = VirtualEnv(venv, env_vars=self._env_vars)
@@ -275,7 +275,7 @@ class EnvManager(object):
             venv_path = Path(venv_path)
 
         name = self._poetry.package.name
-        name = self.generate_env_name(name, str(self._poetry.file.parent))
+        name = self.generate_env_name(name, str(self._poetry.root))
 
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
         if envs_file.exists():
@@ -303,7 +303,7 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        project_root = self._poetry.file.parent
+        project_root = self._poetry.root
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
         env = None
         base_env_name = self.generate_env_name(
@@ -366,7 +366,7 @@ class EnvManager(object):
         if name is None:
             name = self._poetry.package.name
 
-        venv_name = self.generate_env_name(name, str(self._poetry.file.parent))
+        venv_name = self.generate_env_name(name, str(self._poetry.root))
 
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
@@ -386,7 +386,7 @@ class EnvManager(object):
         else:
             venv_path = Path(venv_path)
 
-        project_root = self._poetry.file.parent
+        project_root = self._poetry.root
         envs_file = TomlFile(venv_path / self.ENVS_FILE)
         base_env_name = self.generate_env_name(
             self._poetry.package.name, str(project_root)
@@ -482,7 +482,7 @@ class EnvManager(object):
         if self._env is not None and not force:
             return self._env
 
-        project_root = self._poetry.file.parent
+        project_root = self._poetry.root
         env = self.get(reload=True)
         if env.is_venv() and not force:
             # Already inside a virtualenv.

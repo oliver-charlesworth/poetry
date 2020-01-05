@@ -45,9 +45,9 @@ class WheelBuilder(Builder):
 
         self._records = []
         self._original_path = self._path
-        self._target_dir = target_dir or (self._poetry.file.parent / "dist")
+        self._target_dir = target_dir or (self._poetry.root / "dist")
         if original:
-            self._original_path = original.file.parent
+            self._original_path = original.root
 
     @classmethod
     def make_in(cls, poetry, env, io, directory=None, original=None):

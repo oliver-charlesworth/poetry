@@ -51,7 +51,7 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
     tester.execute("3.7")
 
     venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
+        "simple-project", str(app.poetry.root)
     )
 
     m.assert_called_with(
@@ -82,7 +82,7 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
     venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
+        "simple-project", str(app.poetry.root)
     )
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
@@ -124,7 +124,7 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
     venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.file.parent)
+        "simple-project", str(app.poetry.root)
     )
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])

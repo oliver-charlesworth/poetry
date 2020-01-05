@@ -22,7 +22,7 @@ def test_build_should_delegate_to_pip_for_non_pure_python_packages(
     builder = EditableBuilder(poetry, env, NullIO())
     builder.build()
 
-    expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.file.parent)]]
+    expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.root)]]
     assert expected == env.executed
 
     assert 0 == move.call_count
@@ -40,19 +40,19 @@ def test_build_should_temporarily_remove_the_pyproject_file(
     builder = EditableBuilder(poetry, env, NullIO())
     builder.build()
 
-    expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.file.parent)]]
+    expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.root)]]
     assert expected == env.executed
 
     assert 2 == move.call_count
 
     expected_calls = [
         mocker.call(
-            str(poetry.file.parent / "pyproject.toml"),
-            str(poetry.file.parent / "pyproject.tmp"),
+            str(poetry.root / "pyproject.toml"),
+            str(poetry.root / "pyproject.tmp"),
         ),
         mocker.call(
-            str(poetry.file.parent / "pyproject.tmp"),
-            str(poetry.file.parent / "pyproject.toml"),
+            str(poetry.root / "pyproject.tmp"),
+            str(poetry.root / "pyproject.toml"),
         ),
     ]
 

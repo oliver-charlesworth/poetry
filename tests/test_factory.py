@@ -25,7 +25,7 @@ def test_create_poetry(poetry_factory):
     assert package.description == "Some description."
     assert package.authors == ["Sébastien Eustace <sebastien@eustace.io>"]
     assert package.license.id == "MIT"
-    assert package.readme.relative_to(poetry.file.parent).as_posix() == "README.rst"
+    assert package.readme.relative_to(poetry.root).as_posix() == "README.rst"
     assert package.homepage == "https://python-poetry.org"
     assert package.repository_url == "https://github.com/python-poetry/poetry"
     assert package.keywords == ["packaging", "dependency", "poetry"]
