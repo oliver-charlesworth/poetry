@@ -67,7 +67,7 @@ class Provider:
         self._pool = pool
         self._env_vars = env_vars
         self._io = io
-        self._inspector = Inspector()
+        self._inspector = Inspector(env_vars=env_vars)
         self._python_constraint = package.python_constraint
         self._search_for = {}
         self._is_debugging = self._io.is_debug() or self._io.is_very_verbose()
@@ -215,7 +215,7 @@ class Provider:
         return package
 
     def search_for_file(self, dependency):  # type: (FileDependency) -> List[Package]
-        package = self.get_package_from_file(dependency.full_path)
+        package = self.get_package_from_file(dependency.full_path, self._env_vars)
 
         if dependency.name != package.name:
             # For now, the dependency's name must match the actual package's name
@@ -240,8 +240,8 @@ class Provider:
         return [package]
 
     @classmethod
-    def get_package_from_file(cls, file_path):  # type: (Path) -> Package
-        info = Inspector().inspect(file_path)
+    def get_package_from_file(cls, file_path, env_vars):  # type: (Path, Dict[str, str]) -> Package
+        info = Inspector(env_vars=env_vars).inspect(file_path)
         if not info["name"]:
             raise RuntimeError(
                 "Unable to determine the package name of {}".format(file_path)
@@ -440,7 +440,7 @@ class Provider:
         return package
 
     def search_for_url(self, dependency):  # type: (URLDependency) -> List[Package]
-        package = self.get_package_from_url(dependency.url)
+        package = self.get_package_from_url(dependency.url, self._env_vars)
 
         if dependency.name != package.name:
             # For now, the dependency's name must match the actual package's name
@@ -460,13 +460,13 @@ class Provider:
         return [package]
 
     @classmethod
-    def get_package_from_url(cls, url):  # type: (str) -> Package
+    def get_package_from_url(cls, url, env_vars):  # type: (str, Dict[str, str]) -> Package
         with temporary_directory() as temp_dir:
             temp_dir = Path(temp_dir)
             file_name = os.path.basename(urlparse.urlparse(url).path)
-            Inspector().download(url, temp_dir / file_name)
+            Inspector(env_vars=env_vars).download(url, temp_dir / file_name)
 
-            package = cls.get_package_from_file(temp_dir / file_name)
+            package = cls.get_package_from_file(temp_dir / file_name, env_vars)
 
         package.source_type = "url"
         package.source_url = url

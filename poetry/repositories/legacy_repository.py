@@ -1,4 +1,5 @@
 import cgi
+import os
 import re
 import warnings
 
@@ -173,7 +174,7 @@ class LegacyRepository(PyPiRepository):
         self._auth = auth
         self._client_cert = client_cert
         self._cert = cert
-        self._inspector = Inspector()
+        self._inspector = Inspector(env_vars=os.environ)
         self._cache_dir = Path(CACHE_DIR) / "cache" / "repositories" / name
         self._cache = CacheManager(
             {

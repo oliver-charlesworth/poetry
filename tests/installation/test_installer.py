@@ -17,6 +17,7 @@ from poetry.utils._compat import PY2
 from poetry.utils._compat import Path
 from poetry.utils.env import SystemEnv
 from poetry.utils.toml_file import TomlFile
+from tests.conftest import minimal_env_vars
 from tests.helpers import get_dependency
 from tests.helpers import get_package
 from tests.mock_envs import NullEnv
@@ -125,7 +126,15 @@ def env():
 
 @pytest.fixture()
 def installer(package, pool, locker, env, installed):
-    return Installer(NullIO(), env, package, locker, pool, installed=installed)
+    return Installer(
+        env_vars=minimal_env_vars(),
+        io=NullIO(),
+        env=env,
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
 
 def fixture(name):
@@ -656,7 +665,13 @@ def test_installer_with_pypi_repository(package, locker, installed):
     pool.add_repository(MockRepository())
 
     installer = Installer(
-        NullIO(), NullEnv(), package, locker, pool, installed=installed
+        env_vars={},
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
     )
 
     package.add_dependency("pytest", "^3.5", category="dev")
@@ -1337,7 +1352,15 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
     installed.add_package(package_b)
     installed.add_package(package_c)
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars={},
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     installer.update(True)
     installer.whitelist(["D"])
@@ -1356,7 +1379,15 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
     pool = Pool()
     pool.add_repository(MockRepository())
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars={},
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     package.add_dependency("poetry", {"version": "^0.12.0"})
 
@@ -1375,7 +1406,15 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
     for pkg in installer.installer.installs:
         installed.add_package(pkg)
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars={},
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     installer.update(True)
     installer.whitelist(["pytest"])
@@ -1387,12 +1426,20 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
 
 
 def test_installer_required_extras_should_be_installed(
-    locker, repo, package, installed, env, mocker
+    locker, repo, package, installed, env
 ):
     pool = Pool()
     pool.add_repository(MockRepository())
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars=minimal_env_vars(),
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     package.add_dependency(
         "cachecontrol", {"version": "^0.12.5", "extras": ["filecache"]}
@@ -1408,7 +1455,15 @@ def test_installer_required_extras_should_be_installed(
     locker.locked(True)
     locker.mock_lock_data(locker.written_data)
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars=minimal_env_vars(),
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     installer.update(True)
     installer.run()
@@ -1503,7 +1558,15 @@ def test_installer_can_install_dependencies_from_forced_source(
     pool.add_repository(MockLegacyRepository())
     pool.add_repository(MockRepository())
 
-    installer = Installer(NullIO(), env, package, locker, pool, installed=installed)
+    installer = Installer(
+        env_vars={},
+        io=NullIO(),
+        env=NullEnv(),
+        package=package,
+        locker=locker,
+        pool=pool,
+        installed=installed
+    )
 
     installer.update(True)
     installer.run()

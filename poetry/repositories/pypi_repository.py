@@ -69,7 +69,7 @@ class PyPiRepository(Repository):
 
         self._cache_control_cache = FileCache(str(release_cache_dir / "_http"))
         self._session = CacheControl(session(), cache=self._cache_control_cache)
-        self._inspector = Inspector()
+        self._inspector = Inspector(env_vars=os.environ)
 
         super(PyPiRepository, self).__init__()
 

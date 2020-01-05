@@ -27,6 +27,9 @@ class Inspector:
     A class to download and inspect remote packages.
     """
 
+    def __init__(self, env_vars):  # type: (Dict[str, str] -> None
+        self._env_vars = env_vars
+
     @classmethod
     def download(cls, url, dest):  # type: (str, Path) -> None
         r = get(url, stream=True)
@@ -151,7 +154,7 @@ class Inspector:
             pyproject_content = pyproject.read()
             if "tool" in pyproject_content and "poetry" in pyproject_content["tool"]:
                 package = (
-                    Factory().create_poetry(env_vars=os.environ, cwd=sdist_dir).package
+                    Factory().create_poetry(env_vars=self._env_vars, cwd=sdist_dir).package
                 )
                 return {
                     "name": package.name,

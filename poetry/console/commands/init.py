@@ -385,7 +385,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
                     continue
                 elif url_parsed.scheme in ["http", "https"]:
-                    package = Provider.get_package_from_url(requirement)
+                    package = Provider.get_package_from_url(requirement, self.env_vars)
 
                     pair = OrderedDict(
                         [("name", package.name), ("url", package.source_url)]
@@ -400,7 +400,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
             ).exists():
                 path = cwd.joinpath(requirement)
                 if path.is_file():
-                    package = Provider.get_package_from_file(path.resolve())
+                    package = Provider.get_package_from_file(path.resolve(), self.env_vars)
                 else:
                     package = Provider.get_package_from_directory(path, env_vars=self.env_vars)
 
