@@ -25,7 +25,7 @@ def pool():
 
 @pytest.fixture
 def installer(pool):
-    return PipInstaller(NullEnv(), NullIO(), pool)
+    return PipInstaller(NullEnv(), NullIO(), pool, env_vars={})
 
 
 def test_requirement(installer):
@@ -50,7 +50,7 @@ def test_requirement(installer):
 
 
 def test_requirement_source_type_url():
-    installer = PipInstaller(NullEnv(), NullIO(), Pool())
+    installer = PipInstaller(NullEnv(), NullIO(), Pool(), env_vars={})
 
     foo = Package("foo", "0.0.0")
     foo.source_type = "url"
@@ -100,7 +100,7 @@ def test_install_with_cert():
 
     null_env = NullEnv()
 
-    installer = PipInstaller(null_env, NullIO(), pool)
+    installer = PipInstaller(null_env, NullIO(), pool, env_vars={})
 
     foo = Package("foo", "0.0.0")
     foo.source_type = "legacy"
@@ -129,7 +129,7 @@ def test_install_with_client_cert():
 
     null_env = NullEnv()
 
-    installer = PipInstaller(null_env, NullIO(), pool)
+    installer = PipInstaller(null_env, NullIO(), pool, env_vars={})
 
     foo = Package("foo", "0.0.0")
     foo.source_type = "legacy"

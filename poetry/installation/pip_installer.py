@@ -5,6 +5,7 @@ import tempfile
 from io import open
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import Dict
 
 from clikit.api.io import IO
 from clikit.io import NullIO
@@ -25,10 +26,11 @@ except ImportError:
 
 
 class PipInstaller(BaseInstaller):
-    def __init__(self, env, io, pool):  # type: (Env, IO, Pool) -> None
+    def __init__(self, env, io, pool, env_vars):  # type: (Env, IO, Pool, Dict[str, str]) -> None
         self._env = env
         self._io = io
         self._pool = pool
+        self._env_vars = env_vars
 
     def install(self, package, update=False):
         if package.source_type == "directory":
@@ -208,8 +210,8 @@ class PipInstaller(BaseInstaller):
             # build-system for editable packages
             # We also need it for non-PEP-517 packages
             builder = SdistBuilder(
-                Factory(env_vars=os.environ, cwd=pyproject.parent).create_poetry(),
-                SystemEnv(Path(sys.executable), env_vars=os.environ),
+                Factory(env_vars=self._env_vars, cwd=pyproject.parent).create_poetry(),
+                SystemEnv(Path(sys.executable), env_vars=self._env_vars),
                 NullIO(),
             )
 
