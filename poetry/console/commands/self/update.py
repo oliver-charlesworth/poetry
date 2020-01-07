@@ -222,12 +222,3 @@ class SelfUpdateCommand(Command):
                     f.extractall(str(self.lib))
             finally:
                 gz.close()
-
-    def process(self, *args):
-        return subprocess.check_output(list(args), stderr=subprocess.STDOUT)
-
-    def _bin_path(self, base_path, bin):
-        if sys.platform == "win32":
-            return (base_path / "Scripts" / bin).with_suffix(".exe")
-
-        return base_path / "bin" / bin

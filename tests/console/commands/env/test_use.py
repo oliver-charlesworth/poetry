@@ -14,7 +14,7 @@ from tests.mock_envs import MockEnv
 
 
 def build_venv(path, executable=None):
-    os.mkdir(path)
+    os.makedirs(path)
 
 
 def check_output_wrapper(version=Version.parse("3.7.1")):
@@ -30,11 +30,9 @@ def check_output_wrapper(version=Version.parse("3.7.1")):
 
 
 def test_activate_activates_non_existing_virtualenv_no_envs_file(
-    app_factory, tmp_path, mocker
+    app_factory, mocker, cache_dir
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env=None))
-
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -54,11 +52,12 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
         "simple-project", str(app.poetry.root)
     )
 
-    m.assert_called_with(
-        os.path.join(tmp_path, "{}-py3.7".format(venv_name)), executable="python3.7"
-    )
+    expected_venvs_path = cache_dir / "virtualenvs"
+    expected_venv_path = expected_venvs_path / "{}-py3.7".format(venv_name)
 
-    envs_file = TomlFile(tmp_path / "envs.toml")
+    m.assert_called_with(str(expected_venv_path), executable="python3.7")
+
+    envs_file = TomlFile(expected_venvs_path / "envs.toml")
     assert envs_file.exists()
     envs = envs_file.read()
     assert envs[venv_name]["minor"] == "3.7"
@@ -69,17 +68,18 @@ Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
         "{}-py3.7".format(venv_name),
-        tmp_path,
-        os.path.join(tmp_path, "{}-py3.7".format(venv_name)),
+        expected_venvs_path,
+        expected_venv_path,
     )
 
     assert expected == tester.io.fetch_output()
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
-    app_factory, tmp_path, mocker
+    app_factory, mocker, cache_dir
 ):
-    app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
+    # TODO - this test passes without VIRTUAL_ENV set
+    app = app_factory(env_vars=minimal_env_vars())  # virtual_env="/environment/prefix"))
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
@@ -87,11 +87,12 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
     python_patch = ".".join(str(v) for v in current_python)
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path = venvs_path / "{}-py{}".format(venv_name, python_minor)
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
-    (tmp_path / "{}-py{}".format(venv_name, python_minor)).mkdir()
+    os.makedirs(venv_path)  # Ensure it exists
 
-    envs_file = TomlFile(tmp_path / "envs.toml")
+    envs_file = TomlFile(venvs_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {"minor": python_minor, "patch": python_patch}
     envs_file.write(doc)
@@ -111,15 +112,13 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
 
     expected = """\
 Using virtualenv: {}
-""".format(
-        os.path.join(tmp_path, "{}-py{}".format(venv_name, python_minor))
-    )
+""".format(venv_path)
 
     assert expected == tester.io.fetch_output()
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
-    app_factory, tmp_path, mocker
+    app_factory, mocker, cache_dir
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
 
@@ -128,8 +127,6 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     )
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
-
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     mocker.patch(
         "poetry.utils.env.EnvManager._env",
@@ -156,13 +153,17 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     tester = CommandTester(command)
     tester.execute(python_minor)
 
+    expected_venv_name = "{}-py{}".format(venv_name, python_minor)
+    expected_venvs_path = cache_dir / "virtualenvs"
+    expected_venv_path = expected_venvs_path / expected_venv_name
+
     expected = """\
 Creating virtualenv {} in {}
 Using virtualenv: {}
 """.format(
-        "{}-py{}".format(venv_name, python_minor),
-        tmp_path,
-        os.path.join(tmp_path, "{}-py{}".format(venv_name, python_minor)),
+        expected_venv_name,
+        expected_venvs_path,
+        expected_venv_path,
     )
 
     assert expected == tester.io.fetch_output()

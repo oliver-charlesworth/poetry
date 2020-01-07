@@ -27,7 +27,7 @@ class RunCommand(EnvCommand):
         if scripts and script in scripts:
             return self.run_script(scripts[script], args)
 
-        return self.env.execute(*args)
+        return self.env.execute(cmd=args, cwd=self.cwd)
 
     def run_script(self, script, args):
         if isinstance(script, dict):
@@ -46,7 +46,7 @@ class RunCommand(EnvCommand):
             "import_module('{}').{}()".format(args, src_in_sys_path, module, callable_)
         ]
 
-        return self.env.execute(*cmd)
+        return self.env.execute(cmd, cwd=self.cwd)
 
     @property
     def _module(self):

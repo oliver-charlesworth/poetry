@@ -56,7 +56,7 @@ def copy_or_symlink(source, dest):
         os.symlink(str(source), str(dest))
 
 
-def mock_clone(_, source, dest):
+def mock_clone(self, source):
     # Checking source to determine which folder we need to copy
     parsed = ParsedUrl.parse(source)
 
@@ -68,7 +68,7 @@ def mock_clone(_, source, dest):
         / parsed.pathname.lstrip("/").rstrip(".git")
     )
 
-    copy_or_symlink(folder, dest)
+    copy_or_symlink(folder, self._work_dir)
 
 
 def mock_download(self, url, dest):

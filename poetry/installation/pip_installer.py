@@ -89,7 +89,7 @@ class PipInstaller(BaseInstaller):
             args += ["-r", req]
 
             try:
-                self.run(*args)
+                self._run(*args)
             finally:
                 os.unlink(req)
         else:
@@ -99,7 +99,7 @@ class PipInstaller(BaseInstaller):
             else:
                 args += req
 
-            self.run(*args)
+            self._run(*args)
 
     def update(self, _, target):
         self.install(target, update=True)
@@ -112,15 +112,15 @@ class PipInstaller(BaseInstaller):
                 safe_rmtree(str(src_dir))
 
         try:
-            self.run("uninstall", package.name, "-y")
+            self._run("uninstall", package.name, "-y")
         except CalledProcessError as e:
             if "not installed" in str(e):
                 return
 
             raise
 
-    def run(self, *args, **kwargs):  # type: (...) -> str
-        return self._env.run_pip(*args, **kwargs)
+    def _run(self, *args):  # type: (...) -> str
+        return self._env.run_pip(*args, cwd=self._env.path)
 
     def requirement(self, package, formatted=False):
         if formatted and not package.source_type:
@@ -239,9 +239,9 @@ class PipInstaller(BaseInstaller):
 
         src_dir.parent.mkdir(exist_ok=True)
 
-        git = Git()
-        git.clone(package.source_url, src_dir)
-        git.checkout(package.source_reference, src_dir)
+        git = Git(work_dir=src_dir)
+        git.clone(package.source_url)
+        git.checkout(package.source_reference)
 
         # Now we just need to install from the source directory
         pkg = Package(package.name, package.version)

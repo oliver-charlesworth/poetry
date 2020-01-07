@@ -1,6 +1,8 @@
 import os
 import signal
 import sys
+from pathlib import Path
+from typing import Dict
 
 import pexpect
 
@@ -48,22 +50,24 @@ class Shell:
 
         return cls._shell
 
-    def activate(self, env):  # type: (VirtualEnv) -> None
+    def activate(self, env, env_vars, cwd):  # type: (VirtualEnv, Dict[str, str], Path) -> None
         if WINDOWS:
-            return env.execute(self.path)
+            return env.execute([self.path], cwd=cwd)
 
         terminal = Terminal()
-        with env.temp_environ():
-            c = pexpect.spawn(
-                self._path, ["-i"], dimensions=(terminal.height, terminal.width)
-            )
+        # TODO - temp_environ stuff
+        c = pexpect.spawn(
+            self.path, ["-i"],
+            env=env_vars,
+            cwd=cwd,
+            dimensions=(terminal.height, terminal.width)
+        )
 
         if self._name == "zsh":
             c.setecho(False)
 
         activate_script = self._get_activate_script()
-        bin_dir = "Scripts" if WINDOWS else "bin"
-        activate_path = env.path / bin_dir / activate_script
+        activate_path = env.path / "bin" / activate_script
         c.sendline("{} {}".format(self._get_source_command(), activate_path))
 
         def resize(sig, data):

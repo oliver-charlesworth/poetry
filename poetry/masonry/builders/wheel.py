@@ -92,16 +92,9 @@ class WheelBuilder(Builder):
         if self._package.build:
             setup = self._path / "setup.py"
 
-            # We need to place ourselves in the temporary
-            # directory in order to build the package
-            current_path = os.getcwd()
-            try:
-                os.chdir(str(self._path))
-                self._env.run(
-                    "python", str(setup), "build", "-b", str(self._path / "build")
-                )
-            finally:
-                os.chdir(current_path)
+            self._env.run(
+                "python", str(setup), "build", "-b", str(self._path / "build"), cwd=self._path
+            )
 
             build_dir = self._path / "build"
             lib = list(build_dir.glob("lib.*"))

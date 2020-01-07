@@ -46,7 +46,7 @@ class NewCommand(Command):
 
         readme_format = "rst"
 
-        config = GitConfig()
+        config = GitConfig(self.cwd)
         author = None
         if config.get("user.name"):
             author = config["user.name"]

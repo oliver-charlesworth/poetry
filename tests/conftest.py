@@ -15,6 +15,7 @@ from poetry.config.dict_config_source import DictConfigSource
 from poetry.factory import Factory
 from poetry.poetry import Poetry
 from poetry.utils._compat import Path
+from poetry.vcs import Git
 from tests.helpers import mock_clone
 from tests.helpers import mock_download
 
@@ -44,9 +45,14 @@ class Config(BaseConfig):
 
 
 @pytest.fixture
-def config_source():
+def cache_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp("cache_dir", numbered=True)
+
+
+@pytest.fixture
+def config_source(cache_dir):
     source = DictConfigSource()
-    source.add_property("cache-dir", "/foo")
+    source.add_property("cache-dir", str(cache_dir))
 
     return source
 

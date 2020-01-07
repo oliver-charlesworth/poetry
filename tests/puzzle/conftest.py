@@ -11,7 +11,7 @@ except ImportError:
     import urlparse
 
 
-def mock_clone(self, source, dest):
+def mock_clone(self, source):
     # Checking source to determine which folder we need to copy
     parts = urlparse.urlparse(source)
 
@@ -23,8 +23,8 @@ def mock_clone(self, source, dest):
         / parts.path.lstrip("/").rstrip(".git")
     )
 
-    shutil.rmtree(str(dest))
-    shutil.copytree(str(folder), str(dest))
+    shutil.rmtree(str(self._work_dir))
+    shutil.copytree(str(folder), str(self._work_dir))
 
 
 @pytest.fixture(autouse=True)

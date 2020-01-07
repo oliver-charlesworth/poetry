@@ -69,7 +69,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
             self.line("<error>A pyproject.toml file already exists.</error>")
             return 1
 
-        vcs_config = GitConfig()
+        vcs_config = GitConfig(self.cwd)
 
         self.line("")
         self.line(

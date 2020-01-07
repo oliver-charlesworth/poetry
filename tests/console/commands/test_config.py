@@ -6,25 +6,27 @@ from cleo.testers import CommandTester
 from poetry.config.config_source import ConfigSource
 
 
-def test_list_displays_default_value_if_not_set(app_factory, config):
+def test_list_displays_default_value_if_not_set(app_factory, config, cache_dir):
     app = app_factory()
 
     command = app.find("config")
     tester = CommandTester(command)
     tester.execute("--list")
 
-    expected = """cache-dir = "/foo"
+    expected = """cache-dir = "{cache_dir}"
 virtualenvs.create = true
 virtualenvs.in-project = false
-virtualenvs.path = {path}  # /foo{sep}virtualenvs
+virtualenvs.path = {path}  # {expanded_path}
 """.format(
-        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")), sep=os.path.sep
+        cache_dir=str(cache_dir),
+        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")),
+        expanded_path=str(cache_dir / "virtualenvs")
     )
 
     assert expected == tester.io.fetch_output()
 
 
-def test_list_displays_set_get_setting(app_factory, config):
+def test_list_displays_set_get_setting(app_factory, config, cache_dir):
     app = app_factory()
 
     command = app.find("config")
@@ -34,12 +36,14 @@ def test_list_displays_set_get_setting(app_factory, config):
 
     tester.execute("--list")
 
-    expected = """cache-dir = "/foo"
+    expected = """cache-dir = "{cache_dir}"
 virtualenvs.create = false
 virtualenvs.in-project = false
-virtualenvs.path = {path}  # /foo{sep}virtualenvs
+virtualenvs.path = {path}  # {expanded_path}
 """.format(
-        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")), sep=os.path.sep
+        cache_dir=str(cache_dir),
+        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")),
+        expanded_path=str(cache_dir / "virtualenvs")
     )
 
     assert 0 == config.set_config_source.call_count
@@ -74,7 +78,7 @@ def test_display_single_local_setting(app_factory, config):
     assert expected == tester.io.fetch_output()
 
 
-def test_list_displays_set_get_local_setting(app_factory, config):
+def test_list_displays_set_get_local_setting(app_factory, config, cache_dir):
     app = app_factory()
 
     command = app.find("config")
@@ -84,12 +88,14 @@ def test_list_displays_set_get_local_setting(app_factory, config):
 
     tester.execute("--list")
 
-    expected = """cache-dir = "/foo"
+    expected = """cache-dir = "{cache_dir}"
 virtualenvs.create = false
 virtualenvs.in-project = false
-virtualenvs.path = {path}  # /foo{sep}virtualenvs
+virtualenvs.path = {path}  # {expanded_path}
 """.format(
-        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")), sep=os.path.sep
+        cache_dir=str(cache_dir),
+        path=json.dumps(os.path.join("{cache-dir}", "virtualenvs")),
+        expanded_path=str(cache_dir / "virtualenvs")
     )
 
     assert 1 == config.set_config_source.call_count

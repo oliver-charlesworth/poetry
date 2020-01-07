@@ -193,14 +193,14 @@ class Provider:
         )
 
         try:
-            git = Git()
-            git.clone(url, tmp_dir)
+            git = Git(work_dir=tmp_dir)
+            git.clone(url)
             if reference is not None:
-                git.checkout(reference, tmp_dir)
+                git.checkout(reference)
             else:
                 reference = "HEAD"
 
-            revision = git.rev_parse(reference, tmp_dir).strip()
+            revision = git.rev_parse(reference)
 
             package = cls.get_package_from_directory(tmp_dir, env_vars=env_vars, name=name)
 
@@ -323,16 +323,13 @@ class Provider:
             package.python_versions = pkg.python_versions
         else:
             # Execute egg_info
-            current_dir = os.getcwd()
-            os.chdir(str(directory))
-
             try:
                 with temporary_directory() as tmp_dir:
                     EnvManager.build_venv(tmp_dir)
                     venv = VirtualEnv(
                         Path(tmp_dir), base=Path(tmp_dir), env_vars=env_vars
                     )
-                    venv.run("python", "setup.py", "egg_info")
+                    venv.run("python", "setup.py", "egg_info", cwd=directory)
             except EnvCommandError:
                 result = SetupReader.read_from_directory(directory)
                 if not result["name"]:
@@ -374,7 +371,6 @@ class Provider:
 
                 reqs = parse_requires(requires)
             else:
-                os.chdir(current_dir)
                 # Sometimes pathlib will fail on recursive
                 # symbolic links, so we need to workaround it
                 # and use the glob module instead.
@@ -405,8 +401,6 @@ class Provider:
                     if requires.exists():
                         with requires.open(encoding="utf-8") as f:
                             reqs = parse_requires(f.read())
-            finally:
-                os.chdir(current_dir)
 
             package = Package(package_name, package_version)
             package.description = package_summary

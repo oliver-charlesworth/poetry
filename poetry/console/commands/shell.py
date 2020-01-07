@@ -1,7 +1,7 @@
+import os
 import sys
 
 from distutils.util import strtobool
-from os import environ
 
 from .env_command import EnvCommand
 
@@ -20,7 +20,7 @@ If one doesn't exist yet, it will be created.
         from poetry.utils.shell import Shell
 
         # Check if it's already activated or doesn't exist and won't be created
-        venv_activated = strtobool(environ.get("POETRY_ACTIVE", "0")) or getattr(
+        venv_activated = strtobool(self.env_vars.get("POETRY_ACTIVE", "0")) or getattr(
             sys, "real_prefix", sys.prefix
         ) == str(self.env.path)
         if venv_activated:
@@ -34,7 +34,7 @@ If one doesn't exist yet, it will be created.
         self.line("Spawning shell within <info>{}</>".format(self.env.path))
 
         # Setting this to avoid spawning unnecessary nested shells
-        environ["POETRY_ACTIVE"] = "1"
+        os.environ["POETRY_ACTIVE"] = "1"
         shell = Shell.get()
-        shell.activate(self.env)
-        environ.pop("POETRY_ACTIVE")
+        shell.activate(self.env, env_vars=self.env_vars, cwd=self.cwd)
+        os.environ.pop("POETRY_ACTIVE")

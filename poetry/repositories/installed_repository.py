@@ -45,9 +45,9 @@ class InstalledRepository(Repository):
 
                 from poetry.vcs.git import Git
 
-                git = Git()
-                revision = git.rev_parse("HEAD", src_path / package.name).strip()
-                url = git.remote_url(src_path / package.name)
+                git = Git(src_path / package.name)
+                revision = git.rev_parse("HEAD")
+                url = git.remote_url()
 
                 package.source_type = "git"
                 package.source_url = url

@@ -199,6 +199,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    cwd=self._poetry.root,
                 )
             )
         except CalledProcessError as e:
@@ -379,7 +380,7 @@ class EnvManager(object):
             for p in sorted(venv_path.glob("{}-py*".format(venv_name)))
         ]
 
-    def remove(self, python):  # type: (str) -> Env
+    def remove(self, python):  # type: (str) -> Path
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
             venv_path = Path(CACHE_DIR) / "virtualenvs"
@@ -400,7 +401,7 @@ class EnvManager(object):
                     if not envs_file.exists():
                         self.remove_venv(str(venv.path))
 
-                        return venv
+                        return venv.path
 
                     venv_minor = ".".join(str(v) for v in venv.version_info[:2])
                     base_env_name = self.generate_env_name(
@@ -412,7 +413,7 @@ class EnvManager(object):
                     if not current_env:
                         self.remove_venv(str(venv.path))
 
-                        return venv
+                        return venv.path
 
                     if current_env["minor"] == venv_minor:
                         del envs[base_env_name]
@@ -420,7 +421,7 @@ class EnvManager(object):
 
                     self.remove_venv(str(venv.path))
 
-                    return venv
+                    return venv.path
 
             raise ValueError(
                 '<warning>Environment "{}" does not exist.</warning>'.format(python)
@@ -446,6 +447,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    cwd=self._poetry.root,
                 )
             )
         except CalledProcessError as e:
@@ -474,7 +476,7 @@ class EnvManager(object):
 
         self.remove_venv(str(venv))
 
-        return VirtualEnv(venv, env_vars=self._env_vars)
+        return venv
 
     def create_venv(
         self, io, name=None, executable=None, force=False
@@ -515,6 +517,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    cwd=self._poetry.root,
                 ).strip()
             )
             python_minor = ".".join(python_patch.split(".")[:2])
@@ -573,6 +576,7 @@ class EnvManager(object):
                             ),
                             stderr=subprocess.STDOUT,
                             shell=True,
+                            cwd=self._poetry.root,
                         ).strip()
                     )
                 except CalledProcessError:
@@ -656,6 +660,7 @@ class EnvManager(object):
                     list_to_shell_command([executable, "-"]),
                     stdin=subprocess.PIPE,
                     shell=True,
+                    cwd=path,  # TODO - cwd
                 )
                 p.communicate(encode(CREATE_VENV_COMMAND.format(path)))
             except CalledProcessError as e:
@@ -833,17 +838,17 @@ class Env(object):
         """
         return True
 
-    def run(self, bin, *args, input=None):
+    def run(self, bin, *args, input=None, cwd):
         bin = self._bin(bin)
         cmd = [bin] + list(args)
-        return self._run(cmd=cmd, input=input)
+        return self._run(cmd=cmd, input=input, cwd=cwd)
 
-    def run_pip(self, *args):
+    def run_pip(self, *args, cwd):
         pip = self.get_pip_command()
         cmd = pip + list(args)
-        return self._run(cmd, input=None)
+        return self._run(cmd=cmd, input=None, cwd=cwd)
 
-    def _run(self, cmd, input):
+    def _run(self, cmd, input, cwd):
         """
         Run a command inside the Python environment.
         """
@@ -856,21 +861,23 @@ class Env(object):
                     input=encode(input) if input else None,
                     check=True,
                     shell=True,
-                    env=self._env_vars(),
+                    env=self._env_vars(),  # TODO - is this right?  We want the caller to specify env
+                    cwd=cwd,
                 ).stdout
             )
         except CalledProcessError as e:
             raise EnvCommandError(e)
 
-    def execute(self, bin, *args):
-        bin = self._bin(bin)
-        args = [bin] + list(args)
-        env_vars = self._env_vars()
+    def execute(self, cmd, cwd):
+        bin = self._bin(cmd[0])
+        args = [bin] + list(cmd[1:])
+        env_vars = self._env_vars()  # TODO - is this right?  We want the caller to specify env
 
         if not self._is_windows:
-            return os.execvpe(bin, args, env_vars)
+            os.chdir(cwd)
+            os.execvpe(bin, args, env_vars)  # Doesn't return
         else:
-            exe = subprocess.Popen(args=args, env=env_vars)
+            exe = subprocess.Popen(args=args, env=env_vars, cwd=cwd)
             exe.communicate()
             return exe.returncode
 
@@ -1001,16 +1008,21 @@ class VirtualEnv(Env):
         # In this case we need to get sys.base_prefix
         # from inside the virtualenv.
         if base is None:
-            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX).strip())
+            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX, cwd=self._arbitrary_cwd).strip())
+
+    @property
+    def _arbitrary_cwd(self):
+        """For commands that don't care about the cwd, arbitrarily use the venv path"""
+        return self._path
 
     @property
     def sys_path(self):  # type: () -> List[str]
-        output = self.run("python", "-", input=GET_SYS_PATH)
+        output = self.run("python", "-", input=GET_SYS_PATH, cwd=self._arbitrary_cwd)
 
         return json.loads(output)
 
     def get_version_info(self):  # type: () -> Tuple[int]
-        output = self.run("python", "-", input=GET_PYTHON_VERSION)
+        output = self.run("python", "-", input=GET_PYTHON_VERSION, cwd=self._arbitrary_cwd)
 
         return tuple([int(s) for s in output.strip().split(".")])
 
@@ -1023,14 +1035,14 @@ class VirtualEnv(Env):
         return [self._bin("pip")]
 
     def get_marker_env(self):  # type: () -> Dict[str, Any]
-        output = self.run("python", "-", input=GET_ENVIRONMENT_INFO)
+        output = self.run("python", "-", input=GET_ENVIRONMENT_INFO, cwd=self._arbitrary_cwd)
 
         return json.loads(output)
 
     def config_var(self, var):  # type: (str) -> Any
         try:
             value = self.run(
-                "python", "-", input=GET_CONFIG_VAR.format(config_var=var)
+                "python", "-", input=GET_CONFIG_VAR.format(config_var=var), cwd=self._arbitrary_cwd
             ).strip()
         except EnvCommandError as e:
             warnings.warn("{0}".format(e), RuntimeWarning)
@@ -1046,7 +1058,7 @@ class VirtualEnv(Env):
         return value
 
     def get_pip_version(self):  # type: () -> Version
-        output = self.run_pip("--version").strip()
+        output = self.run_pip("--version", cwd=self._arbitrary_cwd).strip()
         m = re.match("pip (.+?)(?: from .+)?$", output)
         if not m:
             return Version.parse("0.0")

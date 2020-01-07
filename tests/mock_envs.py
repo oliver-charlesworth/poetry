@@ -19,17 +19,17 @@ class NullEnv(SystemEnv):
         self._execute = execute
         self.executed = []
 
-    def _run(self, cmd, input):
+    def _run(self, cmd, input, cwd):
         self.executed.append(cmd)
 
         if self._execute:
-            return super(NullEnv, self)._run(cmd, input)
+            return super(NullEnv, self)._run(cmd, input, cwd)
 
-    def execute(self, bin, *args):
-        self.executed.append([bin] + list(args))
+    def execute(self, cmd, cwd):
+        self.executed.append(cmd)
 
         if self._execute:
-            return super(NullEnv, self).execute(bin, *args)
+            return super(NullEnv, self).execute(cmd=cmd, cwd=cwd)
 
     def _bin(self, bin):
         return bin

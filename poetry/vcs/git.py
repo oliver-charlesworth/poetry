@@ -100,13 +100,13 @@ GitUrl = namedtuple("GitUrl", ["url", "revision"])
 
 
 class GitConfig:
-    def __init__(self, requires_git_presence=False):
+    def __init__(self, work_dir, requires_git_presence=False):
         self._config = {}
 
         try:
             config_list = decode(
                 subprocess.check_output(
-                    ["git", "config", "-l"], stderr=subprocess.STDOUT
+                    ["git", "config", "-l"], stderr=subprocess.STDOUT, cwd=work_dir
                 )
             )
 
@@ -126,8 +126,8 @@ class GitConfig:
 
 
 class Git:
-    def __init__(self, work_dir=None):
-        self._config = GitConfig(requires_git_presence=True)
+    def __init__(self, work_dir):
+        self._config = GitConfig(work_dir=work_dir, requires_git_presence=True)
         self._work_dir = work_dir
 
     @classmethod
@@ -158,65 +158,22 @@ class Git:
     def config(self):  # type: () -> GitConfig
         return self._config
 
-    def clone(self, repository, dest):  # type: (...) -> str
-        return self.run("clone", repository, str(dest))
+    def clone(self, repository):  # type: (...) -> str
+        return self._run("clone", repository, self._work_dir)
 
-    def checkout(self, rev, folder=None):  # type: (...) -> str
-        args = []
-        if folder is None and self._work_dir:
-            folder = self._work_dir
+    def checkout(self, rev):  # type: (...) -> str
+        return self._run("checkout", rev)
 
-        if folder:
-            args += [
-                "--git-dir",
-                (folder / ".git").as_posix(),
-                "--work-tree",
-                folder.as_posix(),
-            ]
+    def rev_parse(self, rev):  # type: (...) -> str
+        return self._run("rev-parse", rev)
 
-        args += ["checkout", rev]
+    def get_ignored_files(self):  # type: (...) -> list
+        output = self._run("ls-files", "--others", "-i", "--exclude-standard")
 
-        return self.run(*args)
+        return output.split("\n")
 
-    def rev_parse(self, rev, folder=None):  # type: (...) -> str
-        args = []
-        if folder is None and self._work_dir:
-            folder = self._work_dir
-
-        if folder:
-            args += [
-                "--git-dir",
-                (folder / ".git").as_posix(),
-                "--work-tree",
-                folder.as_posix(),
-            ]
-
-        args += ["rev-parse", rev]
-
-        return self.run(*args)
-
-    def get_ignored_files(self, folder=None):  # type: (...) -> list
-        args = []
-        if folder is None and self._work_dir:
-            folder = self._work_dir
-
-        if folder:
-            args += [
-                "--git-dir",
-                (folder / ".git").as_posix(),
-                "--work-tree",
-                folder.as_posix(),
-            ]
-
-        args += ["ls-files", "--others", "-i", "--exclude-standard"]
-        output = self.run(*args)
-
-        return output.strip().split("\n")
-
-    def remote_urls(self, folder=None):  # type: (...) -> dict
-        output = self.run(
-            "config", "--get-regexp", r"remote\..*\.url", folder=folder
-        ).strip()
+    def _remote_urls(self):  # type: (...) -> dict
+        output = self._run("config", "--get-regexp", r"remote\..*\.url")
 
         urls = {}
         for url in output.splitlines():
@@ -225,21 +182,12 @@ class Git:
 
         return urls
 
-    def remote_url(self, folder=None):  # type: (...) -> str
-        urls = self.remote_urls(folder=folder)
+    def remote_url(self):  # type: (...) -> str
+        urls = self._remote_urls()
 
         return urls.get("remote.origin.url", urls[list(urls.keys())[0]])
 
-    def run(self, *args, **kwargs):  # type: (...) -> str
-        folder = kwargs.pop("folder", None)
-        if folder:
-            args = (
-                "--git-dir",
-                (folder / ".git").as_posix(),
-                "--work-tree",
-                folder.as_posix(),
-            ) + args
-
+    def _run(self, *args):  # type: (...) -> str
         return decode(
-            subprocess.check_output(["git"] + list(args), stderr=subprocess.STDOUT)
+            subprocess.check_output(["git"] + list(args), stderr=subprocess.STDOUT, cwd=self._work_dir)
         ).strip()

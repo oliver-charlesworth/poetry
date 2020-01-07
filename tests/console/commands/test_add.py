@@ -33,7 +33,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -67,7 +67,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.1.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -96,7 +96,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -132,7 +132,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing cachy (0.1.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -167,7 +167,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -197,7 +197,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 9cf87a2)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -233,7 +233,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 9cf87a2)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -266,7 +266,7 @@ Package operations: 4 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 9cf87a2)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 4
 
@@ -304,7 +304,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 9cf87a2)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -342,7 +342,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 ../git/github.com/demo/demo)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -376,7 +376,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.2 ../git/github.com/demo/pyproject-demo)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -405,7 +405,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.0 ../distributions/demo-0.1.0-py2.py3-none-any.whl)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -441,7 +441,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.0 ../distributions/demo-0.1.0.tar.gz)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -484,7 +484,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -523,7 +523,7 @@ Package operations: 2 installs, 0 updates, 0 removals
   - Installing demo (0.1.0 https://python-poetry.org/distributions/demo-0.1.0-py2.py3-none-any.whl)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 2
 
@@ -565,7 +565,7 @@ Package operations: 4 installs, 0 updates, 0 removals
   - Installing demo (0.1.0 https://python-poetry.org/distributions/demo-0.1.0-py2.py3-none-any.whl)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 4
 
@@ -604,7 +604,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -641,7 +641,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -679,7 +679,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing cachy (0.2.0)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
@@ -714,7 +714,7 @@ Package operations: 1 install, 0 updates, 0 removals
   - Installing pyyaml (3.13)
 """
 
-    assert expected == tester.io.fetch_output()
+    assert expected in tester.io.fetch_output()
 
     assert len(installer.installs) == 1
 
