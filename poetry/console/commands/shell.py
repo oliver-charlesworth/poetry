@@ -33,8 +33,7 @@ If one doesn't exist yet, it will be created.
 
         self.line("Spawning shell within <info>{}</>".format(self.env.path))
 
-        # Setting this to avoid spawning unnecessary nested shells
-        os.environ["POETRY_ACTIVE"] = "1"
+        env_vars = dict(self.env_vars)
+        env_vars["POETRY_ACTIVE"] = "1"  # Setting this to avoid spawning unnecessary nested shells
         shell = Shell.get()
-        shell.activate(self.env, env_vars=self.env_vars, cwd=self.cwd)
-        os.environ.pop("POETRY_ACTIVE")
+        shell.activate(self.env, env_vars=env_vars, cwd=self.cwd)
