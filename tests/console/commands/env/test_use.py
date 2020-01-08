@@ -76,10 +76,9 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
-    app_factory, mocker, cache_dir
+    app_factory, cache_dir, tmp_path
 ):
-    # TODO - this test passes without VIRTUAL_ENV set
-    app = app_factory(env_vars=minimal_env_vars())  # virtual_env="/environment/prefix"))
+    app = app_factory(env_vars=minimal_env_vars(virtual_env=tmp_path))  # Explicitly set env var
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
@@ -97,15 +96,6 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     doc[venv_name] = {"minor": python_minor, "patch": python_patch}
     envs_file.write(doc)
 
-    mocker.patch(
-        "poetry.utils._compat.subprocess.check_output",
-        side_effect=check_output_wrapper(Version(*current_python)),
-    )
-    mocker.patch(
-        "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
-    )
-
     command = app.find("env use")
     tester = CommandTester(command)
     tester.execute(python_minor)
@@ -118,9 +108,9 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
-    app_factory, mocker, cache_dir
+    app_factory, mocker, cache_dir, tmp_path
 ):
-    app = app_factory(env_vars=minimal_env_vars(virtual_env="/environment/prefix"))
+    app = app_factory(env_vars=minimal_env_vars(virtual_env=tmp_path))  # Explicitly set env var
 
     venv_name = EnvManager.generate_env_name(
         "simple-project", str(app.poetry.root)
@@ -128,25 +118,6 @@ def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
 
-    mocker.patch(
-        "poetry.utils.env.EnvManager._env",
-        new_callable=mocker.PropertyMock,
-        return_value=MockEnv(
-            path=Path("/environment/prefix"),
-            base=Path("/base/prefix"),
-            version_info=current_python,
-            is_venv=True,
-        ),
-    )
-
-    mocker.patch(
-        "poetry.utils._compat.subprocess.check_output",
-        side_effect=check_output_wrapper(Version(*current_python)),
-    )
-    mocker.patch(
-        "poetry.utils._compat.subprocess.Popen.communicate",
-        side_effect=[("/prefix", None), ("/prefix", None), ("/prefix", None)],
-    )
     mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 
     command = app.find("env use")
