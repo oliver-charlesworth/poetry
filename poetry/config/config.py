@@ -3,13 +3,12 @@ from __future__ import absolute_import
 import os
 import re
 
-from copy import deepcopy
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Optional
 
-from poetry.locations import CACHE_DIR
+from poetry.locations import Locations
 from poetry.utils._compat import Path
 from poetry.utils._compat import basestring
 
@@ -30,23 +29,25 @@ def boolean_normalizer(val):
 
 class Config(object):
 
-    default_config = {
-        "cache-dir": str(CACHE_DIR),
-        "virtualenvs": {
-            "create": True,
-            "in-project": False,
-            "path": os.path.join("{cache-dir}", "virtualenvs"),
-        },
-    }
-
     def __init__(
         self, env_vars, base_dir=None
     ):  # type: (Dict[str, str], Optional[Path]) -> None
-        self._config = deepcopy(self.default_config)
+        self._config = Config._default_config(env_vars)
         self._env_vars = env_vars
         self._base_dir = base_dir
         self._config_source = DictConfigSource()
         self._auth_config_source = DictConfigSource()
+
+    @staticmethod
+    def _default_config(env_vars):
+        return {
+            "cache-dir": str(Locations(env_vars).cache_dir),
+            "virtualenvs": {
+                "create": True,
+                "in-project": False,
+                "path": os.path.join("{cache-dir}", "virtualenvs"),
+            },
+        }
 
     @property
     def name(self):

@@ -3,6 +3,7 @@ import os
 from cleo import argument
 from cleo import option
 
+from poetry.locations import Locations
 from ..command import Command
 
 
@@ -16,15 +17,13 @@ class CacheClearCommand(Command):
 
     def handle(self):
         from cachy import CacheManager
-        from poetry.locations import CACHE_DIR
-        from poetry.utils._compat import Path
 
         cache = self.argument("cache")
 
         parts = cache.split(":")
         root = parts[0]
 
-        base_cache = Path(CACHE_DIR) / "cache" / "repositories"
+        base_cache = Locations(self.env_vars).cache_dir / "cache" / "repositories"
         cache_dir = base_cache / root
 
         try:

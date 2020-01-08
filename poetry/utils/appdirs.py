@@ -21,7 +21,7 @@ def expanduser(path):
     return expanded
 
 
-def user_cache_dir(appname):
+def user_cache_dir(appname, env_vars):
     r"""
     Return full path to the user-specific cache dir for this application.
 
@@ -56,7 +56,7 @@ def user_cache_dir(appname):
         path = os.path.join(path, appname)
     else:
         # Get the base path
-        path = os.getenv("XDG_CACHE_HOME", expanduser("~/.cache"))
+        path = env_vars.get("XDG_CACHE_HOME", expanduser("~/.cache"))
 
         # Add our app name to it
         path = os.path.join(path, appname)
@@ -64,7 +64,7 @@ def user_cache_dir(appname):
     return path
 
 
-def user_data_dir(appname, roaming=False):
+def user_data_dir(appname, env_vars, roaming=False):
     r"""
     Return full path to the user-specific data dir for this application.
 
@@ -98,13 +98,13 @@ def user_data_dir(appname, roaming=False):
         path = os.path.join(expanduser("~/Library/Application Support/"), appname)
     else:
         path = os.path.join(
-            os.getenv("XDG_DATA_HOME", expanduser("~/.local/share")), appname
+            env_vars.get("XDG_DATA_HOME", expanduser("~/.local/share")), appname
         )
 
     return path
 
 
-def user_config_dir(appname, roaming=True):
+def user_config_dir(appname, env_vars, roaming=True):
     """Return full path to the user-specific config dir for this application.
 
         "appname" is the name of application.
@@ -125,11 +125,11 @@ def user_config_dir(appname, roaming=True):
     That means, by default "~/.config/<AppName>".
     """
     if WINDOWS:
-        path = user_data_dir(appname, roaming=roaming)
+        path = user_data_dir(appname, env_vars, roaming=roaming)
     elif sys.platform == "darwin":
-        path = user_data_dir(appname)
+        path = user_data_dir(appname, env_vars)
     else:
-        path = os.getenv("XDG_CONFIG_HOME", expanduser("~/.config"))
+        path = env_vars.get("XDG_CONFIG_HOME", expanduser("~/.config"))
         path = os.path.join(path, appname)
 
     return path
@@ -160,7 +160,7 @@ def site_config_dirs(appname):
         pathlist = [os.path.join("/Library/Application Support", appname)]
     else:
         # try looking in $XDG_CONFIG_DIRS
-        xdg_config_dirs = os.getenv("XDG_CONFIG_DIRS", "/etc/xdg")
+        xdg_config_dirs = env_vars.get("XDG_CONFIG_DIRS", "/etc/xdg")
         if xdg_config_dirs:
             pathlist = [
                 os.path.join(expanduser(x), appname)

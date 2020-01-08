@@ -41,21 +41,23 @@ To remove a repository (repo is a short alias for repositories):
     def unique_config_values(self):
         from poetry.config.config import boolean_normalizer
         from poetry.config.config import boolean_validator
-        from poetry.locations import CACHE_DIR
+        from poetry.locations import Locations
         from poetry.utils._compat import Path
+
+        venvs_path = Locations(self.env_vars).cache_dir / "virtualenvs"
 
         unique_config_values = {
             "cache-dir": (
                 str,
                 lambda val: str(Path(val)),
-                str(Path(CACHE_DIR) / "virtualenvs"),
+                str(venvs_path),
             ),
             "virtualenvs.create": (boolean_validator, boolean_normalizer, True),
             "virtualenvs.in-project": (boolean_validator, boolean_normalizer, False),
             "virtualenvs.path": (
                 str,
                 lambda val: str(Path(val)),
-                str(Path(CACHE_DIR) / "virtualenvs"),
+                str(venvs_path),
             ),
         }
 
@@ -63,13 +65,12 @@ To remove a repository (repo is a short alias for repositories):
 
     def handle(self):
         from poetry.config.file_config_source import FileConfigSource
-        from poetry.locations import CONFIG_DIR
-        from poetry.utils._compat import Path
+        from poetry.locations import Locations
         from poetry.utils._compat import basestring
         from poetry.utils.toml_file import TomlFile
 
         config = Factory.create_config(self.env_vars, self.io)
-        config_file = TomlFile(Path(CONFIG_DIR) / "config.toml")
+        config_file = TomlFile(Locations(self.env_vars).config_dir / "config.toml")
 
         try:
             local_config_file = TomlFile(self.poetry.root / "poetry.toml")

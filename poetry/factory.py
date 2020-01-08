@@ -13,7 +13,7 @@ from .config.config import Config
 from .config.file_config_source import FileConfigSource
 from .io.null_io import NullIO
 from .json import validate_object
-from .locations import CONFIG_DIR
+from .locations import Locations
 from .packages.dependency import Dependency
 from .packages.locker import Locker
 from .packages.project_package import ProjectPackage
@@ -206,9 +206,11 @@ class Factory:
         if io is None:
             io = NullIO()
 
+        config_dir = Locations(env_vars).config_dir
+
         config = Config(env_vars)
         # Load global config
-        config_file = TomlFile(Path(CONFIG_DIR) / "config.toml")
+        config_file = TomlFile(config_dir / "config.toml")
         if config_file.exists():
             if io.is_debug():
                 io.write_line(
@@ -222,7 +224,7 @@ class Factory:
         config.set_config_source(FileConfigSource(config_file))
 
         # Load global auth config
-        auth_config_file = TomlFile(Path(CONFIG_DIR) / "auth.toml")
+        auth_config_file = TomlFile(config_dir / "auth.toml")
         if auth_config_file.exists():
             if io.is_debug():
                 io.write_line(

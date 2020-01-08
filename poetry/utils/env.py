@@ -19,7 +19,7 @@ import tomlkit
 
 from clikit.api.io import IO
 
-from poetry.locations import CACHE_DIR
+from poetry.locations import Locations
 from poetry.poetry import Poetry
 from poetry.semver import parse_constraint
 from poetry.semver.version import Version
@@ -171,7 +171,7 @@ class EnvManager(object):
     def activate(self, python, io):  # type: (str, IO) -> Env
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -271,7 +271,7 @@ class EnvManager(object):
     def deactivate(self, io):  # type: (IO) -> None
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -300,7 +300,7 @@ class EnvManager(object):
 
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -341,7 +341,7 @@ class EnvManager(object):
 
             venv_path = self._poetry.config.get("virtualenvs.path")
             if venv_path is None:
-                venv_path = Path(CACHE_DIR) / "virtualenvs"
+                venv_path = self._venvs_path
             else:
                 venv_path = Path(venv_path)
 
@@ -371,7 +371,7 @@ class EnvManager(object):
 
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -383,7 +383,7 @@ class EnvManager(object):
     def remove(self, python):  # type: (str) -> Path
         venv_path = self._poetry.config.get("virtualenvs.path")
         if venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -497,7 +497,7 @@ class EnvManager(object):
         if root_venv:
             venv_path = project_root / ".venv"
         elif venv_path is None:
-            venv_path = Path(CACHE_DIR) / "virtualenvs"
+            venv_path = self._venvs_path
         else:
             venv_path = Path(venv_path)
 
@@ -707,6 +707,10 @@ class EnvManager(object):
         h = base64.urlsafe_b64encode(h).decode()[:8]
 
         return "{}-{}".format(sanitized_name, h)
+
+    @property
+    def _venvs_path(self):  # type: () -> Path
+        return Locations(self._env_vars).cache_dir / "virtualenvs"
 
 
 class Env(object):

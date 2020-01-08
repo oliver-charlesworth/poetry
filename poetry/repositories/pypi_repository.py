@@ -15,7 +15,7 @@ from requests import get
 from requests import session
 from requests.exceptions import TooManyRedirects
 
-from poetry.locations import CACHE_DIR
+from poetry.locations import Locations
 from poetry.packages import Package
 from poetry.packages import dependency_from_pep_508
 from poetry.packages.utils.link import Link
@@ -55,7 +55,7 @@ class PyPiRepository(Repository):
         self._disable_cache = disable_cache
         self._fallback = fallback
 
-        release_cache_dir = Path(CACHE_DIR) / "cache" / "repositories" / "pypi"
+        release_cache_dir = Locations(env_vars).cache_dir / "cache" / "repositories" / "pypi"
         self._cache = CacheManager(
             {
                 "default": "releases",
