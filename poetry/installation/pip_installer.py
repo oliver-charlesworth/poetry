@@ -120,7 +120,7 @@ class PipInstaller(BaseInstaller):
             raise
 
     def _run(self, *args):  # type: (...) -> str
-        return self._env.run_pip(*args, cwd=self._env.path)
+        return self._env.run_pip(*args, env_vars=XXX, cwd=self._env.path)
 
     def requirement(self, package, formatted=False):
         if formatted and not package.source_type:
@@ -211,7 +211,7 @@ class PipInstaller(BaseInstaller):
             # We also need it for non-PEP-517 packages
             builder = SdistBuilder(
                 Factory(env_vars=self._env_vars, cwd=pyproject.parent).create_poetry(),
-                SystemEnv(Path(sys.executable), env_vars=self._env_vars),
+                SystemEnv(Path(sys.executable)),
                 NullIO(),
             )
 

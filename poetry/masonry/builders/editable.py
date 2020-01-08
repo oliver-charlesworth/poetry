@@ -31,14 +31,14 @@ class EditableBuilder(Builder):
 
         try:
             if self._env.pip_version < Version(19, 0):
-                self._env.run_pip("install", "-e", str(self._path), cwd=self._poetry.root)
+                self._env.run_pip("install", "-e", str(self._path), env_vars=XXX, cwd=self._poetry.root)
             else:
                 # Temporarily rename pyproject.toml
                 shutil.move(
                     str(self._poetry.file), str(self._poetry.file.with_suffix(".tmp"))
                 )
                 try:
-                    self._env.run_pip("install", "-e", str(self._path), cwd=self._poetry.root)
+                    self._env.run_pip("install", "-e", str(self._path), env_vars=XXX, cwd=self._poetry.root)
                 finally:
                     shutil.move(
                         str(self._poetry.file.with_suffix(".tmp")),

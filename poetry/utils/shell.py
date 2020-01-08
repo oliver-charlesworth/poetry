@@ -52,7 +52,7 @@ class Shell:
 
     def activate(self, env, env_vars, cwd):  # type: (VirtualEnv, Dict[str, str], Path) -> None
         if WINDOWS:
-            return env.execute([self.path], cwd=cwd)
+            return env.execute([self.path], env_vars=env_vars, cwd=cwd)
 
         terminal = Terminal()
         # TODO - temp_environ stuff

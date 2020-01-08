@@ -37,13 +37,10 @@ print("nullpackage loaded"),
 """
 
 
-MINIMAL_ENV_VARS = minimal_env_vars(virtual_env=None)
-
-
 @pytest.fixture()
 def poetry(poetry_factory, config):
     poetry = poetry_factory(
-        "simple_project", relative_to_root="", env_vars=MINIMAL_ENV_VARS
+        "simple_project", relative_to_root="", env_vars=minimal_env_vars(virtual_env=None)
     )
     poetry.set_config(config)
 
@@ -61,7 +58,7 @@ def tmp_venv(tmp_path, manager):
 
     manager.build_venv(str(venv_path))
 
-    return VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
+    return VirtualEnv(venv_path)
 
 
 def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_path, manager):
@@ -69,13 +66,13 @@ def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_path, manage
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
+    venv = VirtualEnv(venv_path)
 
-    assert venv.run("python", "-V", cwd=tmp_path).startswith("Python")
+    assert venv.run("python", "-V", env_vars={}, cwd=tmp_path).startswith("Python")
 
 
 def test_env_get_in_project_venv(manager, poetry):
-    (poetry.root / ".venv").mkdir()
+    manager.build_venv(str(poetry.root / ".venv"))
 
     venv = manager.get()
 
@@ -340,16 +337,12 @@ def test_activate_does_not_recreate_when_switching_minor(
 
 
 def test_deactivate_non_activated_but_existing(
-    tmp_path, manager, poetry, config, mocker
+    cache_dir, manager, poetry, mocker
 ):
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
+    venv_path = cache_dir / "virtualenvs" / "{}-py3.7".format(venv_name)
 
-    (
-        tmp_path
-        / "{}-py{}".format(venv_name, ".".join(str(c) for c in sys.version_info[:2]))
-    ).mkdir()
-
-    config.merge({"virtualenvs": {"path": str(tmp_path)}})
+    manager.build_venv(venv_path)
 
     mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -359,14 +352,15 @@ def test_deactivate_non_activated_but_existing(
     manager.deactivate(NullIO())
     env = manager.get()
 
-    assert env.path == tmp_path / "{}-py{}".format(
-        venv_name, ".".join(str(c) for c in sys.version_info[:2])
-    )
-    assert Path("/prefix")
+    assert env.path == venv_path
+    assert Path("/prefix")  # TODO - wtf?
 
 
-def test_deactivate_activated(tmp_path, manager, poetry, config, mocker):
+def test_deactivate_activated(cache_dir, manager, poetry, mocker):
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path = venvs_path / "{}-py3.7".format(venv_name)
+
     version = Version.parse(".".join(str(c) for c in sys.version_info[:3]))
     other_version = Version.parse("3.4") if version.major == 2 else version.next_minor
     (
@@ -377,15 +371,13 @@ def test_deactivate_activated(tmp_path, manager, poetry, config, mocker):
         / "{}-py{}.{}".format(venv_name, other_version.major, other_version.minor)
     ).mkdir()
 
-    envs_file = TomlFile(tmp_path / "envs.toml")
+    envs_file = TomlFile(venvs_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {
         "minor": "{}.{}".format(other_version.major, other_version.minor),
         "patch": other_version.text,
     }
     envs_file.write(doc)
-
-    config.merge({"virtualenvs": {"path": str(tmp_path)}})
 
     mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -395,10 +387,7 @@ def test_deactivate_activated(tmp_path, manager, poetry, config, mocker):
     manager.deactivate(NullIO())
     env = manager.get()
 
-    assert env.path == tmp_path / "{}-py{}.{}".format(
-        venv_name, version.major, version.minor
-    )
-    assert Path("/prefix")
+    assert env.path == venv_path
 
     envs = envs_file.read()
     assert len(envs) == 0
@@ -531,13 +520,13 @@ def test_env_has_symlinks_on_nix(tmp_venv):
 
 
 def test_run_with_cwd(tmp_path, tmp_venv):
-    result = tmp_venv.run("python", "-", input=CWD_CONSUMING_SCRIPT, cwd=tmp_path)
+    result = tmp_venv.run("python", "-", env_vars={}, cwd=tmp_path, input=CWD_CONSUMING_SCRIPT)
 
     assert result == str(tmp_path) + os.linesep
 
 
 def test_run_with_input(tmp_path, tmp_venv):
-    result = tmp_venv.run("python", "-", input=MINIMAL_SCRIPT, cwd=tmp_path)
+    result = tmp_venv.run("python", "-", env_vars={}, cwd=tmp_path, input=MINIMAL_SCRIPT)
 
     assert result == "Minimal Output" + os.linesep
 
@@ -545,7 +534,7 @@ def test_run_with_input(tmp_path, tmp_venv):
 def test_run_with_input_non_zero_return(tmp_path, tmp_venv):
     with pytest.raises(EnvCommandError) as processError:
         # Test command that will return non-zero returncode.
-        tmp_venv.run("python", "-", input=ERRORING_SCRIPT, cwd=tmp_path)
+        tmp_venv.run("python", "-", env_vars={}, cwd=tmp_path, input=ERRORING_SCRIPT)
 
     assert processError.value.e.returncode == 1
 
@@ -729,19 +718,14 @@ def test_activate_with_in_project_setting_does_not_fail_if_no_venvs_dir(
     assert not envs_file.exists()
 
 
-def test_env_site_packages_should_find_the_site_packages_directory_if_standard(tmp_path):
+def test_env_site_packages_should_find_the_site_packages_directory_if_standard(tmp_venv):
     if WINDOWS:
-        site_packages = tmp_path.joinpath("Lib/site-packages")
+        site_packages = tmp_venv.path / "Lib" / "site-packages"
     else:
-        site_packages = tmp_path.joinpath(
-            "lib/python{}/site-packages".format(
-                ".".join(str(v) for v in sys.version_info[:2])
-            )
-        )
+        version = ".".join(str(v) for v in sys.version_info[:2])
+        site_packages = tmp_venv.path / "lib" / "python{}".format(version) / "site-packages"
 
-    site_packages.mkdir(parents=True)
-
-    env = VirtualEnv(tmp_path, base=tmp_path, env_vars=MINIMAL_ENV_VARS)
+    env = VirtualEnv(tmp_venv.path, base=tmp_venv.path)
 
     assert site_packages == env.site_packages
 
@@ -750,6 +734,6 @@ def test_env_site_packages_should_find_the_site_packages_directory_if_root(tmp_p
     site_packages = tmp_path.joinpath("site-packages")
     site_packages.mkdir(parents=True)
 
-    env = VirtualEnv(tmp_path, base=tmp_path, env_vars=MINIMAL_ENV_VARS)
+    env = VirtualEnv(tmp_path, base=tmp_path)
 
     assert site_packages == env.site_packages

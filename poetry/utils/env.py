@@ -218,7 +218,7 @@ class EnvManager(object):
             venv = self._poetry.root / ".venv"
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv, env_vars=self._env_vars)
+                _venv = VirtualEnv(venv)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -254,7 +254,7 @@ class EnvManager(object):
 
             if venv.exists():
                 # We need to check if the patch version is correct
-                _venv = VirtualEnv(venv, env_vars=self._env_vars)
+                _venv = VirtualEnv(venv)
                 current_patch = ".".join(str(v) for v in _venv.version_info[:3])
 
                 if patch != current_patch:
@@ -332,12 +332,12 @@ class EnvManager(object):
             if (project_root / ".venv").exists() and (project_root / ".venv").is_dir():
                 venv = project_root / ".venv"
 
-                return VirtualEnv(venv, env_vars=self._env_vars)
+                return VirtualEnv(venv)
 
             create_venv = self._poetry.config.get("virtualenvs.create", True)
 
             if not create_venv:
-                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
+                return SystemEnv(Path(sys.prefix))
 
             venv_path = self._poetry.config.get("virtualenvs.path")
             if venv_path is None:
@@ -350,9 +350,9 @@ class EnvManager(object):
             venv = venv_path / name
 
             if not venv.exists():
-                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
+                return SystemEnv(Path(sys.prefix))
 
-            return VirtualEnv(venv, env_vars=self._env_vars)
+            return VirtualEnv(venv)
 
         if env_prefix is not None:
             prefix = Path(env_prefix)
@@ -361,7 +361,7 @@ class EnvManager(object):
             prefix = Path(sys.prefix)
             base_prefix = self.get_base_prefix()
 
-        return VirtualEnv(prefix, base=base_prefix, env_vars=self._env_vars)
+        return VirtualEnv(prefix, base=base_prefix)
 
     def list(self, name=None):  # type: (Optional[str]) -> List[VirtualEnv]
         if name is None:
@@ -376,7 +376,7 @@ class EnvManager(object):
             venv_path = Path(venv_path)
 
         return [
-            VirtualEnv(Path(p), env_vars=self._env_vars)
+            VirtualEnv(Path(p))
             for p in sorted(venv_path.glob("{}-py*".format(venv_name)))
         ]
 
@@ -614,7 +614,7 @@ class EnvManager(object):
                     "</>"
                 )
 
-                return SystemEnv(Path(sys.prefix), env_vars=self._env_vars)
+                return SystemEnv(Path(sys.prefix))
 
             io.write_line(
                 "Creating virtualenv <c1>{}</> in {}".format(name, str(venv_path))
@@ -645,11 +645,9 @@ class EnvManager(object):
         p_venv = os.path.normcase(str(venv))
         if any(p.startswith(p_venv) for p in paths):
             # Running properly in the virtualenv, don't need to do anything
-            return SystemEnv(
-                Path(sys.prefix), base=self.get_base_prefix(), env_vars=self._env_vars
-            )
+            return SystemEnv(Path(sys.prefix), base=self.get_base_prefix())
 
-        return VirtualEnv(venv, env_vars=self._env_vars)
+        return VirtualEnv(venv)
 
     @classmethod
     def build_venv(cls, path, executable=None):
@@ -842,17 +840,17 @@ class Env(object):
         """
         return True
 
-    def run(self, bin, *args, input=None, cwd):
+    def run(self, bin, *args, env_vars, cwd, input=None):
         bin = self._bin(bin)
         cmd = [bin] + list(args)
-        return self._run(cmd=cmd, input=input, cwd=cwd)
+        return self._run(cmd=cmd, env_vars=env_vars, cwd=cwd, input=input)
 
-    def run_pip(self, *args, cwd):
+    def run_pip(self, *args, env_vars, cwd):
         pip = self.get_pip_command()
         cmd = pip + list(args)
-        return self._run(cmd=cmd, input=None, cwd=cwd)
+        return self._run(cmd=cmd, env_vars=env_vars, cwd=cwd, input=None)
 
-    def _run(self, cmd, input, cwd):
+    def _run(self, cmd, env_vars, cwd, input):
         """
         Run a command inside the Python environment.
         """
@@ -865,17 +863,17 @@ class Env(object):
                     input=encode(input) if input else None,
                     check=True,
                     shell=True,
-                    env=self._env_vars(),  # TODO - is this right?  We want the caller to specify env
+                    env=self._transform_env_vars(env_vars),
                     cwd=cwd,
                 ).stdout
             )
         except CalledProcessError as e:
             raise EnvCommandError(e)
 
-    def execute(self, cmd, cwd):
+    def execute(self, cmd, env_vars, cwd):
         bin = self._bin(cmd[0])
         args = [bin] + list(cmd[1:])
-        env_vars = self._env_vars()  # TODO - is this right?  We want the caller to specify env
+        env_vars = self._transform_env_vars(env_vars)
 
         if not self._is_windows:
             os.chdir(cwd)
@@ -886,9 +884,6 @@ class Env(object):
             return exe.returncode
 
     def is_venv(self):  # type: () -> bool
-        raise NotImplementedError()
-
-    def _env_vars(self):  # type () -> Dict[str, str]
         raise NotImplementedError()
 
     def _bin(self, bin):  # type: (str) -> str
@@ -914,6 +909,9 @@ class Env(object):
 
         return str(bin_path)
 
+    def _transform_env_vars(self, env_vars):  # type: (Dict[str, str]) -> Dict[str, str]
+        return env_vars
+
     def __eq__(self, other):  # type: (Env) -> bool
         return other.__class__ == self.__class__ and other.path == self.path
 
@@ -925,12 +923,6 @@ class SystemEnv(Env):
     """
     A system (i.e. not a virtualenv) Python environment.
     """
-
-    def __init__(
-        self, path, env_vars, base=None
-    ):  # type: (Path, Dict[str, str], Optional[Path]) -> None
-        super(SystemEnv, self).__init__(path, base)
-        self._original_env_vars = env_vars
 
     @property
     def sys_path(self):  # type: () -> List[str]
@@ -960,7 +952,6 @@ class SystemEnv(Env):
             iver = "0"
             implementation_name = ""
 
-        # TODO - this retrieves info from Poetry's Python, not necessarily the system Python
         return {
             "implementation_name": implementation_name,
             "implementation_version": iver,
@@ -992,27 +983,21 @@ class SystemEnv(Env):
     def is_venv(self):  # type: () -> bool
         return self._path != self._base
 
-    def _env_vars(self):  # type: () -> Dict[str, str]
-        return self._original_env_vars
-
 
 class VirtualEnv(Env):
     """
     A virtual Python environment.
     """
 
-    def __init__(
-        self, path, env_vars, base=None
-    ):  # type: (Path, Dict[str, str], Optional[Path]) -> None
+    def __init__(self, path, base=None):  # type: (Path, Optional[Path]) -> None
         super(VirtualEnv, self).__init__(path, base)
-        self._original_env_vars = env_vars
 
         # If base is None, it probably means this is
         # a virtualenv created from VIRTUAL_ENV.
         # In this case we need to get sys.base_prefix
         # from inside the virtualenv.
         if base is None:
-            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX, cwd=self._arbitrary_cwd).strip())
+            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX, env_vars={}, cwd=self._arbitrary_cwd).strip())  # TODO - eliminate os.environ
 
     @property
     def _arbitrary_cwd(self):
@@ -1021,12 +1006,12 @@ class VirtualEnv(Env):
 
     @property
     def sys_path(self):  # type: () -> List[str]
-        output = self.run("python", "-", input=GET_SYS_PATH, cwd=self._arbitrary_cwd)
+        output = self.run("python", "-", input=GET_SYS_PATH, env_vars={}, cwd=self._arbitrary_cwd)
 
         return json.loads(output)
 
     def get_version_info(self):  # type: () -> Tuple[int]
-        output = self.run("python", "-", input=GET_PYTHON_VERSION, cwd=self._arbitrary_cwd)
+        output = self.run("python", "-", input=GET_PYTHON_VERSION, env_vars={}, cwd=self._arbitrary_cwd)
 
         return tuple([int(s) for s in output.strip().split(".")])
 
@@ -1039,14 +1024,14 @@ class VirtualEnv(Env):
         return [self._bin("pip")]
 
     def get_marker_env(self):  # type: () -> Dict[str, Any]
-        output = self.run("python", "-", input=GET_ENVIRONMENT_INFO, cwd=self._arbitrary_cwd)
+        output = self.run("python", "-", input=GET_ENVIRONMENT_INFO, env_vars={}, cwd=self._arbitrary_cwd)
 
         return json.loads(output)
 
     def config_var(self, var):  # type: (str) -> Any
         try:
             value = self.run(
-                "python", "-", input=GET_CONFIG_VAR.format(config_var=var), cwd=self._arbitrary_cwd
+                "python", "-", input=GET_CONFIG_VAR.format(config_var=var), env_vars={}, cwd=self._arbitrary_cwd
             ).strip()
         except EnvCommandError as e:
             warnings.warn("{0}".format(e), RuntimeWarning)
@@ -1062,7 +1047,7 @@ class VirtualEnv(Env):
         return value
 
     def get_pip_version(self):  # type: () -> Version
-        output = self.run_pip("--version", cwd=self._arbitrary_cwd).strip()
+        output = self.run_pip("--version", env_vars={}, cwd=self._arbitrary_cwd).strip()
         m = re.match("pip (.+?)(?: from .+)?$", output)
         if not m:
             return Version.parse("0.0")
@@ -1076,9 +1061,9 @@ class VirtualEnv(Env):
         # A virtualenv is considered sane if both "python" and "pip" exist.
         return os.path.exists(self._bin("python")) and os.path.exists(self._bin("pip"))
 
-    def _env_vars(self):  # type: () -> Dict[str, str]
-        e = dict(self._original_env_vars)
-        e["PATH"] = os.pathsep.join([str(self._bin_dir), e["PATH"]])
+    def _transform_env_vars(self, env_vars):  # type: (Dict[str, str]) -> Dict[str, str]
+        e = dict(env_vars)
+        e["PATH"] = os.pathsep.join([str(self._bin_dir), e.get("PATH", "")])
         e["VIRTUAL_ENV"] = str(self._path)
         e.pop("PYTHONHOME", None)
         e.pop("__PYVENV_LAUNCHER__", None)

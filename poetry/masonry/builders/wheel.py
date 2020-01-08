@@ -93,7 +93,7 @@ class WheelBuilder(Builder):
             setup = self._path / "setup.py"
 
             self._env.run(
-                "python", str(setup), "build", "-b", str(self._path / "build"), cwd=self._path
+                "python", str(setup), "build", "-b", str(self._path / "build"), env_vars=XXX, cwd=self._path
             )
 
             build_dir = self._path / "build"

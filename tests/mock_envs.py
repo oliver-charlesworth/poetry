@@ -14,22 +14,22 @@ class NullEnv(SystemEnv):
         if path is None:
             path = Path(sys.prefix)
 
-        super(NullEnv, self).__init__(path, base=base, env_vars=minimal_env_vars())
+        super(NullEnv, self).__init__(path, base=base)
 
         self._execute = execute
         self.executed = []
 
-    def _run(self, cmd, input, cwd):
+    def _run(self, cmd, env_vars, cwd, input):
         self.executed.append(cmd)
 
         if self._execute:
-            return super(NullEnv, self)._run(cmd, input, cwd)
+            return super(NullEnv, self)._run(cmd, env_vars, cwd, input)
 
-    def execute(self, cmd, cwd):
+    def execute(self, cmd, env_vars, cwd):
         self.executed.append(cmd)
 
         if self._execute:
-            return super(NullEnv, self).execute(cmd=cmd, cwd=cwd)
+            return super(NullEnv, self).execute(cmd=cmd, env_vars=env_vars, cwd=cwd)
 
     def _bin(self, bin):
         return bin

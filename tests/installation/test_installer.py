@@ -121,7 +121,7 @@ def locker():
 
 @pytest.fixture()
 def env():
-    return SystemEnv(path=Path(sys.prefix), env_vars={})
+    return SystemEnv(path=Path(sys.prefix))
 
 
 @pytest.fixture()

@@ -26,7 +26,7 @@ def _create_poetry():  # type: () -> Poetry
 
 
 def _create_env():  # type: () -> SystemEnv
-    return SystemEnv(Path(sys.prefix), env_vars=os.environ)
+    return SystemEnv(Path(sys.prefix))
 
 
 def get_requires_for_build_wheel(config_settings=None):
