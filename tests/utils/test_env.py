@@ -61,10 +61,7 @@ def tmp_venv(tmp_path, manager):
 
     manager.build_venv(str(venv_path))
 
-    venv = VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
-    yield venv
-
-    shutil.rmtree(str(venv.path))
+    return VirtualEnv(venv_path, env_vars=MINIMAL_ENV_VARS)
 
 
 def test_virtualenvs_with_spaces_in_their_path_work_as_expected(tmp_path, manager):
@@ -83,8 +80,6 @@ def test_env_get_in_project_venv(manager, poetry):
     venv = manager.get()
 
     assert venv.path == poetry.root / ".venv"
-
-    shutil.rmtree(str(venv.path))
 
 
 def build_venv(path, executable=None):
@@ -410,17 +405,23 @@ def test_deactivate_activated(tmp_path, manager, poetry, config, mocker):
 
 
 def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
-    tmp_path, manager, poetry, config, mocker
+    cache_dir, poetry_factory, config, mocker
 ):
-    # TODO - this test passes without VIRTUAL_ENV set
-    # os.environ["VIRTUAL_ENV"] = "/environment/prefix"
+    poetry = poetry_factory(
+        "simple_project",
+        relative_to_root="",
+        env_vars=minimal_env_vars(virtual_env="/environment/prefix")  # Explicitly set env var
+    )
+    poetry.set_config(config)
+    manager = EnvManager(poetry)
 
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path = venvs_path / "{}-py3.7".format(venv_name)
 
-    config.merge({"virtualenvs": {"path": str(tmp_path)}})
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
+    os.makedirs(venv_path)
 
-    envs_file = TomlFile(tmp_path / "envs.toml")
+    envs_file = TomlFile(venvs_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {"minor": "3.7", "patch": "3.7.0"}
     envs_file.write(doc)
@@ -436,7 +437,7 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
 
     env = manager.get()
 
-    assert env.path == tmp_path / "{}-py3.7".format(venv_name)
+    assert env.path == venv_path
     assert env.base == Path("/prefix")
 
 
