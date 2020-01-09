@@ -31,14 +31,14 @@ class EditableBuilder(Builder):
 
         try:
             if self._env.pip_version < Version(19, 0):
-                self._env.run_pip("install", "-e", str(self._path), env_vars=XXX, cwd=self._poetry.root)
+                self._pip_install()
             else:
                 # Temporarily rename pyproject.toml
                 shutil.move(
                     str(self._poetry.file), str(self._poetry.file.with_suffix(".tmp"))
                 )
                 try:
-                    self._env.run_pip("install", "-e", str(self._path), env_vars=XXX, cwd=self._poetry.root)
+                    self._pip_install()
                 finally:
                     shutil.move(
                         str(self._poetry.file.with_suffix(".tmp")),
@@ -47,6 +47,9 @@ class EditableBuilder(Builder):
         finally:
             if not has_setup:
                 os.remove(str(setup))
+
+    def _pip_install(self):
+        self._env.run_pip("install", "-e", str(self._path), env_vars={}, cwd=self._poetry.root)
 
     def _build_egg_info(self):
         egg_info = self._path / "{}.egg-info".format(

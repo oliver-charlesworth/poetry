@@ -110,7 +110,7 @@ def app_factory(fixtures_dir, pool, config):
         path = fixtures_dir(relative_to_root="") / name
 
         # Tests generally rely on fixtures looking like a Git repo
-        subprocess.check_output(["git", "init"], cwd=path.as_posix())
+        subprocess.check_output(["git", "init"], env={}, cwd=path.as_posix())
 
         def _create_poetry(env_vars, cwd):
             p = Factory(env_vars, cwd).create_poetry()

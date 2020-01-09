@@ -2,21 +2,21 @@ import tomlkit
 
 from cleo.testers import CommandTester
 
-from poetry.utils._compat import Path
 from poetry.utils.env import EnvManager
 from poetry.utils.toml_file import TomlFile
 
 
-def test_none_activated(app_factory, tmp_path):
+def test_none_activated(app_factory, cache_dir):
     app = app_factory()
+    manager = EnvManager(app.poetry)
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
+    venv_name = manager.generate_env_name("simple-project", str(app.poetry.root))
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path_37 = venvs_path / "{}-py3.7".format(venv_name)
+    venv_path_36 = venvs_path / "{}-py3.6".format(venv_name)
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.root)
-    )
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
-    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
+    manager.build_venv(venv_path_37)
+    manager.build_venv(venv_path_36)
 
     command = app.find("env list")
     tester = CommandTester(command)
@@ -32,18 +32,20 @@ def test_none_activated(app_factory, tmp_path):
     assert expected == tester.io.fetch_output()
 
 
-def test_activated(app_factory, tmp_path):
+def test_activated(app_factory, cache_dir):
     app = app_factory()
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
+    manager = EnvManager(app.poetry)
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.root)
-    )
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
-    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
+    venv_name = manager.generate_env_name("simple-project", str(app.poetry.root))
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path_37 = venvs_path / "{}-py3.7".format(venv_name)
+    venv_path_36 = venvs_path / "{}-py3.6".format(venv_name)
 
-    envs_file = TomlFile(tmp_path / "envs.toml")
+    manager.build_venv(venv_path_37)
+    manager.build_venv(venv_path_36)
+
+    envs_file = TomlFile(venvs_path / "envs.toml")
     doc = tomlkit.document()
     doc[venv_name] = {"minor": "3.7", "patch": "3.7.0"}
     envs_file.write(doc)

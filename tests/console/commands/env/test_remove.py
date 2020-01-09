@@ -37,25 +37,24 @@ def test_remove_by_python_version(app_factory, tmp_path, mocker):
     assert expected == tester.io.fetch_output()
 
 
-def test_remove_by_name(app_factory, tmp_path):
+def test_remove_by_name(app_factory, cache_dir):
     app = app_factory()
+    manager = EnvManager(app.poetry)
 
-    app.poetry.config.merge({"virtualenvs": {"path": str(tmp_path)}})
+    venv_name = manager.generate_env_name("simple-project", str(app.poetry.root))
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path_37 = venvs_path / "{}-py3.7".format(venv_name)
+    venv_path_36 = venvs_path / "{}-py3.6".format(venv_name)
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.root)
-    )
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
-    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
+    manager.build_venv(venv_path_37)
+    manager.build_venv(venv_path_36)
 
     command = app.find("env remove")
     tester = CommandTester(command)
     tester.execute("{}-py3.6".format(venv_name))
 
-    assert not (tmp_path / "{}-py3.6".format(venv_name)).exists()
+    assert not venv_path_36.exists()
 
-    expected = "Deleted virtualenv: {}\n".format(
-        (tmp_path / "{}-py3.6".format(venv_name))
-    )
+    expected = "Deleted virtualenv: {}\n".format(venv_path_36)
 
     assert expected == tester.io.fetch_output()

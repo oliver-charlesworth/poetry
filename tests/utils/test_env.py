@@ -359,17 +359,15 @@ def test_deactivate_non_activated_but_existing(
 def test_deactivate_activated(cache_dir, manager, poetry, mocker):
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
     venvs_path = cache_dir / "virtualenvs"
-    venv_path = venvs_path / "{}-py3.7".format(venv_name)
 
     version = Version.parse(".".join(str(c) for c in sys.version_info[:3]))
     other_version = Version.parse("3.4") if version.major == 2 else version.next_minor
-    (
-        tmp_path / "{}-py{}.{}".format(venv_name, version.major, version.minor)
-    ).mkdir()
-    (
-        tmp_path
-        / "{}-py{}.{}".format(venv_name, other_version.major, other_version.minor)
-    ).mkdir()
+
+    venv_path = venvs_path / "{}-py{}.{}".format(venv_name, version.major, version.minor)
+    other_venv_path = venvs_path / "{}-py{}.{}".format(venv_name, other_version.major, other_version.minor)
+
+    manager.build_venv(venv_path)
+    manager.build_venv(other_venv_path)
 
     envs_file = TomlFile(venvs_path / "envs.toml")
     doc = tomlkit.document()
@@ -430,18 +428,21 @@ def test_get_prefers_explicitly_activated_virtualenvs_over_env_var(
     assert env.base == Path("/prefix")
 
 
-def test_list(tmp_path, manager, poetry, config):
-    config.merge({"virtualenvs": {"path": str(tmp_path)}})
-
+def test_list(cache_dir, manager, poetry, config):
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
-    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path_36 = venvs_path / "{}-py3.6".format(venv_name)
+    venv_path_37 = venvs_path / "{}-py3.7".format(venv_name)
+
+    manager.build_venv(venv_path_36)
+    manager.build_venv(venv_path_37)
 
     venvs = manager.list()
 
+    # Should be in ascending lexicographical order
     assert 2 == len(venvs)
-    assert (tmp_path / "{}-py3.6".format(venv_name)) == venvs[0].path
-    assert (tmp_path / "{}-py3.7".format(venv_name)) == venvs[1].path
+    assert venv_path_36 == venvs[0].path
+    assert venv_path_37 == venvs[1].path
 
 
 def test_remove_by_python_version(tmp_path, manager, poetry, config, mocker):
@@ -462,12 +463,14 @@ def test_remove_by_python_version(tmp_path, manager, poetry, config, mocker):
     assert not (tmp_path / "{}-py3.6".format(venv_name)).exists()
 
 
-def test_remove_by_name(tmp_path, manager, poetry, config, mocker):
-    config.merge({"virtualenvs": {"path": str(tmp_path)}})
-
+def test_remove_by_name(cache_dir, manager, poetry, mocker):
     venv_name = manager.generate_env_name("simple-project", str(poetry.root))
-    (tmp_path / "{}-py3.7".format(venv_name)).mkdir()
-    (tmp_path / "{}-py3.6".format(venv_name)).mkdir()
+    venvs_path = cache_dir / "virtualenvs"
+    venv_path_36 = venvs_path / "{}-py3.6".format(venv_name)
+    venv_path_37 = venvs_path / "{}-py3.7".format(venv_name)
+
+    manager.build_venv(venv_path_36)
+    manager.build_venv(venv_path_37)
 
     mocker.patch(
         "poetry.utils._compat.subprocess.check_output",
@@ -476,8 +479,8 @@ def test_remove_by_name(tmp_path, manager, poetry, config, mocker):
 
     removed_path = manager.remove("{}-py3.6".format(venv_name))
 
-    assert (tmp_path / "{}-py3.6".format(venv_name)) == removed_path
-    assert not (tmp_path / "{}-py3.6".format(venv_name)).exists()
+    assert venv_path_36 == removed_path
+    assert not venv_path_36.exists()
 
 
 def test_remove_also_deactivates(tmp_path, manager, poetry, config, mocker):

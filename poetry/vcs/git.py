@@ -106,7 +106,7 @@ class GitConfig:
         try:
             config_list = decode(
                 subprocess.check_output(
-                    ["git", "config", "-l"], stderr=subprocess.STDOUT, cwd=work_dir
+                    ["git", "config", "-l"], stderr=subprocess.STDOUT, env=XXX, cwd=work_dir
                 )
             )
 
@@ -189,5 +189,5 @@ class Git:
 
     def _run(self, *args):  # type: (...) -> str
         return decode(
-            subprocess.check_output(["git"] + list(args), stderr=subprocess.STDOUT, cwd=self._work_dir)
+            subprocess.check_output(["git"] + list(args), stderr=subprocess.STDOUT, env=XXX, cwd=self._work_dir)
         ).strip()

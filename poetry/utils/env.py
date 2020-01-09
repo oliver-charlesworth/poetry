@@ -199,6 +199,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    env=XXX,
                     cwd=self._poetry.root,
                 )
             )
@@ -447,6 +448,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    env=XXX,
                     cwd=self._poetry.root,
                 )
             )
@@ -517,6 +519,7 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
+                    env=XXX,
                     cwd=self._poetry.root,
                 ).strip()
             )
@@ -576,6 +579,7 @@ class EnvManager(object):
                             ),
                             stderr=subprocess.STDOUT,
                             shell=True,
+                            env=XXX,
                             cwd=self._poetry.root,
                         ).strip()
                     )
@@ -658,9 +662,11 @@ class EnvManager(object):
                     list_to_shell_command([executable, "-"]),
                     stdin=subprocess.PIPE,
                     shell=True,
+                    env_vars=XXX,
                     cwd=path,  # TODO - cwd
                 )
                 p.communicate(encode(CREATE_VENV_COMMAND.format(path)))
+                # TODO - need to close p
             except CalledProcessError as e:
                 raise EnvCommandError(e)
 

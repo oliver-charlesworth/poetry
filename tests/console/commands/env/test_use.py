@@ -108,17 +108,16 @@ Using virtualenv: {}
 
 
 def test_get_prefers_explicitly_activated_non_existing_virtualenvs_over_env_var(
-    app_factory, mocker, cache_dir, tmp_path
+    app_factory, cache_dir, tmp_path
 ):
     app = app_factory(env_vars=minimal_env_vars(virtual_env=tmp_path))  # Explicitly set env var
+    manager = EnvManager(app.poetry)
 
-    venv_name = EnvManager.generate_env_name(
-        "simple-project", str(app.poetry.root)
-    )
+    manager.build_venv(tmp_path)
+
+    venv_name = manager.generate_env_name("simple-project", str(app.poetry.root))
     current_python = sys.version_info[:3]
     python_minor = ".".join(str(v) for v in current_python[:2])
-
-    mocker.patch("poetry.utils.env.EnvManager.build_venv", side_effect=build_venv)
 
     command = app.find("env use")
     tester = CommandTester(command)

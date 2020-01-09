@@ -141,7 +141,7 @@ def minimal_env_vars(
 def poetry_factory(fixtures_dir):
     # Tests generally rely on fixtures looking like a Git repo
     def _init_as_git_repo(path):  # type: (Path) -> None
-        subprocess.check_output(["git", "init"], cwd=path.as_posix())
+        subprocess.check_output(["git", "init"], env={}, cwd=path.as_posix())
 
     def _create(
         name, relative_to_root=None, env_vars=None
