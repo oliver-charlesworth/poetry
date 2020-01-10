@@ -46,7 +46,7 @@ get_requires_for_build_sdist = get_requires_for_build_wheel
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
     poetry = _create_poetry()
-    builder = WheelBuilder(poetry, _create_env(), NullIO())
+    builder = WheelBuilder(poetry, _create_env(), os.environ, NullIO())
 
     dist_info = Path(metadata_directory, builder.dist_info)
     dist_info.mkdir(parents=True, exist_ok=True)
@@ -68,16 +68,17 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """Builds a wheel, places it in wheel_directory"""
     return unicode(
         WheelBuilder.make_in(
-            _create_poetry(),
-            _create_env(),
-            NullIO(),
-            Path(wheel_directory),
+            poetry=_create_poetry(),
+            env=_create_env(),
+            env_vars=os.environ,
+            io=NullIO(),
+            directory=Path(wheel_directory),
         )
     )
 
 
 def build_sdist(sdist_directory, config_settings=None):
     """Builds an sdist, places it in sdist_directory"""
-    path = SdistBuilder(_create_poetry(), _create_env(), NullIO()).build(Path(sdist_directory))
+    path = SdistBuilder(_create_poetry(), _create_env(), os.environ, NullIO()).build(Path(sdist_directory))
 
     return unicode(path.name)

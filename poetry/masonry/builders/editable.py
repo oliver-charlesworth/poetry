@@ -17,7 +17,7 @@ class EditableBuilder(Builder):
         return self._setup_build()
 
     def _setup_build(self):
-        builder = SdistBuilder(self._poetry, self._env, self._io)
+        builder = SdistBuilder(self._poetry, self._env, self._env_vars, self._io)
         setup = self._path / "setup.py"
         has_setup = setup.exists()
 

@@ -10,7 +10,7 @@ from tests.mock_envs import NullEnv
 
 def test_wheel_module(poetry_factory):
     poetry = poetry_factory("module1")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "module1-0.1-py2.py3-none-any.whl"
 
@@ -22,7 +22,7 @@ def test_wheel_module(poetry_factory):
 
 def test_wheel_package(poetry_factory):
     poetry = poetry_factory("complete")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -34,7 +34,7 @@ def test_wheel_package(poetry_factory):
 
 def test_wheel_prerelease(poetry_factory):
     poetry = poetry_factory("prerelease")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "prerelease-0.1b1-py2.py3-none-any.whl"
 
@@ -43,7 +43,7 @@ def test_wheel_prerelease(poetry_factory):
 
 def test_wheel_excluded_data(poetry_factory):
     poetry = poetry_factory("default_with_excluded_data_toml")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -58,7 +58,7 @@ def test_wheel_excluded_data(poetry_factory):
 
 def test_wheel_excluded_nested_data(poetry_factory):
     poetry = poetry_factory("exclude_nested_data_toml")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -78,7 +78,7 @@ def test_wheel_excluded_nested_data(poetry_factory):
 
 def test_wheel_localversionlabel(poetry_factory):
     poetry = poetry_factory("localversionlabel")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
     local_version_string = "localversionlabel-0.1b1+gitbranch.buildno.1"
     whl = poetry.root / "dist" / (local_version_string + "-py2.py3-none-any.whl")
 
@@ -93,7 +93,7 @@ def test_wheel_localversionlabel(poetry_factory):
 
 def test_wheel_package_src(poetry_factory):
     poetry = poetry_factory("source_package")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "package_src-0.1-py2.py3-none-any.whl"
 
@@ -106,7 +106,7 @@ def test_wheel_package_src(poetry_factory):
 
 def test_wheel_module_src(poetry_factory):
     poetry = poetry_factory("source_file")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "module_src-0.1-py2.py3-none-any.whl"
 
@@ -118,7 +118,7 @@ def test_wheel_module_src(poetry_factory):
 
 def test_dist_info_file_permissions(poetry_factory):
     poetry = poetry_factory("complete")
-    WheelBuilder.make(poetry, NullEnv(), NullIO())
+    WheelBuilder.make(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 

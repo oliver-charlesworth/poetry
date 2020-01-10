@@ -37,10 +37,11 @@ class Builder(object):
     format = None
 
     def __init__(
-        self, poetry, env, io, ignore_packages_formats=False
-    ):  # type: ("Poetry", "Env", "IO", bool) -> None
+        self, poetry, env, env_vars, io, ignore_packages_formats=False
+    ):  # type: ("Poetry", "Env", "Dict[str, str]", "IO", bool) -> None
         self._poetry = poetry
         self._env = env
+        self._env_vars = env_vars
         self._io = io
         self._package = poetry.package
         self._path = poetry.root

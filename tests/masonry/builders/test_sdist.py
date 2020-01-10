@@ -87,7 +87,7 @@ def test_convert_dependencies():
 def test_make_setup(poetry_factory):
     poetry = poetry_factory("complete")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     setup = builder.build_setup()
     setup_ast = ast.parse(setup)
 
@@ -120,7 +120,7 @@ def test_make_pkg_info(poetry_factory, mocker):
     )
     poetry = poetry_factory("complete")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build_pkg_info()
 
     assert get_metadata_content.called
@@ -129,7 +129,7 @@ def test_make_pkg_info(poetry_factory, mocker):
 def test_make_pkg_info_any_python(poetry_factory):
     poetry = poetry_factory("module1")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     pkg_info = builder.build_pkg_info()
     p = Parser()
     parsed = p.parsestr(to_str(pkg_info))
@@ -140,7 +140,7 @@ def test_make_pkg_info_any_python(poetry_factory):
 def test_find_files_to_add(poetry_factory):
     poetry = poetry_factory("complete")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     result = builder.find_files_to_add()
 
     assert sorted(result) == sorted(
@@ -162,7 +162,7 @@ def test_make_pkg_info_multi_constraints_dependency(poetry_factory):
         "project_with_multi_constraints_dependency", relative_to_root=""
     )
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     pkg_info = builder.build_pkg_info()
     p = Parser()
     parsed = p.parsestr(to_str(pkg_info))
@@ -177,7 +177,7 @@ def test_make_pkg_info_multi_constraints_dependency(poetry_factory):
 def test_find_packages(poetry_factory):
     poetry = poetry_factory("complete")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     include = PackageInclude(poetry.root, "my_package")
 
@@ -193,7 +193,7 @@ def test_find_packages(poetry_factory):
 
     poetry = poetry_factory("source_package")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     include = PackageInclude(poetry.root, "package_src", source="src")
 
@@ -207,7 +207,7 @@ def test_find_packages(poetry_factory):
 def test_package(poetry_factory):
     poetry = poetry_factory("complete")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "my-package-1.2.3.tar.gz"
@@ -221,7 +221,7 @@ def test_package(poetry_factory):
 def test_module(poetry_factory):
     poetry = poetry_factory("module1")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "module1-0.1.tar.gz"
@@ -235,7 +235,7 @@ def test_module(poetry_factory):
 def test_prelease(poetry_factory):
     poetry = poetry_factory("prerelease")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "prerelease-0.1b1.tar.gz"
@@ -246,7 +246,7 @@ def test_prelease(poetry_factory):
 def test_with_c_extensions(poetry_factory):
     poetry = poetry_factory("extended")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
@@ -261,7 +261,7 @@ def test_with_c_extensions(poetry_factory):
 def test_with_c_extensions_src_layout(poetry_factory):
     poetry = poetry_factory("src_extended")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
@@ -276,7 +276,7 @@ def test_with_c_extensions_src_layout(poetry_factory):
 def test_with_src_module_file(poetry_factory):
     poetry = poetry_factory("source_file")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     # Check setup.py
     setup = builder.build_setup()
@@ -301,7 +301,7 @@ def test_with_src_module_file(poetry_factory):
 def test_with_src_module_dir(poetry_factory):
     poetry = poetry_factory("source_package")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     # Check setup.py
     setup = builder.build_setup()
@@ -337,7 +337,7 @@ def test_default_with_excluded_data(poetry_factory, mocker):
         )
     ]
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
 
     # Check setup.py
     setup = builder.build_setup()
@@ -377,7 +377,7 @@ def test_default_with_excluded_data(poetry_factory, mocker):
 def test_src_excluded_nested_data(poetry_factory):
     poetry = poetry_factory("exclude_nested_data_toml")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     builder.build()
 
     sdist = poetry.root / "dist" / "my-package-1.2.3.tar.gz"
@@ -411,7 +411,7 @@ def test_proper_python_requires_if_two_digits_precision_version_specified(
 ):
     poetry = poetry_factory("simple_version")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     pkg_info = builder.build_pkg_info()
     p = Parser()
     parsed = p.parsestr(to_str(pkg_info))
@@ -424,7 +424,7 @@ def test_proper_python_requires_if_three_digits_precision_version_specified(
 ):
     poetry = poetry_factory("single_python")
 
-    builder = SdistBuilder(poetry, NullEnv(), NullIO())
+    builder = SdistBuilder(poetry, NullEnv(), env_vars={}, io=NullIO())
     pkg_info = builder.build_pkg_info()
     p = Parser()
     parsed = p.parsestr(to_str(pkg_info))

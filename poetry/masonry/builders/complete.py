@@ -17,7 +17,7 @@ class CompleteBuilder(Builder):
     def build(self):
         # We start by building the tarball
         # We will use it to build the wheel
-        sdist_builder = SdistBuilder(self._poetry, self._env, self._io)
+        sdist_builder = SdistBuilder(self._poetry, self._env, self._env_vars, self._io)
         build_for_all_formats = False
         for p in self._package.packages:
             formats = p.get("format", [])
@@ -34,7 +34,7 @@ class CompleteBuilder(Builder):
 
         if build_for_all_formats:
             sdist_builder = SdistBuilder(
-                self._poetry, self._env, NullIO(), ignore_packages_formats=True
+                self._poetry, self._env, self._env_vars, NullIO(), ignore_packages_formats=True
             )
             with temporary_directory() as tmp_dir:
                 self._build_from_sdist(sdist_builder.build(Path(tmp_dir)))
@@ -44,8 +44,9 @@ class CompleteBuilder(Builder):
     def _build_from_sdist(self, sdist_file):
         with self.unpacked_tarball(sdist_file) as tmpdir:
             WheelBuilder.make_in(
-                Factory(env_vars=self._poetry.env_vars, cwd=tmpdir).create_poetry(),
+                Factory(env_vars=self._env_vars, cwd=tmpdir).create_poetry(),
                 self._env,
+                self._env_vars,
                 self._io,
                 self._path / "dist",
             )

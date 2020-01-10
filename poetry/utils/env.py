@@ -199,8 +199,8 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
-                    env=XXX,
-                    cwd=self._poetry.root,
+                    env={},
+                    cwd=self._poetry.root,  # TODO - don't care
                 )
             )
         except CalledProcessError as e:
@@ -448,8 +448,8 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
-                    env=XXX,
-                    cwd=self._poetry.root,
+                    env={},
+                    cwd=self._poetry.root,  # TODO - don't care
                 )
             )
         except CalledProcessError as e:
@@ -519,8 +519,8 @@ class EnvManager(object):
                         ]
                     ),
                     shell=True,
-                    env=XXX,
-                    cwd=self._poetry.root,
+                    env={},
+                    cwd=self._poetry.root,  # TODO - don't care
                 ).strip()
             )
             python_minor = ".".join(python_patch.split(".")[:2])
@@ -579,8 +579,8 @@ class EnvManager(object):
                             ),
                             stderr=subprocess.STDOUT,
                             shell=True,
-                            env=XXX,
-                            cwd=self._poetry.root,
+                            env={},
+                            cwd=self._poetry.root,  # TODO - don't care
                         ).strip()
                     )
                 except CalledProcessError:
@@ -662,7 +662,7 @@ class EnvManager(object):
                     list_to_shell_command([executable, "-"]),
                     stdin=subprocess.PIPE,
                     shell=True,
-                    env_vars=XXX,
+                    env={},
                     cwd=path,  # TODO - cwd
                 )
                 p.communicate(encode(CREATE_VENV_COMMAND.format(path)))
@@ -1003,7 +1003,7 @@ class VirtualEnv(Env):
         # In this case we need to get sys.base_prefix
         # from inside the virtualenv.
         if base is None:
-            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX, env_vars={}, cwd=self._arbitrary_cwd).strip())  # TODO - eliminate os.environ
+            self._base = Path(self.run("python", "-", input=GET_BASE_PREFIX, env_vars={}, cwd=self._arbitrary_cwd).strip())
 
     @property
     def _arbitrary_cwd(self):

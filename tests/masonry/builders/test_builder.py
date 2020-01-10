@@ -11,7 +11,7 @@ def test_builder_find_excluded_files(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
-    builder = Builder(poetry_factory("complete"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("complete"), NullEnv(), env_vars={}, io=NullIO())
 
     assert builder.find_excluded_files() == {"my_package/sub_pkg1/extra_file.xml"}
 
@@ -20,7 +20,7 @@ def test_builder_find_case_sensitive_excluded_files(poetry_factory, mocker):
     p = mocker.patch("poetry.vcs.git.Git.get_ignored_files")
     p.return_value = []
 
-    builder = Builder(poetry_factory("case_sensitive_exclusions"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("case_sensitive_exclusions"), NullEnv(), env_vars={}, io=NullIO())
 
     assert builder.find_excluded_files() == {
         "my_package/FooBar/Bar.py",
@@ -38,14 +38,14 @@ def test_builder_find_invalid_case_sensitive_excluded_files(poetry_factory, mock
     p.return_value = []
 
     builder = Builder(
-        poetry_factory("invalid_case_sensitive_exclusions"), NullEnv(), NullIO(),
+        poetry_factory("invalid_case_sensitive_exclusions"), NullEnv(), env_vars={}, io=NullIO(),
     )
 
     assert {"my_package/Bar/foo/bar/Foo.py"} == builder.find_excluded_files()
 
 
 def test_get_metadata_content(poetry_factory):
-    builder = Builder(poetry_factory("complete"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("complete"), NullEnv(), env_vars={}, io=NullIO(),)
 
     metadata = builder.get_metadata_content()
 
@@ -93,7 +93,7 @@ def test_get_metadata_content(poetry_factory):
 
 
 def test_metadata_homepage_default(poetry_factory):
-    builder = Builder(poetry_factory("simple_version"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("simple_version"), NullEnv(), env_vars={}, io=NullIO(),)
 
     metadata = Parser().parsestr(builder.get_metadata_content())
 
@@ -101,7 +101,7 @@ def test_metadata_homepage_default(poetry_factory):
 
 
 def test_metadata_with_vcs_dependencies(poetry_factory):
-    builder = Builder(poetry_factory("with_vcs_dependency"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("with_vcs_dependency"), NullEnv(), env_vars={}, io=NullIO(),)
 
     metadata = Parser().parsestr(builder.get_metadata_content())
 
@@ -111,7 +111,7 @@ def test_metadata_with_vcs_dependencies(poetry_factory):
 
 
 def test_metadata_with_url_dependencies(poetry_factory):
-    builder = Builder(poetry_factory("with_url_dependency"), NullEnv(), NullIO(),)
+    builder = Builder(poetry_factory("with_url_dependency"), NullEnv(), env_vars={}, io=NullIO(),)
 
     metadata = Parser().parsestr(builder.get_metadata_content())
 

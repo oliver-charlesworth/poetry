@@ -40,23 +40,23 @@ class WheelBuilder(Builder):
 
     format = "wheel"
 
-    def __init__(self, poetry, env, io, target_dir=None):
-        super(WheelBuilder, self).__init__(poetry, env, io)
+    def __init__(self, poetry, env, env_vars, io, target_dir=None):
+        super(WheelBuilder, self).__init__(poetry, env, env_vars, io)
 
         self._records = []
         self._target_dir = target_dir or (self._poetry.root / "dist")
 
     @classmethod
-    def make_in(cls, poetry, env, io, directory=None):
-        wb = WheelBuilder(poetry, env, io, target_dir=directory)
+    def make_in(cls, poetry, env, env_vars, io, directory=None):
+        wb = WheelBuilder(poetry, env, env_vars, io, target_dir=directory)
         wb.build()
 
         return wb.wheel_filename
 
     @classmethod
-    def make(cls, poetry, env, io):
+    def make(cls, poetry, env, env_vars, io):
         """Build a wheel in the dist/ directory, and optionally upload it."""
-        cls.make_in(poetry, env, io)
+        cls.make_in(poetry, env, env_vars, io)
 
     def build(self):
         self._io.write_line(" - Building <info>wheel</info>")
@@ -93,7 +93,9 @@ class WheelBuilder(Builder):
             setup = self._path / "setup.py"
 
             self._env.run(
-                "python", str(setup), "build", "-b", str(self._path / "build"), env_vars=XXX, cwd=self._path
+                "python", str(setup), "build", "-b", str(self._path / "build"),
+                env_vars=self._env_vars,
+                cwd=self._path
             )
 
             build_dir = self._path / "build"

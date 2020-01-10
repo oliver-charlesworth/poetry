@@ -18,7 +18,7 @@ def test_build_should_delegate_to_pip_for_non_pure_python_packages(
     env.site_packages.mkdir(parents=True)
     poetry = poetry_factory("extended")
 
-    builder = EditableBuilder(poetry, env, NullIO())
+    builder = EditableBuilder(poetry, env, env_vars={}, io=NullIO())
     builder.build()
 
     expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.root)]]
@@ -35,7 +35,7 @@ def test_build_should_temporarily_remove_the_pyproject_file(
     env.site_packages.mkdir(parents=True)
     poetry = poetry_factory("extended")
 
-    builder = EditableBuilder(poetry, env, NullIO())
+    builder = EditableBuilder(poetry, env, env_vars={}, io=NullIO())
     builder.build()
 
     expected = [[sys.executable, "-m", "pip", "install", "-e", str(poetry.root)]]

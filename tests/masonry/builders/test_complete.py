@@ -15,7 +15,17 @@ from clikit.io import NullIO
 from poetry import __version__
 from poetry.masonry.builders import CompleteBuilder
 from poetry.utils._compat import decode
+from tests.conftest import minimal_env_vars
 from tests.mock_envs import NullEnv
+
+
+def _build_complete(poetry, env_vars=None):
+    return CompleteBuilder(
+        poetry,
+        NullEnv(execute=True),
+        env_vars=env_vars or {},
+        io=NullIO()
+    ).build()
 
 
 @pytest.mark.skipif(
@@ -24,8 +34,7 @@ from tests.mock_envs import NullEnv
 )
 def test_wheel_c_extension(poetry_factory):
     poetry = poetry_factory("extended")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry, env_vars=minimal_env_vars(virtual_env=None))  # Requires access to PATH to discover C compiler
 
     sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
@@ -79,8 +88,7 @@ $""".format(
 )
 def test_wheel_c_extension_src_layout(poetry_factory):
     poetry = poetry_factory("src_extended")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry, env_vars=minimal_env_vars(virtual_env=None))  # Requires access to PATH to discover C compiler
 
     sdist = poetry.root / "dist" / "extended-0.1.tar.gz"
 
@@ -130,8 +138,7 @@ $""".format(
 
 def test_complete(poetry_factory):
     poetry = poetry_factory("complete")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry)
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -213,8 +220,7 @@ My Package
 
 def test_complete_no_vcs(poetry_factory):
     poetry = poetry_factory("complete")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry)
 
     whl = poetry.root / "dist" / "my_package-1.2.3-py3-none-any.whl"
 
@@ -309,8 +315,7 @@ My Package
 
 def test_module_src(poetry_factory):
     poetry = poetry_factory("source_file")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry)
 
     sdist = poetry.root / "dist" / "module-src-0.1.tar.gz"
 
@@ -333,8 +338,7 @@ def test_module_src(poetry_factory):
 
 def test_package_src(poetry_factory):
     poetry = poetry_factory("source_package")
-    builder = CompleteBuilder(poetry, NullEnv(execute=True), NullIO())
-    builder.build()
+    _build_complete(poetry)
 
     sdist = poetry.root / "dist" / "package-src-0.1.tar.gz"
 
@@ -358,9 +362,7 @@ def test_package_src(poetry_factory):
 
 def test_package_with_include(poetry_factory):
     poetry = poetry_factory("with-include")
-
-    builder = CompleteBuilder(poetry, NullEnv(), NullIO())
-    builder.build()
+    _build_complete(poetry)
 
     sdist = poetry.root / "dist" / "with-include-1.2.3.tar.gz"
 
